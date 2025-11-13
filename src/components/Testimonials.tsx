@@ -6,30 +6,35 @@ const testimonials = [
     name: "Aashik Safar",
     university: "University of Toronto",
     initials: "AS",
+    image: "", // Add image URL here (e.g., "/images/aashik.jpg")
   },
   {
     text: "The guidance I received here has paved the way to secure admission to my dream university and course.",
     name: "Lamshana",
     university: "Columbia University",
     initials: "L",
+    image: "", // Add image URL here
   },
   {
     text: "OnePercent Abroad's experts guided me at every step of my PhD application process. I would highly recommend them to any PhD aspirant.",
     name: "Archana",
     university: "University of Cambridge",
     initials: "A",
+    image: "", // Add image URL here
   },
   {
     text: "Their systematic approach and access to top-tier mentors made the entire application process manageable and successful.",
     name: "Amaresh",
     university: "ETH Zurich",
     initials: "A",
+    image: "", // Add image URL here
   },
   {
     text: "I am incredibly grateful for their support. The personalized strategy they developed for me was a game-changer.",
     name: "Sisa",
     university: "Imperial College London",
     initials: "S",
+    image: "", // Add image URL here
   },
 ];
 
@@ -84,10 +89,14 @@ const Testimonials = () => {
               }`}
             >
               <div className="flex flex-col gap-6 p-6 rounded-xl border border-white/10 bg-secondary/20 backdrop-blur-sm">
-                <p className="text-gray-200 flex-grow min-h-[120px]">{testimonial.text}</p>
+                <p className="text-gray-200 leading-relaxed">{testimonial.text}</p>
                 <div className="flex items-center gap-4 pt-4 border-t border-white/10">
-                  <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center text-accent text-xl font-bold">
-                    {testimonial.initials}
+                  <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center text-accent text-xl font-bold overflow-hidden shrink-0">
+                    {testimonial.image ? (
+                      <img src={testimonial.image} alt={testimonial.name} className="w-full h-full object-cover" />
+                    ) : (
+                      testimonial.initials
+                    )}
                   </div>
                   <div>
                     <p className="font-bold text-white">{testimonial.name}</p>
@@ -114,19 +123,23 @@ const Testimonials = () => {
 
         {/* Desktop View - Scrolling Marquee */}
         <div className="hidden md:block w-full overflow-hidden">
-          <div className="flex animate-marquee whitespace-nowrap">
+          <div className="flex animate-marquee">
             <div className="flex shrink-0 items-stretch gap-8 px-4">
               {testimonials.map((testimonial, idx) => (
                 <div
                   key={`${idx}-1`}
-                  className="flex w-[380px] flex-col gap-6 p-6 rounded-xl border border-white/10 bg-secondary/20 backdrop-blur-sm"
+                  className="flex w-[380px] flex-col gap-6 p-6 rounded-xl border border-white/10 bg-secondary/20 backdrop-blur-sm whitespace-normal"
                 >
-                  <p className="text-gray-200 flex-grow">{testimonial.text}</p>
+                  <p className="text-gray-200 leading-relaxed">{testimonial.text}</p>
                   <div className="flex items-center gap-4 pt-4 border-t border-white/10">
-                    <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center text-accent text-xl font-bold">
-                      {testimonial.initials}
+                    <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center text-accent text-xl font-bold overflow-hidden shrink-0">
+                      {testimonial.image ? (
+                        <img src={testimonial.image} alt={testimonial.name} className="w-full h-full object-cover" />
+                      ) : (
+                        testimonial.initials
+                      )}
                     </div>
-                    <div>
+                    <div className="whitespace-normal">
                       <p className="font-bold text-white">{testimonial.name}</p>
                       <p className="text-sm text-accent">{testimonial.university}</p>
                     </div>
@@ -135,19 +148,23 @@ const Testimonials = () => {
               ))}
             </div>
           </div>
-          <div className="flex animate-marquee2 whitespace-nowrap absolute top-[200px]">
+          <div className="flex animate-marquee2 absolute top-[200px]">
             <div className="flex shrink-0 items-stretch gap-8 px-4">
               {testimonials.map((testimonial, idx) => (
                 <div
                   key={`${idx}-2`}
-                  className="flex w-[380px] flex-col gap-6 p-6 rounded-xl border border-white/10 bg-secondary/20 backdrop-blur-sm"
+                  className="flex w-[380px] flex-col gap-6 p-6 rounded-xl border border-white/10 bg-secondary/20 backdrop-blur-sm whitespace-normal"
                 >
-                  <p className="text-gray-200 flex-grow">{testimonial.text}</p>
+                  <p className="text-gray-200 leading-relaxed">{testimonial.text}</p>
                   <div className="flex items-center gap-4 pt-4 border-t border-white/10">
-                    <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center text-accent text-xl font-bold">
-                      {testimonial.initials}
+                    <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center text-accent text-xl font-bold overflow-hidden shrink-0">
+                      {testimonial.image ? (
+                        <img src={testimonial.image} alt={testimonial.name} className="w-full h-full object-cover" />
+                      ) : (
+                        testimonial.initials
+                      )}
                     </div>
-                    <div>
+                    <div className="whitespace-normal">
                       <p className="font-bold text-white">{testimonial.name}</p>
                       <p className="text-sm text-accent">{testimonial.university}</p>
                     </div>
