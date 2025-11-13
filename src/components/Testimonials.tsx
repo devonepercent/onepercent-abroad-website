@@ -122,37 +122,16 @@ const Testimonials = () => {
         </div>
 
         {/* Desktop View - Scrolling Marquee */}
-        <div className="hidden md:block w-full overflow-hidden">
+        <div className="hidden md:block w-full overflow-hidden relative">
+          {/* Gradient edges */}
+          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-primary to-transparent z-10 pointer-events-none"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-primary to-transparent z-10 pointer-events-none"></div>
+          
           <div className="flex animate-marquee">
             <div className="flex shrink-0 items-stretch gap-8 px-4">
               {testimonials.map((testimonial, idx) => (
                 <div
                   key={`${idx}-1`}
-                  className="flex w-[380px] flex-col gap-6 p-6 rounded-xl border border-white/10 bg-secondary/20 backdrop-blur-sm whitespace-normal"
-                >
-                  <p className="text-gray-200 leading-relaxed">{testimonial.text}</p>
-                  <div className="flex items-center gap-4 pt-4 border-t border-white/10">
-                    <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center text-accent text-xl font-bold overflow-hidden shrink-0">
-                      {testimonial.image ? (
-                        <img src={testimonial.image} alt={testimonial.name} className="w-full h-full object-cover" />
-                      ) : (
-                        testimonial.initials
-                      )}
-                    </div>
-                    <div className="whitespace-normal">
-                      <p className="font-bold text-white">{testimonial.name}</p>
-                      <p className="text-sm text-accent">{testimonial.university}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="flex animate-marquee2 absolute top-[200px]">
-            <div className="flex shrink-0 items-stretch gap-8 px-4">
-              {testimonials.map((testimonial, idx) => (
-                <div
-                  key={`${idx}-2`}
                   className="flex w-[380px] flex-col gap-6 p-6 rounded-xl border border-white/10 bg-secondary/20 backdrop-blur-sm whitespace-normal"
                 >
                   <p className="text-gray-200 leading-relaxed">{testimonial.text}</p>
