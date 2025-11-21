@@ -56,7 +56,7 @@ const UniversityLogos = () => {
             {logos.map((logo, idx) => (
               <img
                 key={`${logo.name}-1-${idx}`}
-                className={`${logo.height} mx-12 transition-all`}
+                className={`${logo.height} mx-16 transition-all`}
                 alt={`${logo.name} Logo`}
                 src={logo.url}
               />
@@ -66,7 +66,7 @@ const UniversityLogos = () => {
             {logos.map((logo, idx) => (
               <img
                 key={`${logo.name}-2-${idx}`}
-                className={`${logo.height} mx-12 transition-all`}
+                className={`${logo.height} mx-16 transition-all`}
                 alt={`${logo.name} Logo`}
                 src={logo.url}
               />
