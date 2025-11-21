@@ -48,7 +48,11 @@ const Header = () => {
             FAQ
           </button>
         </nav>
-        <Button className="rounded-full">Book a Free Call</Button>
+        <Button className="rounded-full" asChild>
+          <a href="https://wa.me/919074100157?text=hi" target="_blank" rel="noopener noreferrer">
+            Book a Free Call
+          </a>
+        </Button>
       </div>
 
       {/* Mobile Navigation */}
@@ -84,7 +88,11 @@ const Header = () => {
             >
               FAQ
             </button>
-            <Button className="rounded-full w-full">Book a Free Call</Button>
+            <Button className="rounded-full w-full" asChild>
+              <a href="https://wa.me/919074100157?text=hi" target="_blank" rel="noopener noreferrer">
+                Book a Free Call
+              </a>
+            </Button>
           </nav>
         </SheetContent>
       </Sheet>

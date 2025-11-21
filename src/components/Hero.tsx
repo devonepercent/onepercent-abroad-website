@@ -12,8 +12,10 @@ const Hero = () => {
             Secure admission to the world's most elite universities through our proven, step-by-step mentorship system at OnePercent Abroad.
           </p>
           <div className="mt-12 flex flex-wrap items-center gap-4">
-            <Button size="lg" className="rounded-full h-12 px-8 text-base">
-              Join the 1% Mentorship
+            <Button size="lg" className="rounded-full h-12 px-8 text-base" asChild>
+              <a href="https://wa.me/919074100157?text=hi" target="_blank" rel="noopener noreferrer">
+                Join the 1% Mentorship
+              </a>
             </Button>
           </div>
         </div>
