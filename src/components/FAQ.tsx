@@ -14,7 +14,7 @@ const faqs = [
   {
     question: "Who are the mentors?",
     answer:
-      "Our mentors are graduates and current students from elite institutions like Harvard, Stanford, MIT, Oxford, Cambridge, and more. They are experts in their fields and have successfully navigated the same rigorous application processes you are facing.",
+      "Our mentors are experienced professionals who have successfully helped hundreds of students with their elite university applications. They bring deep expertise in navigating the rigorous application processes for top institutions worldwide.",
   },
   {
     question: "How does the mentorship process work?",
