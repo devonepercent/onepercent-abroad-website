@@ -11,37 +11,37 @@ const UniversityLogos = () => {
     {
       name: "Harvard University",
       url: harvardLogo,
-      height: "h-24 md:h-30",
+      height: "h-8 md:h-10",
     },
     {
       name: "Stanford University",
       url: stanfordLogo,
-      height: "h-21 md:h-27",
+      height: "h-7 md:h-9",
     },
     {
       name: "MIT",
       url: mitLogo,
-      height: "h-24 md:h-30",
+      height: "h-8 md:h-10",
     },
     {
       name: "Oxford University",
       url: oxfordLogo,
-      height: "h-24 md:h-30",
+      height: "h-8 md:h-10",
     },
     {
       name: "NUS",
       url: nusLogo,
-      height: "h-24 md:h-30",
+      height: "h-8 md:h-10",
     },
     {
       name: "Georgia Tech",
       url: georgiaTechLogo,
-      height: "h-24 md:h-30",
+      height: "h-8 md:h-10",
     },
     {
       name: "Erasmus+",
       url: erasmusLogo,
-      height: "h-18 md:h-24",
+      height: "h-6 md:h-8",
     },
   ];
 
