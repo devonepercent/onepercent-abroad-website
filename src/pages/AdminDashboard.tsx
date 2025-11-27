@@ -93,16 +93,15 @@ const AdminDashboard = () => {
       return;
     }
 
-    const headers = ["Timestamp", "Name", "Email", "Country Code", "Phone Number"];
+    const headers = ["Timestamp", "Name", "Phone Number", "Email"];
     const csvContent = [
       headers.join(","),
       ...registrations.map((reg) =>
         [
           new Date(reg.created_at).toLocaleString(),
           `"${reg.name}"`,
+          `"${reg.country_code} ${reg.phone_number}"`,
           reg.email,
-          reg.country_code,
-          reg.phone_number,
         ].join(",")
       ),
     ].join("\n");
@@ -157,15 +156,14 @@ const AdminDashboard = () => {
               <TableRow>
                 <TableHead>Timestamp</TableHead>
                 <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Country Code</TableHead>
                 <TableHead>Phone Number</TableHead>
+                <TableHead>Email</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {registrations.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                     No registrations yet
                   </TableCell>
                 </TableRow>
@@ -176,9 +174,8 @@ const AdminDashboard = () => {
                       {new Date(reg.created_at).toLocaleString()}
                     </TableCell>
                     <TableCell>{reg.name}</TableCell>
+                    <TableCell>{reg.country_code} {reg.phone_number}</TableCell>
                     <TableCell>{reg.email}</TableCell>
-                    <TableCell>{reg.country_code}</TableCell>
-                    <TableCell>{reg.phone_number}</TableCell>
                   </TableRow>
                 ))
               )}

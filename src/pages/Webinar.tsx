@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,10 +17,45 @@ import Footer from "@/components/Footer";
 const countryCodes = [
   { code: "+91", country: "India" },
   { code: "+1", country: "USA/Canada" },
+  { code: "+92", country: "Pakistan" },
   { code: "+44", country: "UK" },
-  { code: "+61", country: "Australia" },
   { code: "+971", country: "UAE" },
+  { code: "+86", country: "China" },
+  { code: "+81", country: "Japan" },
+  { code: "+82", country: "South Korea" },
   { code: "+65", country: "Singapore" },
+  { code: "+60", country: "Malaysia" },
+  { code: "+66", country: "Thailand" },
+  { code: "+61", country: "Australia" },
+  { code: "+64", country: "New Zealand" },
+  { code: "+49", country: "Germany" },
+  { code: "+33", country: "France" },
+  { code: "+39", country: "Italy" },
+  { code: "+34", country: "Spain" },
+  { code: "+31", country: "Netherlands" },
+  { code: "+32", country: "Belgium" },
+  { code: "+41", country: "Switzerland" },
+  { code: "+46", country: "Sweden" },
+  { code: "+47", country: "Norway" },
+  { code: "+45", country: "Denmark" },
+  { code: "+358", country: "Finland" },
+  { code: "+7", country: "Russia" },
+  { code: "+27", country: "South Africa" },
+  { code: "+20", country: "Egypt" },
+  { code: "+966", country: "Saudi Arabia" },
+  { code: "+974", country: "Qatar" },
+  { code: "+973", country: "Bahrain" },
+  { code: "+968", country: "Oman" },
+  { code: "+965", country: "Kuwait" },
+  { code: "+961", country: "Lebanon" },
+  { code: "+962", country: "Jordan" },
+  { code: "+90", country: "Turkey" },
+  { code: "+55", country: "Brazil" },
+  { code: "+52", country: "Mexico" },
+  { code: "+54", country: "Argentina" },
+  { code: "+57", country: "Colombia" },
+  { code: "+51", country: "Peru" },
+  { code: "+56", country: "Chile" },
 ];
 
 const Webinar = () => {
@@ -31,7 +65,6 @@ const Webinar = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,13 +114,10 @@ const Webinar = () => {
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold mb-4">
-              Erasmus Mundus Joint Masters Program
+              Erasmus Mundus Webinar
             </h1>
-            <p className="text-xl text-muted-foreground mb-2">
-              Join us this Friday at 7:30 PM
-            </p>
-            <p className="text-muted-foreground">
-              Learn about fully-funded master's programs in Europe
+            <p className="text-xl text-muted-foreground">
+              Webinar will be on erasmus mundus joint masters program, friday at 7:30 PM
             </p>
           </div>
 
@@ -153,7 +183,7 @@ const Webinar = () => {
                 size="lg"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Registering..." : "Register for Webinar"}
+                {isSubmitting ? "Joining..." : "Join the Webinar"}
               </Button>
             </form>
           </div>
