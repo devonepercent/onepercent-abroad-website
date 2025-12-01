@@ -183,7 +183,7 @@ const Webinar = () => {
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold mb-4">Onepercent scholar orientation session</h1>
-            <p className="text-xl text-muted-foreground">Get scholarship worth  Lk</p>
+            <p className="text-xl text-muted-foreground">Get scholarship worth  1 lakh</p>
           </div>
 
           <div className="bg-card p-8 rounded-lg shadow-lg border">
