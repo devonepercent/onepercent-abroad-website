@@ -153,7 +153,9 @@ const Webinar = () => {
     setIsSubmitting(true);
     try {
       // Save to database
-      const { error } = await supabase.from("webinar_registrations").insert({
+      const {
+        error
+      } = await supabase.from("webinar_registrations").insert({
         name,
         email,
         country_code: countryCode,
@@ -163,11 +165,17 @@ const Webinar = () => {
 
       // Send to LeadSquared CRM (don't block redirect on failure)
       supabase.functions.invoke('leadsquared-create-lead', {
-        body: { name, email, phoneNumber, countryCode }
-      }).then(({ error: lsError }) => {
+        body: {
+          name,
+          email,
+          phoneNumber,
+          countryCode
+        }
+      }).then(({
+        error: lsError
+      }) => {
         if (lsError) console.error('LeadSquared error:', lsError);
       });
-
       toast({
         title: "Registration Successful!",
         description: "Redirecting you to the webinar..."
@@ -189,8 +197,8 @@ const Webinar = () => {
       <main className="flex-1 container mx-auto px-4 py-12">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-4">Onepercent scholar orientation session</h1>
-            <p className="text-xl text-muted-foreground">Get scholarship worth  1 lakh</p>
+            <h1 className="text-4xl font-bold mb-4">Erasmus Mundus Webinar</h1>
+            <p className="text-xl text-muted-foreground">At Friday 7:30 PM</p>
           </div>
 
           <div className="bg-card p-8 rounded-lg shadow-lg border">
