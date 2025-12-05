@@ -152,15 +152,22 @@ const Webinar = () => {
     }
     setIsSubmitting(true);
     try {
-      const {
-        error
-      } = await supabase.from("webinar_registrations").insert({
+      // Save to database
+      const { error } = await supabase.from("webinar_registrations").insert({
         name,
         email,
         country_code: countryCode,
         phone_number: phoneNumber
       });
       if (error) throw error;
+
+      // Send to LeadSquared CRM (don't block redirect on failure)
+      supabase.functions.invoke('leadsquared-create-lead', {
+        body: { name, email, phoneNumber, countryCode }
+      }).then(({ error: lsError }) => {
+        if (lsError) console.error('LeadSquared error:', lsError);
+      });
+
       toast({
         title: "Registration Successful!",
         description: "Redirecting you to the webinar..."
