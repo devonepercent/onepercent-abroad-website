@@ -32,7 +32,7 @@ serve(async (req) => {
     ];
 
     const response = await fetch(
-      `https://api-in21.leadsquared.com/v2/LeadManagement.svc/Lead.Create?accessKey=${accessKey}&secretKey=${secretKey}`,
+      `https://app-in21.leadsquared.com/v2/LeadCapture.svc/CaptureLead?accessKey=${accessKey}&secretKey=${secretKey}`,
       {
         method: 'POST',
         headers: {
