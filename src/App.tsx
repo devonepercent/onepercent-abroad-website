@@ -9,6 +9,7 @@ import Webinar from "./pages/Webinar";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
+import HiringOverview from "./pages/HiringOverview";
 import Hiring from "./pages/Hiring";
 import HiringThankYou from "./pages/HiringThankYou";
 import { initMetaPixel, trackMetaEvent } from "./lib/metaPixel";
@@ -27,8 +28,8 @@ const AppRoutes = () => {
     trackMetaEvent("PageView");
 
     if (location.pathname === "/hiring/thank-you") {
-      // Primary conversion event for hiring applications
-      trackMetaEvent("HiringApplicationSubmitted");
+      // Primary conversion event for hiring applications (Meta standard "Lead" event)
+      trackMetaEvent("Lead");
     }
   }, [location.pathname]);
 
@@ -36,7 +37,8 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/webinar" element={<Webinar />} />
-      <Route path="/hiring" element={<Hiring />} />
+      <Route path="/hiring" element={<HiringOverview />} />
+      <Route path="/hiring/student-counsellor" element={<Hiring />} />
       <Route path="/hiring/thank-you" element={<HiringThankYou />} />
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/dashboard" element={<AdminDashboard />} />

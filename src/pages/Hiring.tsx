@@ -95,11 +95,6 @@ const Hiring = () => {
     trackMetaEvent("HiringApplyHeroClick");
   };
 
-  const handleApplyCardClick = () => {
-    handleScrollToForm();
-    trackMetaEvent("HiringApplyCardClick");
-  };
-
   const goToNextStep = async () => {
     const fields = stepFieldGroups[step];
     const valid = await form.trigger(fields as any, { shouldFocus: true });
@@ -219,7 +214,7 @@ const Hiring = () => {
 
       trackMetaEvent("HiringApplicationSubmitted");
 
-      navigate("/hiring/thank-you");
+      navigate("/hiring/thank-you?role=student-counsellor");
     } catch (error: any) {
       toast({
         title: "Submission failed",
@@ -237,47 +232,23 @@ const Hiring = () => {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1">
-        {/* Hero / Intro */}
+        {/* Role Header */}
         <section className="bg-gradient-to-b from-slate-50 to-white border-b">
           <div className="container mx-auto px-4 py-12 md:py-16 lg:py-20">
             <div className="max-w-3xl">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-                Join Our Team
+              <p className="text-sm font-medium text-primary mb-2 uppercase tracking-wide">
+                Hiring
+              </p>
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
+                Student Counsellor
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground mb-8">
-                We are looking for passionate professionals to guide students in their global education journey.
+                Role details and application form for candidates who want to guide students in their global
+                education journey.
               </p>
               <Button size="lg" className="rounded-full" onClick={handleScrollToForm}>
                 Apply Now – Student Counsellor
               </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* Open Roles */}
-        <section className="border-b bg-white">
-          <div className="container mx-auto px-4 py-10 md:py-14">
-            <h2 className="text-2xl md:text-3xl font-semibold mb-6">Open Roles</h2>
-            <div className="grid gap-6 md:grid-cols-2">
-              <article className="bg-card border rounded-xl p-6 shadow-sm flex flex-col justify-between">
-                <div>
-                  <h3 className="text-xl font-semibold mb-2">{ROLE_NAME}</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Location: Office / Hybrid / Remote
-                  </p>
-                  <p className="text-sm text-muted-foreground mb-1">
-                    Experience: 1–3 years (flexible for exceptional profiles)
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Help motivated students plan and execute their study abroad journey.
-                  </p>
-                </div>
-                <div className="mt-6">
-                  <Button className="w-full md:w-auto" onClick={handleApplyCardClick}>
-                    Apply
-                  </Button>
-                </div>
-              </article>
             </div>
           </div>
         </section>
