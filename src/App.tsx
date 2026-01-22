@@ -26,11 +26,6 @@ const AppRoutes = () => {
   useEffect(() => {
     // Track a basic page view for each route change
     trackMetaEvent("PageView");
-
-    if (location.pathname === "/hiring/thank-you") {
-      // Primary conversion event for hiring applications (Meta standard "Lead" event)
-      trackMetaEvent("Lead");
-    }
   }, [location.pathname]);
 
   return (

@@ -1,4 +1,12 @@
+import { useEffect } from "react";
+import { trackMetaEvent } from "@/lib/metaPixel";
+
 const HiringThankYou = () => {
+  useEffect(() => {
+    // Fire Meta Lead event only after successful application redirect
+    trackMetaEvent("Lead");
+  }, []);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted px-4">
       <div className="max-w-md text-center bg-background rounded-xl shadow-lg p-8 border">

@@ -4,11 +4,13 @@ declare global {
   }
 }
 
+const DEFAULT_PIXEL_ID = "703668536011397";
+
 const getPixelId = () => import.meta.env.VITE_META_PIXEL_ID as string | undefined;
 
 export const initMetaPixel = () => {
   if (typeof window === "undefined") return;
-  const pixelId = getPixelId();
+  const pixelId = getPixelId() || DEFAULT_PIXEL_ID;
   if (!pixelId) return;
 
   if (window.fbq) {
