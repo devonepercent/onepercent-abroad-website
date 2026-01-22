@@ -13,30 +13,21 @@ export const initMetaPixel = () => {
   const pixelId = getPixelId() || DEFAULT_PIXEL_ID;
   if (!pixelId) return;
 
-  if (window.fbq) {
-    return;
-  }
-
-  // Meta Pixel base code
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  !(function (f: any, b, e, v, n?, t?, s?) {
-    if (f.fbq) return;
-    n = f.fbq = function () {
-      // eslint-disable-next-line prefer-rest-params
-      (n!.callMethod ? n!.callMethod : n!.queue.push).apply(n, arguments);
+  if (!window.fbq) {
+    // Minimal, safe fbq implementation that matches Meta's API shape
+    const fbq: any = function () {
+      fbq.callMethod ? fbq.callMethod.apply(fbq, arguments) : fbq.queue.push(arguments);
     };
-    if (!f._fbq) f._fbq = n;
-    n.push = n;
-    n.loaded = true;
-    n.version = "2.0";
-    n.queue = [];
-    t = b.createElement(e);
-    t.async = true;
-    t.src = "https://connect.facebook.net/en_US/fbevents.js";
-    s = b.getElementsByTagName(e)[0];
-    s.parentNode!.insertBefore(t, s);
-  })(window, document, "script");
+    fbq.queue = [];
+    fbq.version = "2.0";
+
+    window.fbq = fbq;
+
+    const script = document.createElement("script");
+    script.async = true;
+    script.src = "https://connect.facebook.net/en_US/fbevents.js";
+    document.head.appendChild(script);
+  }
 
   window.fbq!("init", pixelId);
   window.fbq!("track", "PageView");
