@@ -213,8 +213,20 @@ const Hiring = () => {
       }
 
       // Fire Meta events immediately after a confirmed successful submission
+      if (window.fbq) {
+        window.fbq("track", "Lead", {
+          content_name: "Hiring Application",
+          content_category: "Recruitment",
+          value: 1,
+          currency: "INR",
+        });
+        console.log("META LEAD FIRED");
+      } else {
+        console.log("FBQ NOT READY");
+      }
+      
+      // (Optional) keep custom event for internal analytics
       trackMetaEvent("HiringApplicationSubmitted");
-      trackMetaEvent("Lead");
 
       navigate("/hiring/thank-you?role=student-counsellor");
     } catch (error: any) {
