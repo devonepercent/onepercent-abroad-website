@@ -212,7 +212,9 @@ const Hiring = () => {
         throw new Error("Failed to submit application. Please try again.");
       }
 
+      // Fire Meta events immediately after a confirmed successful submission
       trackMetaEvent("HiringApplicationSubmitted");
+      trackMetaEvent("Lead");
 
       navigate("/hiring/thank-you?role=student-counsellor");
     } catch (error: any) {
