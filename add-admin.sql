@@ -19,3 +19,5 @@ ON CONFLICT (user_id, role) DO NOTHING;
 -- JOIN auth.users au ON ur.user_id = au.id
 -- WHERE ur.role = 'admin';
 
+
+
