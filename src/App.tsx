@@ -12,6 +12,8 @@ import NotFound from "./pages/NotFound";
 import HiringOverview from "./pages/HiringOverview";
 import Hiring from "./pages/Hiring";
 import HiringThankYou from "./pages/HiringThankYou";
+import InternalDashboard from "./pages/InternalDashboard";
+import SalesEvaluation from "./pages/SalesEvaluation";
 import { initMetaPixel, trackMetaEvent } from "./lib/metaPixel";
 
 const queryClient = new QueryClient();
@@ -37,6 +39,8 @@ const AppRoutes = () => {
       <Route path="/hiring/thank-you" element={<HiringThankYou />} />
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
+      <Route path="/internal" element={<InternalDashboard />} />
+      <Route path="/internal/sales-evaluation" element={<SalesEvaluation />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

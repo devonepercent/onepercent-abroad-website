@@ -14,19 +14,21 @@ const AdminLogin = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is already logged in and is admin
+    // Check if user is already logged in and route them based on role
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         const { data: roles } = await supabase
           .from("user_roles")
           .select("role")
-          .eq("user_id", session.user.id)
-          .eq("role", "admin")
-          .single();
+          .eq("user_id", session.user.id);
 
-        if (roles) {
+        const roleList = (roles || []).map((r: { role: string }) => r.role);
+
+        if (roleList.includes("admin")) {
           navigate("/admin/dashboard");
+        } else if (roleList.includes("sales")) {
+          navigate("/internal");
         }
       }
     };
@@ -45,25 +47,32 @@ const AdminLogin = () => {
 
       if (error) throw error;
 
-      // Check if user has admin role
+      // Check user roles to decide where to send them
       const { data: roles, error: roleError } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", data.user.id)
-        .eq("role", "admin")
-        .single();
+        .eq("user_id", data.user.id);
 
-      if (roleError || !roles) {
+      if (roleError || !roles || roles.length === 0) {
         await supabase.auth.signOut();
-        throw new Error("Access denied. Admin privileges required.");
+        throw new Error("Access denied. No internal roles assigned.");
       }
+
+      const roleList = roles.map((r: { role: string }) => r.role);
 
       toast({
         title: "Login Successful",
-        description: "Redirecting to dashboard...",
+        description: "Redirecting...",
       });
 
-      navigate("/admin/dashboard");
+      if (roleList.includes("admin")) {
+        navigate("/admin/dashboard");
+      } else if (roleList.includes("sales")) {
+        navigate("/internal");
+      } else {
+        // Fallback if some other internal role is added later
+        navigate("/internal");
+      }
     } catch (error: any) {
       toast({
         title: "Login Failed",
