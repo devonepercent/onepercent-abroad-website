@@ -10,6 +10,7 @@ type Role = "admin" | "user" | "sales";
 const InternalDashboard = () => {
   const [roles, setRoles] = useState<Role[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,6 +41,8 @@ const InternalDashboard = () => {
         return;
       }
 
+      setUserEmail(session.user.email ?? null);
+
       const { data, error } = await supabase
         .from("user_roles" as any)
         .select("role")
@@ -50,7 +53,8 @@ const InternalDashboard = () => {
         return;
       }
 
-      const userRoles = data.map((r: { role: Role }) => r.role);
+      const rows = data as unknown as { role: Role }[];
+      const userRoles = rows.map((r) => r.role);
       setRoles(userRoles);
       setIsLoading(false);
     };
@@ -68,10 +72,31 @@ const InternalDashboard = () => {
 
   const hasSalesAccess = roles.includes("sales") || roles.includes("admin");
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/admin/login");
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 bg-slate-50">
+        {userEmail && (
+          <div className="bg-slate-900 text-slate-50 text-xs md:text-sm">
+            <div className="container mx-auto px-4 py-2 flex items-center justify-between gap-3">
+              <span>Logged in as {userEmail}</span>
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                className="h-7 px-3 text-xs bg-white text-slate-900 hover:bg-slate-100"
+                onClick={handleLogout}
+              >
+                Sign out
+              </Button>
+            </div>
+          </div>
+        )}
         <section className="border-b bg-white">
           <div className="container mx-auto px-4 py-10 md:py-14">
             <h1 className="text-3xl md:text-4xl font-bold mb-3">Internal Dashboard</h1>
