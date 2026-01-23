@@ -89,9 +89,7 @@ const AdminLogin = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold">Admin Login</h1>
-          <p className="text-muted-foreground mt-2">
-            Access the webinar dashboard
-          </p>
+          <p className="text-muted-foreground mt-2">Access the internal admin tools</p>
         </div>
 
         <div className="bg-card p-8 rounded-lg shadow-lg border">
