@@ -132,24 +132,24 @@ const AdminDashboard = () => {
         throw webinarError;
       }
 
-      setRegistrations((webinarData as Registration[]) || []);
+      setRegistrations((webinarData as unknown as Registration[]) || []);
 
       if (hiringError) {
         console.error("Error loading hiring applications:", hiringError);
       } else {
-        setHiring((hiringData as HiringApplication[]) || []);
+        setHiring((hiringData as unknown as HiringApplication[]) || []);
       }
 
       if (salesError) {
         console.error("Error loading sales evaluations:", salesError);
       } else {
-        setSalesEvaluations((salesData as SalesEvaluationAdmin[]) || []);
+        setSalesEvaluations((salesData as unknown as SalesEvaluationAdmin[]) || []);
       }
 
       if (billingError) {
         console.error("Error loading billing cycles:", billingError);
       } else {
-        setBillingCycles((billingData as BillingCycle[]) || []);
+        setBillingCycles((billingData as unknown as BillingCycle[]) || []);
       }
     } catch (error: any) {
       toast({
@@ -580,7 +580,7 @@ const BillingForm = ({ onCreated }: BillingFormProps) => {
         throw error;
       }
 
-      onCreated(data as BillingCycle);
+      onCreated(data as unknown as BillingCycle);
 
       toast({
         title: "Billing cycle added",

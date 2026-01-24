@@ -14,6 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
+      billing_cycles: {
+        Row: {
+          amount: number | null
+          created_at: string | null
+          currency: string | null
+          end_date: string
+          id: string
+          name: string
+          notes: string | null
+          start_date: string
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string | null
+          currency?: string | null
+          end_date: string
+          id?: string
+          name: string
+          notes?: string | null
+          start_date: string
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string | null
+          currency?: string | null
+          end_date?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          start_date?: string
+        }
+        Relationships: []
+      }
+      hiring_applications: {
+        Row: {
+          additional_notes: string | null
+          created_at: string
+          current_city: string
+          cv_url: string | null
+          email: string
+          full_name: string
+          id: string
+          phone: string
+          role: string
+          source: string | null
+        }
+        Insert: {
+          additional_notes?: string | null
+          created_at?: string
+          current_city: string
+          cv_url?: string | null
+          email: string
+          full_name: string
+          id?: string
+          phone: string
+          role: string
+          source?: string | null
+        }
+        Update: {
+          additional_notes?: string | null
+          created_at?: string
+          current_city?: string
+          cv_url?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          role?: string
+          source?: string | null
+        }
+        Relationships: []
+      }
+      sales_evaluations: {
+        Row: {
+          candidate_name: string | null
+          created_at: string
+          id: string
+          report: string
+          sales_report: string | null
+          student_report: string | null
+          user_id: string
+        }
+        Insert: {
+          candidate_name?: string | null
+          created_at?: string
+          id?: string
+          report: string
+          sales_report?: string | null
+          student_report?: string | null
+          user_id: string
+        }
+        Update: {
+          candidate_name?: string | null
+          created_at?: string
+          id?: string
+          report?: string
+          sales_report?: string | null
+          student_report?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -76,7 +178,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "sales"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -204,7 +306,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "sales"],
     },
   },
 } as const

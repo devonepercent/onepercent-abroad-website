@@ -77,7 +77,7 @@ const SalesEvaluation = () => {
         return;
       }
 
-      const userRoles = rolesData.map((r: { role: Role }) => r.role);
+      const userRoles = (rolesData as unknown as { role: Role }[]).map((r) => r.role);
       const hasAccess = userRoles.includes("sales") || userRoles.includes("admin");
 
       if (!hasAccess) {
@@ -96,7 +96,7 @@ const SalesEvaluation = () => {
       if (historyError) {
         console.error("Error loading sales evaluations history:", historyError);
       } else {
-        setHistory(historyData || []);
+        setHistory((historyData as unknown as SalesEvaluationRecord[]) || []);
       }
 
       setIsLoading(false);
