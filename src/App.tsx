@@ -14,6 +14,7 @@ import Hiring from "./pages/Hiring";
 import HiringThankYou from "./pages/HiringThankYou";
 import InternalDashboard from "./pages/InternalDashboard";
 import SalesEvaluation from "./pages/SalesEvaluation";
+import SalesHiring from "./pages/SalesHiring";
 import { initMetaPixel, trackMetaEvent } from "./lib/metaPixel";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const AppRoutes = () => {
       <Route path="/webinar" element={<Webinar />} />
       <Route path="/hiring" element={<HiringOverview />} />
       <Route path="/hiring/student-counsellor" element={<Hiring />} />
+      <Route path="/hiring/sales-executive" element={<SalesHiring />} />
       <Route path="/hiring/thank-you" element={<HiringThankYou />} />
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/dashboard" element={<AdminDashboard />} />

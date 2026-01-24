@@ -11,6 +11,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useNavigate } from "react-router-dom";
 import { trackMetaEvent } from "@/lib/metaPixel";
+import { supabase } from "@/integrations/supabase/client";
 
 type ExperienceBand =
   | "0-6"
@@ -212,6 +213,35 @@ const Hiring = () => {
         throw new Error("Failed to submit application. Please try again.");
       }
 
+      // Try to read cvUrl from Apps Script response (if available)
+      let cvUrl: string | null = null;
+      try {
+        const body = await response.json();
+        if (body && typeof body.cvUrl === "string") {
+          cvUrl = body.cvUrl;
+        }
+      } catch {
+        // ignore JSON errors, Supabase insert will just use null cv_url
+      }
+
+      // Record in Supabase for internal analytics (non-blocking)
+      try {
+        await supabase
+          .from("hiring_applications" as any)
+          .insert({
+            role: ROLE_NAME,
+            full_name: values.fullName,
+            email: values.email,
+            phone: values.phone,
+            current_city: values.currentCity,
+            additional_notes: values.additionalNotes,
+            cv_url: cvUrl,
+            source: "student-counsellor",
+          });
+      } catch (insertError) {
+        console.error("Failed to save hiring application to Supabase:", insertError);
+      }
+
       // Fire Meta events immediately after a confirmed successful submission
       if (window.fbq) {
         window.fbq("track", "Lead", {
@@ -220,12 +250,8 @@ const Hiring = () => {
           value: 1,
           currency: "INR",
         });
-        console.log("META LEAD FIRED");
-      } else {
-        console.log("FBQ NOT READY");
       }
-      
-      // (Optional) keep custom event for internal analytics
+
       trackMetaEvent("HiringApplicationSubmitted");
 
       navigate("/hiring/thank-you?role=student-counsellor");

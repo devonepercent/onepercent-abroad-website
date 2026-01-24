@@ -14,6 +14,11 @@ const HiringOverview = () => {
     navigate("/hiring/student-counsellor");
   };
 
+  const goToSalesRole = () => {
+    trackMetaEvent("SalesHiringOverviewCardClick");
+    navigate("/hiring/sales-executive");
+  };
+
   const handleHeroClick = () => {
     trackMetaEvent("HiringApplyHeroClick");
     navigate("/hiring/student-counsellor");
@@ -60,6 +65,26 @@ const HiringOverview = () => {
                 </div>
                 <div className="mt-6">
                   <Button className="w-full md:w-auto" onClick={goToStudentCounsellor}>
+                    View role & Apply
+                  </Button>
+                </div>
+              </article>
+
+              <article className="bg-card border rounded-xl p-6 shadow-sm flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">High-Ticket Sales Executive</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Location: Calicut, Kerala
+                  </p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Help students and parents understand our premium mentorship and make confident decisions.
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Ideal for confident communicators with experience in high-value or consultative sales.
+                  </p>
+                </div>
+                <div className="mt-6">
+                  <Button className="w-full md:w-auto" onClick={goToSalesRole}>
                     View role & Apply
                   </Button>
                 </div>
