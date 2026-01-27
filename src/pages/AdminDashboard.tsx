@@ -34,6 +34,7 @@ interface HiringApplication {
   phone: string;
   current_city: string;
   additional_notes: string | null;
+  cv_url: string | null;
   source: string | null;
   created_at: string;
 }
@@ -347,12 +348,13 @@ const AdminDashboard = () => {
                     <TableHead>Phone</TableHead>
                     <TableHead>City</TableHead>
                     <TableHead>Source</TableHead>
+                    <TableHead>CV</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {hiring.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                         No hiring submissions yet
                       </TableCell>
                     </TableRow>
@@ -366,6 +368,20 @@ const AdminDashboard = () => {
                         <TableCell>{h.phone}</TableCell>
                         <TableCell>{h.current_city}</TableCell>
                         <TableCell>{h.source || "-"}</TableCell>
+                        <TableCell>
+                          {h.cv_url ? (
+                            <a
+                              href={h.cv_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline"
+                            >
+                              View CV
+                            </a>
+                          ) : (
+                            "-"
+                          )}
+                        </TableCell>
                       </TableRow>
                     ))
                   )}
