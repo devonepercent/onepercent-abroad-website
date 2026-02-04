@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Instagram } from "lucide-react";
 import logoBlue from "@/assets/logo-blue.png";
 import { Link, useLocation } from "react-router-dom";
 
@@ -67,6 +68,15 @@ const Header = () => {
           >
             Careers
           </Link>
+          <a
+            href="https://www.instagram.com/onepercentabroad"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-primary transition-colors"
+            aria-label="Instagram"
+          >
+            <Instagram size={20} />
+          </a>
         </nav>
         <Button className="rounded-full" asChild>
           <a href="https://wa.me/919074100157?text=hi" target="_blank" rel="noopener noreferrer">
