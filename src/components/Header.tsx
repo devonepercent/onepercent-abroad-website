@@ -65,7 +65,7 @@ const Header = () => {
             to="/hiring"
             className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
           >
-            Hiring
+            Careers
           </Link>
         </nav>
         <Button className="rounded-full" asChild>
@@ -113,7 +113,7 @@ const Header = () => {
               onClick={() => setIsOpen(false)}
               className="text-left text-lg font-medium text-foreground hover:text-primary transition-colors"
             >
-              Hiring
+              Careers
             </Link>
             <Button className="rounded-full w-full" asChild>
               <a href="https://wa.me/919074100157?text=hi" target="_blank" rel="noopener noreferrer">
