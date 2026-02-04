@@ -421,7 +421,6 @@ const Hiring = () => {
                       <FormField
                         control={form.control}
                         name="linkedin"
-                        rules={{ required: "LinkedIn profile is encouraged" }}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>
