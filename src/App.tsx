@@ -11,6 +11,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import HiringOverview from "./pages/HiringOverview";
 import Hiring from "./pages/Hiring";
+import StudentMentorHiring from "./pages/StudentMentorHiring";
 import HiringThankYou from "./pages/HiringThankYou";
 import InternalDashboard from "./pages/InternalDashboard";
 import SalesEvaluation from "./pages/SalesEvaluation";
@@ -38,6 +39,7 @@ const AppRoutes = () => {
       <Route path="/webinar" element={<Webinar />} />
       <Route path="/hiring" element={<HiringOverview />} />
       <Route path="/hiring/student-counsellor" element={<Hiring />} />
+      <Route path="/hiring/student-mentor" element={<StudentMentorHiring />} />
       <Route path="/hiring/sales-executive" element={<SalesHiring />} />
       <Route path="/hiring/thank-you" element={<HiringThankYou />} />
       <Route path="/admin/login" element={<AdminLogin />} />

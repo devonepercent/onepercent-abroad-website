@@ -56,7 +56,7 @@ interface HiringFormValues {
   cv: FileList | null;
 }
 
-const ROLE_NAME = "Student Counsellor";
+const ROLE_NAME = "Student Mentor";
 
 const stepFieldGroups: (keyof HiringFormValues)[][] = [
   ["fullName", "email", "phone", "currentCity"],
@@ -64,7 +64,7 @@ const stepFieldGroups: (keyof HiringFormValues)[][] = [
   ["cv", "confirmation"],
 ];
 
-const Hiring = () => {
+const StudentMentorHiring = () => {
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -89,7 +89,7 @@ const Hiring = () => {
   });
 
   const handleScrollToForm = () => {
-    const element = document.getElementById("student-counsellor-form");
+    const element = document.getElementById("student-mentor-form");
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
     }
@@ -225,6 +225,7 @@ const Hiring = () => {
       }
 
       // Record in Supabase for internal analytics (non-blocking)
+      // Backend uses same structure as student counsellor
       try {
         await supabase
           .from("hiring_applications" as any)
@@ -254,7 +255,7 @@ const Hiring = () => {
 
       trackMetaEvent("HiringApplicationSubmitted");
 
-      navigate("/hiring/thank-you?role=student-counsellor");
+      navigate("/hiring/thank-you?role=student-mentor");
     } catch (error: any) {
       toast({
         title: "Submission failed",
@@ -280,14 +281,14 @@ const Hiring = () => {
                 Hiring
               </p>
               <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-                Student Counsellor
+                Student Mentor
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground mb-8">
                 Role details and application form for candidates who want to guide students in their global
                 education journey.
               </p>
               <Button size="lg" className="rounded-full" onClick={handleScrollToForm}>
-                Apply Now – Student Counsellor
+                Apply Now – Student Mentor
               </Button>
             </div>
           </div>
@@ -326,12 +327,12 @@ const Hiring = () => {
         </section>
 
         {/* Application Form */}
-        <section id="student-counsellor-form" className="bg-white">
+        <section id="student-mentor-form" className="bg-white">
           <div className="container mx-auto px-4 py-10 md:py-14">
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <h2 className="text-2xl md:text-3xl font-semibold">
-                  Student Counsellor – Application Form
+                  Student Mentor – Application Form
                 </h2>
                 <p className="text-sm text-muted-foreground mt-2">
                   This form is designed to keep things simple for you and for our HR team, while helping us focus on serious, high-quality applications.
@@ -750,5 +751,4 @@ const Hiring = () => {
   );
 };
 
-export default Hiring;
-
+export default StudentMentorHiring;

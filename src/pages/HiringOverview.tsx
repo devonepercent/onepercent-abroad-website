@@ -19,6 +19,11 @@ const HiringOverview = () => {
     navigate("/hiring/sales-executive");
   };
 
+  const goToStudentMentor = () => {
+    trackMetaEvent("HiringApplyCardClick");
+    navigate("/hiring/student-mentor");
+  };
+
   const handleHeroClick = () => {
     trackMetaEvent("HiringApplyHeroClick");
     navigate("/hiring/student-counsellor");
@@ -49,7 +54,7 @@ const HiringOverview = () => {
         <section className="border-b bg-white">
           <div className="container mx-auto px-4 py-10 md:py-14">
             <h2 className="text-2xl md:text-3xl font-semibold mb-6">Open Roles</h2>
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <article className="bg-card border rounded-xl p-6 shadow-sm flex flex-col justify-between">
                 <div>
                   <h3 className="text-xl font-semibold mb-2">{ROLE_NAME}</h3>
@@ -65,6 +70,26 @@ const HiringOverview = () => {
                 </div>
                 <div className="mt-6">
                   <Button className="w-full md:w-auto" onClick={goToStudentCounsellor}>
+                    View role & Apply
+                  </Button>
+                </div>
+              </article>
+
+              <article className="bg-card border rounded-xl p-6 shadow-sm flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Student Mentor</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Location: Office / Hybrid / Remote
+                  </p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Experience: 1–3 years (flexible for exceptional profiles)
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Help motivated students plan and execute their study abroad journey.
+                  </p>
+                </div>
+                <div className="mt-6">
+                  <Button className="w-full md:w-auto" onClick={goToStudentMentor}>
                     View role & Apply
                   </Button>
                 </div>
