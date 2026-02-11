@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import logoBlue from "@/assets/logo-blue.png";
 
 type Role = "admin" | "user" | "sales";
 
@@ -217,24 +218,23 @@ const SalesEvaluation = () => {
     let overallStrengthPercent = 0;
 
     if (activeView === "student") {
-      const match = reportText.match(/^Overall Strength Rating:\s*(Strong|High-Potential|Buildable|Early-Stage)\s*$/im);
+      // Loosely match the overall strength line and then interpret it.
+      const match = reportText.match(/^Overall Strength Rating:\s*(.+)$/im);
       if (match) {
-        overallStrengthLabel = match[1];
-        switch (overallStrengthLabel) {
-          case "Strong":
-            overallStrengthPercent = 90;
-            break;
-          case "High-Potential":
-            overallStrengthPercent = 80;
-            break;
-          case "Buildable":
-            overallStrengthPercent = 65;
-            break;
-          case "Early-Stage":
-            overallStrengthPercent = 45;
-            break;
-          default:
-            overallStrengthPercent = 0;
+        overallStrengthLabel = match[1].trim();
+        const normalized = overallStrengthLabel.toLowerCase();
+
+        if (normalized.includes("strong")) {
+          overallStrengthPercent = 90;
+        } else if (normalized.includes("high")) {
+          overallStrengthPercent = 80;
+        } else if (normalized.includes("buildable")) {
+          overallStrengthPercent = 65;
+        } else if (normalized.includes("early")) {
+          overallStrengthPercent = 45;
+        } else {
+          // Fallback for any unexpected label – still show a neutral-strength bar.
+          overallStrengthPercent = 50;
         }
       }
     }
@@ -310,7 +310,7 @@ const SalesEvaluation = () => {
         </head>
         <body>
           <div class="opa-header">
-            <img src="${(window as any).opaLogoUrl || ""}" alt="OnePercent Abroad" class="opa-logo" />
+            <img src="${logoBlue}" alt="OnePercent Abroad" class="opa-logo" />
             <div>
               <h1>${titlePrefix}</h1>
               <h2>Candidate: ${currentEvaluation.candidate_name || "Unnamed candidate"}</h2>
