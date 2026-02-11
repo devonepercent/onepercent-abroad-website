@@ -212,6 +212,33 @@ const SalesEvaluation = () => {
       return;
     }
 
+    // For student-facing PDFs, extract an overall strength rating line if present.
+    let overallStrengthLabel: string | null = null;
+    let overallStrengthPercent = 0;
+
+    if (activeView === "student") {
+      const match = reportText.match(/^Overall Strength Rating:\s*(Strong|High-Potential|Buildable|Early-Stage)\s*$/im);
+      if (match) {
+        overallStrengthLabel = match[1];
+        switch (overallStrengthLabel) {
+          case "Strong":
+            overallStrengthPercent = 90;
+            break;
+          case "High-Potential":
+            overallStrengthPercent = 80;
+            break;
+          case "Buildable":
+            overallStrengthPercent = 65;
+            break;
+          case "Early-Stage":
+            overallStrengthPercent = 45;
+            break;
+          default:
+            overallStrengthPercent = 0;
+        }
+      }
+    }
+
     const titlePrefix =
       activeView === "student" ? "Student Profile Assessment" : "Sales Screening Report";
 
@@ -222,6 +249,10 @@ const SalesEvaluation = () => {
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
+
+    const safeStrengthLabel = overallStrengthLabel
+      ? overallStrengthLabel.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      : null;
 
     win.document.write(`
       <html>
@@ -244,11 +275,61 @@ const SalesEvaluation = () => {
               font-size: 16px;
               color: #4b5563;
             }
+            .opa-header {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              margin-bottom: 16px;
+            }
+            .opa-logo {
+              height: 32px;
+              width: auto;
+            }
+            .strength-section {
+              margin: 16px 0 20px 0;
+            }
+            .strength-label {
+              font-size: 13px;
+              color: #4b5563;
+              margin-bottom: 6px;
+            }
+            .strength-bar-outer {
+              width: 100%;
+              max-width: 320px;
+              height: 8px;
+              border-radius: 999px;
+              background-color: #e5e7eb;
+              overflow: hidden;
+            }
+            .strength-bar-inner {
+              height: 100%;
+              border-radius: 999px;
+              background: #1f2937;
+            }
           </style>
         </head>
         <body>
-          <h1>${titlePrefix}</h1>
-          <h2>Candidate: ${currentEvaluation.candidate_name || "Unnamed candidate"}</h2>
+          <div class="opa-header">
+            <img src="${(window as any).opaLogoUrl || ""}" alt="OnePercent Abroad" class="opa-logo" />
+            <div>
+              <h1>${titlePrefix}</h1>
+              <h2>Candidate: ${currentEvaluation.candidate_name || "Unnamed candidate"}</h2>
+            </div>
+          </div>
+          ${
+            activeView === "student" && safeStrengthLabel
+              ? `
+          <div class="strength-section">
+            <div class="strength-label">
+              Overall Strength: <strong>${safeStrengthLabel}</strong>
+            </div>
+            <div class="strength-bar-outer">
+              <div class="strength-bar-inner" style="width: ${overallStrengthPercent}%;"></div>
+            </div>
+          </div>
+          `
+              : ""
+          }
           <div>${safeReport}</div>
         </body>
       </html>
