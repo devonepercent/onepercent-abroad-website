@@ -17,6 +17,8 @@ import InternalDashboard from "./pages/InternalDashboard";
 import SalesEvaluation from "./pages/SalesEvaluation";
 import SalesHiring from "./pages/SalesHiring";
 import ResetPassword from "./pages/ResetPassword";
+import AddExpense from "./pages/AddExpense";
+import AdminExpenses from "./pages/AdminExpenses";
 import { initMetaPixel, trackMetaEvent } from "./lib/metaPixel";
 
 const queryClient = new QueryClient();
@@ -47,6 +49,8 @@ const AppRoutes = () => {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/internal" element={<InternalDashboard />} />
       <Route path="/internal/sales-evaluation" element={<SalesEvaluation />} />
+      <Route path="/internal/expenses" element={<AddExpense />} />
+      <Route path="/admin/expenses" element={<AdminExpenses />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

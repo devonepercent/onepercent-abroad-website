@@ -254,6 +254,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="hiring">Hiring submissions</TabsTrigger>
             <TabsTrigger value="sales-evaluations">Sales evaluation reports</TabsTrigger>
             <TabsTrigger value="billing">Billing cycles</TabsTrigger>
+            <TabsTrigger value="expenses">Expenses</TabsTrigger>
             <TabsTrigger value="internal-tools">Internal tools</TabsTrigger>
           </TabsList>
 
@@ -485,6 +486,23 @@ const AdminDashboard = () => {
                     </TableBody>
                   </Table>
                 </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Expenses tab */}
+          <TabsContent value="expenses">
+            <div className="space-y-4">
+              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-semibold mb-1">Team expenses</h2>
+                  <p className="text-sm text-muted-foreground">
+                    View all team expenses with filters, stats, and CSV export.
+                  </p>
+                </div>
+                <Button onClick={() => navigate("/admin/expenses")} className="w-full md:w-auto">
+                  Open full expenses view
+                </Button>
               </div>
             </div>
           </TabsContent>
