@@ -234,8 +234,15 @@ const SalesEvaluation = () => {
           overallStrengthPercent = 45;
         } else {
           // Fallback for any unexpected label – still show a neutral-strength bar.
+          overallStrengthLabel = "Not specified";
           overallStrengthPercent = 50;
+          console.warn("SalesEvaluation PDF: Unexpected overall strength label:", match[1]);
         }
+      } else {
+        // If the rating line is completely missing, still render a neutral-strength bar.
+        overallStrengthLabel = "Not specified";
+        overallStrengthPercent = 50;
+        console.warn("SalesEvaluation PDF: Overall Strength Rating line not found in student report.");
       }
     }
 
@@ -252,7 +259,7 @@ const SalesEvaluation = () => {
 
     const safeStrengthLabel = overallStrengthLabel
       ? overallStrengthLabel.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-      : null;
+      : "Not specified";
 
     win.document.write(`
       <html>
@@ -261,7 +268,7 @@ const SalesEvaluation = () => {
           <style>
             body {
               font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-              padding: 32px;
+              padding: 120px 32px 32px 32px; /* leave space for fixed header at the top */
               white-space: pre-wrap;
               line-height: 1.5;
             }
@@ -276,10 +283,13 @@ const SalesEvaluation = () => {
               color: #4b5563;
             }
             .opa-header {
+              position: fixed;
+              top: 24px;
+              left: 32px;
+              right: 32px;
               display: flex;
               align-items: center;
               gap: 12px;
-              margin-bottom: 16px;
             }
             .opa-logo {
               height: 32px;
@@ -306,6 +316,14 @@ const SalesEvaluation = () => {
               border-radius: 999px;
               background: #1f2937;
             }
+            .strength-scale {
+              display: flex;
+              justify-content: space-between;
+              margin-top: 4px;
+              max-width: 320px;
+              font-size: 10px;
+              color: #6b7280;
+            }
           </style>
         </head>
         <body>
@@ -325,6 +343,12 @@ const SalesEvaluation = () => {
             </div>
             <div class="strength-bar-outer">
               <div class="strength-bar-inner" style="width: ${overallStrengthPercent}%;"></div>
+            </div>
+            <div class="strength-scale">
+              <span>Early-Stage</span>
+              <span>Buildable</span>
+              <span>High-Potential</span>
+              <span>Strong</span>
             </div>
           </div>
           `

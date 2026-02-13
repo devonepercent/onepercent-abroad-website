@@ -35,6 +35,8 @@ Include the student’s name (if available).
 Immediately after this, include ONE line in this exact format so that it can be parsed by downstream tools:
 Overall Strength Rating: Strong / High-Potential / Buildable / Early-Stage
 (Choose exactly ONE of these four labels based on your internal scoring and judgment. Do not invent new labels.)
+Example:
+Overall Strength Rating: Buildable
 
 1. Overall Profile Snapshot
 Provide a 3–5 sentence overview of where you stand right now.

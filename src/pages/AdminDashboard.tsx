@@ -12,10 +12,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Download, LogOut } from "lucide-react";
+import { Download, LogOut, Upload } from "lucide-react";
 
 interface Registration {
   id: string;
@@ -57,15 +64,38 @@ interface BillingCycle {
   created_at: string;
 }
 
+interface Expense {
+  id: string;
+  user_id: string;
+  amount: number;
+  category: string;
+  date: string;
+  description: string | null;
+  bill_url: string | null;
+  created_at: string;
+}
+
+const EXPENSE_CATEGORIES = [
+  "Travel",
+  "Food & Meals",
+  "Office Supplies",
+  "Software & Subscriptions",
+  "Marketing",
+  "Utilities",
+  "Miscellaneous",
+];
+
 const AdminDashboard = () => {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [hiring, setHiring] = useState<HiringApplication[]>([]);
   const [salesEvaluations, setSalesEvaluations] = useState<SalesEvaluationAdmin[]>([]);
   const [billingCycles, setBillingCycles] = useState<BillingCycle[]>([]);
+  const [recentExpenses, setRecentExpenses] = useState<Expense[]>([]);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [adminEmail, setAdminEmail] = useState<string | null>(null);
+  const [adminUserId, setAdminUserId] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -85,6 +115,7 @@ const AdminDashboard = () => {
       }
 
       setAdminEmail(session.user.email ?? null);
+      setAdminUserId(session.user.id);
 
       // Verify admin role
       const { data: roles, error: roleError } = await supabase
@@ -110,6 +141,7 @@ const AdminDashboard = () => {
         { data: hiringData, error: hiringError },
         { data: salesData, error: salesError },
         { data: billingData, error: billingError },
+        { data: expenseData, error: expenseError },
       ] = await Promise.all([
         supabase
           .from("webinar_registrations" as any)
@@ -127,6 +159,11 @@ const AdminDashboard = () => {
           .from("billing_cycles" as any)
           .select("*")
           .order("start_date", { ascending: false }),
+        supabase
+          .from("expenses" as any)
+          .select("*")
+          .order("date", { ascending: false })
+          .limit(10),
       ]);
 
       if (webinarError) {
@@ -151,6 +188,12 @@ const AdminDashboard = () => {
         console.error("Error loading billing cycles:", billingError);
       } else {
         setBillingCycles((billingData as unknown as BillingCycle[]) || []);
+      }
+
+      if (expenseError) {
+        console.error("Error loading expenses:", expenseError);
+      } else {
+        setRecentExpenses((expenseData as unknown as Expense[]) || []);
       }
     } catch (error: any) {
       toast({
@@ -492,17 +535,77 @@ const AdminDashboard = () => {
 
           {/* Expenses tab */}
           <TabsContent value="expenses">
-            <div className="space-y-4">
-              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr),minmax(0,2fr)]">
+              <div className="space-y-4">
                 <div>
-                  <h2 className="text-xl font-semibold mb-1">Team expenses</h2>
+                  <h2 className="text-xl font-semibold mb-1">Add expense</h2>
                   <p className="text-sm text-muted-foreground">
-                    View all team expenses with filters, stats, and CSV export.
+                    Log an expense with an optional bill attachment.
                   </p>
                 </div>
-                <Button onClick={() => navigate("/admin/expenses")} className="w-full md:w-auto">
-                  Open full expenses view
+
+                <ExpenseForm
+                  userId={adminUserId}
+                  onCreated={(expense) => setRecentExpenses((prev) => [expense, ...prev].slice(0, 10))}
+                />
+
+                <Button onClick={() => navigate("/admin/expenses")} variant="outline" className="w-full">
+                  View all expenses with filters & export
                 </Button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-xl font-semibold mb-1">Recent expenses</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Last 10 expenses across all team members.
+                  </p>
+                </div>
+                <div className="bg-card rounded-lg shadow border overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Description</TableHead>
+                        <TableHead>Bill</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {recentExpenses.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                            No expenses yet
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        recentExpenses.map((exp) => (
+                          <TableRow key={exp.id}>
+                            <TableCell>{exp.date}</TableCell>
+                            <TableCell>{exp.category}</TableCell>
+                            <TableCell>₹{Number(exp.amount).toLocaleString()}</TableCell>
+                            <TableCell className="max-w-xs truncate">{exp.description || "-"}</TableCell>
+                            <TableCell>
+                              {exp.bill_url ? (
+                                <a
+                                  href={exp.bill_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-primary hover:underline text-sm"
+                                >
+                                  View
+                                </a>
+                              ) : (
+                                "-"
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
             </div>
           </TabsContent>
@@ -704,6 +807,157 @@ const BillingForm = ({ onCreated }: BillingFormProps) => {
       </div>
       <Button type="submit" disabled={isSaving}>
         {isSaving ? "Saving..." : "Add billing cycle"}
+      </Button>
+    </form>
+  );
+};
+
+interface ExpenseFormProps {
+  userId: string | null;
+  onCreated: (expense: Expense) => void;
+}
+
+const ExpenseForm = ({ userId, onCreated }: ExpenseFormProps) => {
+  const { toast } = useToast();
+  const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [description, setDescription] = useState("");
+  const [billFile, setBillFile] = useState<File | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!amount || !category || !date) {
+      toast({
+        title: "Missing fields",
+        description: "Amount, category, and date are required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!userId) return;
+
+    setIsSaving(true);
+    try {
+      let billUrl: string | null = null;
+
+      if (billFile) {
+        const fileExt = billFile.name.split(".").pop();
+        const filePath = `${userId}/${crypto.randomUUID()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from("expense-bills")
+          .upload(filePath, billFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from("expense-bills")
+          .getPublicUrl(filePath);
+
+        billUrl = urlData.publicUrl;
+      }
+
+      const { data, error } = await supabase
+        .from("expenses" as any)
+        .insert({
+          user_id: userId,
+          amount: Number(amount),
+          category,
+          date,
+          description: description || null,
+          bill_url: billUrl,
+        })
+        .select("*")
+        .single();
+
+      if (error) throw error;
+
+      onCreated(data as unknown as Expense);
+
+      toast({ title: "Expense added", description: "Your expense has been saved." });
+
+      setAmount("");
+      setCategory("");
+      setDate(new Date().toISOString().split("T")[0]);
+      setDescription("");
+      setBillFile(null);
+
+      const fileInput = document.getElementById("dashboard-bill-file") as HTMLInputElement;
+      if (fileInput) fileInput.value = "";
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || "Failed to save expense.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 bg-card border rounded-lg p-4 shadow-sm">
+      <div className="space-y-2">
+        <Label htmlFor="dashboard-expense-amount">Amount (₹) *</Label>
+        <Input
+          id="dashboard-expense-amount"
+          type="number"
+          min="0"
+          step="0.01"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          placeholder="e.g. 1500"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="dashboard-expense-category">Category *</Label>
+        <Select value={category} onValueChange={setCategory}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select a category" />
+          </SelectTrigger>
+          <SelectContent>
+            {EXPENSE_CATEGORIES.map((cat) => (
+              <SelectItem key={cat} value={cat}>
+                {cat}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="dashboard-expense-date">Date *</Label>
+        <Input
+          id="dashboard-expense-date"
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="dashboard-expense-description">Description (optional)</Label>
+        <Textarea
+          id="dashboard-expense-description"
+          rows={3}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Brief description of the expense"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="dashboard-bill-file">Attach bill / receipt (optional, PDF)</Label>
+        <Input
+          id="dashboard-bill-file"
+          type="file"
+          accept=".pdf"
+          onChange={(e) => setBillFile(e.target.files?.[0] || null)}
+        />
+      </div>
+      <Button type="submit" disabled={isSaving} className="w-full">
+        <Upload className="mr-2 h-4 w-4" />
+        {isSaving ? "Saving..." : "Add expense"}
       </Button>
     </form>
   );

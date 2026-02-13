@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -20,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Download, ArrowLeft } from "lucide-react";
+import { Download, ArrowLeft, Upload } from "lucide-react";
 
 const CATEGORIES = [
   "Travel",
@@ -49,6 +50,13 @@ const AdminExpenses = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [userId, setUserId] = useState<string | null>(null);
+  const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [description, setDescription] = useState("");
+  const [billFile, setBillFile] = useState<File | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -75,6 +83,8 @@ const AdminExpenses = () => {
         navigate("/admin/login");
         return;
       }
+
+      setUserId(session.user.id);
 
       const { data, error } = await supabase
         .from("expenses" as any)
@@ -142,6 +152,77 @@ const AdminExpenses = () => {
     toast({ title: "Exported", description: "CSV downloaded." });
   };
 
+  const handleAddExpense = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!amount || !category || !date) {
+      toast({
+        title: "Missing fields",
+        description: "Amount, category, and date are required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!userId) return;
+
+    setIsSaving(true);
+    try {
+      let billUrl: string | null = null;
+
+      if (billFile) {
+        const fileExt = billFile.name.split(".").pop();
+        const filePath = `${userId}/${crypto.randomUUID()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from("expense-bills")
+          .upload(filePath, billFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from("expense-bills")
+          .getPublicUrl(filePath);
+
+        billUrl = urlData.publicUrl;
+      }
+
+      const { data, error } = await supabase
+        .from("expenses" as any)
+        .insert({
+          user_id: userId,
+          amount: Number(amount),
+          category,
+          date,
+          description: description || null,
+          bill_url: billUrl,
+        })
+        .select("*")
+        .single();
+
+      if (error) throw error;
+
+      setExpenses((prev) => [data as unknown as Expense, ...prev]);
+      setAmount("");
+      setCategory("");
+      setDate(new Date().toISOString().split("T")[0]);
+      setDescription("");
+      setBillFile(null);
+
+      const fileInput = document.getElementById("admin-bill-file") as HTMLInputElement;
+      if (fileInput) fileInput.value = "";
+
+      toast({ title: "Expense added", description: "Your expense has been saved." });
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || "Failed to save expense.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -195,6 +276,75 @@ const AdminExpenses = () => {
             </div>
           </div>
         )}
+
+        {/* Add expense form */}
+        <div className="bg-card border rounded-lg p-6 shadow-sm">
+          <h3 className="font-semibold text-lg mb-4">Add expense</h3>
+          <form onSubmit={handleAddExpense} className="grid gap-4 md:grid-cols-2 lg:grid-cols-6 items-end">
+            <div className="space-y-1">
+              <Label htmlFor="admin-expense-amount" className="text-xs">Amount (₹) *</Label>
+              <Input
+                id="admin-expense-amount"
+                type="number"
+                min="0"
+                step="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="e.g. 1500"
+                className="h-9"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="admin-expense-category" className="text-xs">Category *</Label>
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="admin-expense-date" className="text-xs">Date *</Label>
+              <Input
+                id="admin-expense-date"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="h-9"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="admin-expense-description" className="text-xs">Description</Label>
+              <Input
+                id="admin-expense-description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Brief description"
+                className="h-9"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="admin-bill-file" className="text-xs">Bill (PDF)</Label>
+              <Input
+                id="admin-bill-file"
+                type="file"
+                accept=".pdf"
+                onChange={(e) => setBillFile(e.target.files?.[0] || null)}
+                className="h-9"
+              />
+            </div>
+            <Button type="submit" disabled={isSaving} className="h-9">
+              <Upload className="mr-2 h-4 w-4" />
+              {isSaving ? "Saving..." : "Add"}
+            </Button>
+          </form>
+        </div>
 
         {/* Filters */}
         <div className="flex flex-wrap items-end gap-3">
