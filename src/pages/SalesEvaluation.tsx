@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import logoBlue from "@/assets/logo-blue.png";
+import { generateEvaluationPdf } from "@/lib/generateEvaluationPdf";
 
 type Role = "admin" | "user" | "sales";
 
@@ -202,7 +203,7 @@ const SalesEvaluation = () => {
     );
   };
 
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = async () => {
     const reportText = getActiveReportText();
     if (!currentEvaluation || !reportText) {
       toast({
@@ -213,154 +214,21 @@ const SalesEvaluation = () => {
       return;
     }
 
-    // For student-facing PDFs, extract an overall strength rating line if present.
-    let overallStrengthLabel: string | null = null;
-    let overallStrengthPercent = 0;
-
-    if (activeView === "student") {
-      // Loosely match the overall strength line and then interpret it.
-      const match = reportText.match(/^Overall Strength Rating:\s*(.+)$/im);
-      if (match) {
-        overallStrengthLabel = match[1].trim();
-        const normalized = overallStrengthLabel.toLowerCase();
-
-        if (normalized.includes("strong")) {
-          overallStrengthPercent = 90;
-        } else if (normalized.includes("high")) {
-          overallStrengthPercent = 80;
-        } else if (normalized.includes("buildable")) {
-          overallStrengthPercent = 65;
-        } else if (normalized.includes("early")) {
-          overallStrengthPercent = 45;
-        } else {
-          // Fallback for any unexpected label – still show a neutral-strength bar.
-          overallStrengthLabel = "Not specified";
-          overallStrengthPercent = 50;
-          console.warn("SalesEvaluation PDF: Unexpected overall strength label:", match[1]);
-        }
-      } else {
-        // If the rating line is completely missing, still render a neutral-strength bar.
-        overallStrengthLabel = "Not specified";
-        overallStrengthPercent = 50;
-        console.warn("SalesEvaluation PDF: Overall Strength Rating line not found in student report.");
-      }
+    try {
+      await generateEvaluationPdf({
+        reportText,
+        candidateName: currentEvaluation.candidate_name || "Unnamed candidate",
+        reportType: activeView,
+        logoUrl: logoBlue,
+      });
+    } catch (err: any) {
+      console.error("PDF generation failed:", err);
+      toast({
+        title: "PDF generation failed",
+        description: err.message || "Something went wrong while creating the PDF.",
+        variant: "destructive",
+      });
     }
-
-    const titlePrefix =
-      activeView === "student" ? "Student Profile Assessment" : "Sales Screening Report";
-
-    const win = window.open("", "_blank", "width=900,height=700");
-    if (!win) return;
-
-    const safeReport = reportText
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-
-    const safeStrengthLabel = overallStrengthLabel
-      ? overallStrengthLabel.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-      : "Not specified";
-
-    win.document.write(`
-      <html>
-        <head>
-          <title>${titlePrefix} - ${currentEvaluation.candidate_name || "Unnamed candidate"}</title>
-          <style>
-            body {
-              font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-              padding: 120px 32px 32px 32px; /* leave space for fixed header at the top */
-              white-space: pre-wrap;
-              line-height: 1.5;
-            }
-            h1, h2 {
-              margin: 0 0 12px 0;
-            }
-            h1 {
-              font-size: 22px;
-            }
-            h2 {
-              font-size: 16px;
-              color: #4b5563;
-            }
-            .opa-header {
-              position: fixed;
-              top: 24px;
-              left: 32px;
-              right: 32px;
-              display: flex;
-              align-items: center;
-              gap: 12px;
-            }
-            .opa-logo {
-              height: 32px;
-              width: auto;
-            }
-            .strength-section {
-              margin: 16px 0 20px 0;
-            }
-            .strength-label {
-              font-size: 13px;
-              color: #4b5563;
-              margin-bottom: 6px;
-            }
-            .strength-bar-outer {
-              width: 100%;
-              max-width: 320px;
-              height: 8px;
-              border-radius: 999px;
-              background-color: #e5e7eb;
-              overflow: hidden;
-            }
-            .strength-bar-inner {
-              height: 100%;
-              border-radius: 999px;
-              background: #1f2937;
-            }
-            .strength-scale {
-              display: flex;
-              justify-content: space-between;
-              margin-top: 4px;
-              max-width: 320px;
-              font-size: 10px;
-              color: #6b7280;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="opa-header">
-            <img src="${logoBlue}" alt="OnePercent Abroad" class="opa-logo" />
-            <div>
-              <h1>${titlePrefix}</h1>
-              <h2>Candidate: ${currentEvaluation.candidate_name || "Unnamed candidate"}</h2>
-            </div>
-          </div>
-          ${
-            activeView === "student" && safeStrengthLabel
-              ? `
-          <div class="strength-section">
-            <div class="strength-label">
-              Overall Strength: <strong>${safeStrengthLabel}</strong>
-            </div>
-            <div class="strength-bar-outer">
-              <div class="strength-bar-inner" style="width: ${overallStrengthPercent}%;"></div>
-            </div>
-            <div class="strength-scale">
-              <span>Early-Stage</span>
-              <span>Buildable</span>
-              <span>High-Potential</span>
-              <span>Strong</span>
-            </div>
-          </div>
-          `
-              : ""
-          }
-          <div>${safeReport}</div>
-        </body>
-      </html>
-    `);
-    win.document.close();
-    win.focus();
-    win.print();
   };
 
   const handleLogout = async () => {
