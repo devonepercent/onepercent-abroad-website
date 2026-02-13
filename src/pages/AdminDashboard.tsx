@@ -75,6 +75,8 @@ interface Expense {
   created_at: string;
 }
 
+type UserEmailMap = Record<string, string>;
+
 const EXPENSE_CATEGORIES = [
   "Travel",
   "Food & Meals",
@@ -91,6 +93,7 @@ const AdminDashboard = () => {
   const [salesEvaluations, setSalesEvaluations] = useState<SalesEvaluationAdmin[]>([]);
   const [billingCycles, setBillingCycles] = useState<BillingCycle[]>([]);
   const [recentExpenses, setRecentExpenses] = useState<Expense[]>([]);
+  const [expenseEmailMap, setExpenseEmailMap] = useState<UserEmailMap>({});
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -193,7 +196,23 @@ const AdminDashboard = () => {
       if (expenseError) {
         console.error("Error loading expenses:", expenseError);
       } else {
-        setRecentExpenses((expenseData as unknown as Expense[]) || []);
+        const expList = (expenseData as unknown as Expense[]) || [];
+        setRecentExpenses(expList);
+
+        // Look up submitter emails
+        const uniqueIds = [...new Set(expList.map((e) => e.user_id))];
+        if (uniqueIds.length > 0) {
+          const { data: emailRows } = await supabase.rpc("get_user_emails" as any, {
+            user_ids: uniqueIds,
+          });
+          if (emailRows) {
+            const map: UserEmailMap = {};
+            (emailRows as unknown as { user_id: string; email: string }[]).forEach(
+              (r) => (map[r.user_id] = r.email)
+            );
+            setExpenseEmailMap(map);
+          }
+        }
       }
     } catch (error: any) {
       toast({
@@ -569,13 +588,14 @@ const AdminDashboard = () => {
                         <TableHead>Category</TableHead>
                         <TableHead>Amount</TableHead>
                         <TableHead>Description</TableHead>
+                        <TableHead>Added by</TableHead>
                         <TableHead>Bill</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {recentExpenses.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                          <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                             No expenses yet
                           </TableCell>
                         </TableRow>
@@ -586,6 +606,7 @@ const AdminDashboard = () => {
                             <TableCell>{exp.category}</TableCell>
                             <TableCell>₹{Number(exp.amount).toLocaleString()}</TableCell>
                             <TableCell className="max-w-xs truncate">{exp.description || "-"}</TableCell>
+                            <TableCell className="text-xs text-muted-foreground">{expenseEmailMap[exp.user_id] || "-"}</TableCell>
                             <TableCell>
                               {exp.bill_url ? (
                                 <a

@@ -44,8 +44,11 @@ interface Expense {
   created_at: string;
 }
 
+type UserEmailMap = Record<string, string>;
+
 const AdminExpenses = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [emailMap, setEmailMap] = useState<UserEmailMap>({});
   const [isLoading, setIsLoading] = useState(true);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -94,7 +97,23 @@ const AdminExpenses = () => {
       if (error) {
         console.error("Error loading expenses:", error);
       } else {
-        setExpenses((data as unknown as Expense[]) || []);
+        const expList = (data as unknown as Expense[]) || [];
+        setExpenses(expList);
+
+        // Look up submitter emails
+        const uniqueIds = [...new Set(expList.map((e) => e.user_id))];
+        if (uniqueIds.length > 0) {
+          const { data: emailRows } = await supabase.rpc("get_user_emails" as any, {
+            user_ids: uniqueIds,
+          });
+          if (emailRows) {
+            const map: UserEmailMap = {};
+            (emailRows as unknown as { user_id: string; email: string }[]).forEach(
+              (r) => (map[r.user_id] = r.email)
+            );
+            setEmailMap(map);
+          }
+        }
       }
       setIsLoading(false);
     };
@@ -128,7 +147,7 @@ const AdminExpenses = () => {
       toast({ title: "No data", description: "No expenses to export.", variant: "destructive" });
       return;
     }
-    const headers = ["Date", "Category", "Amount (INR)", "Description", "Bill URL"];
+    const headers = ["Date", "Category", "Amount (INR)", "Description", "Added by", "Bill URL"];
     const csv = [
       headers.join(","),
       ...filtered.map((e) =>
@@ -137,6 +156,7 @@ const AdminExpenses = () => {
           `"${e.category}"`,
           e.amount,
           `"${(e.description || "").replace(/"/g, '""')}"`,
+          emailMap[e.user_id] || "",
           e.bill_url || "",
         ].join(",")
       ),
@@ -407,13 +427,14 @@ const AdminExpenses = () => {
                 <TableHead>Category</TableHead>
                 <TableHead>Amount</TableHead>
                 <TableHead>Description</TableHead>
+                <TableHead>Added by</TableHead>
                 <TableHead>Bill</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     No expenses found
                   </TableCell>
                 </TableRow>
@@ -424,6 +445,7 @@ const AdminExpenses = () => {
                     <TableCell>{exp.category}</TableCell>
                     <TableCell>₹{Number(exp.amount).toLocaleString()}</TableCell>
                     <TableCell className="max-w-xs truncate">{exp.description || "-"}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{emailMap[exp.user_id] || "-"}</TableCell>
                     <TableCell>
                       {exp.bill_url ? (
                         <a
