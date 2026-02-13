@@ -125,6 +125,22 @@ const InternalDashboard = () => {
                 </div>
               </article>
             )}
+
+            {hasSalesAccess && (
+              <article className="bg-card border rounded-xl p-6 shadow-sm flex flex-col justify-between">
+                <div>
+                  <h2 className="text-xl font-semibold mb-2">Expenses</h2>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Log your expenses with optional bill attachments. Track your spending history in one place.
+                  </p>
+                </div>
+                <div className="mt-4">
+                  <Button asChild className="w-full md:w-auto">
+                    <Link to="/internal/expenses">Add expenses</Link>
+                  </Button>
+                </div>
+              </article>
+            )}
           </div>
         </section>
       </main>

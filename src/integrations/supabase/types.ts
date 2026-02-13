@@ -47,6 +47,39 @@ export type Database = {
         }
         Relationships: []
       }
+      expenses: {
+        Row: {
+          amount: number
+          bill_url: string | null
+          category: string
+          created_at: string
+          date: string
+          description: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          bill_url?: string | null
+          category: string
+          created_at?: string
+          date: string
+          description?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          bill_url?: string | null
+          category?: string
+          created_at?: string
+          date?: string
+          description?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       hiring_applications: {
         Row: {
           additional_notes: string | null
