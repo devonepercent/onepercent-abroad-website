@@ -216,9 +216,6 @@ const BlogManager = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-semibold truncate">{blog.title}</h3>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${blog.published ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
-                            {blog.published ? "Published" : "Draft"}
-                          </span>
                         </div>
                         <p className="text-sm text-muted-foreground">
                           /{blog.slug} · {new Date(blog.created_at).toLocaleDateString()}
