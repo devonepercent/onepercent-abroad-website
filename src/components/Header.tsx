@@ -125,6 +125,13 @@ const Header = () => {
               FAQ
             </button>
             <Link
+              to="/blog"
+              onClick={() => setIsOpen(false)}
+              className="text-left text-lg font-medium text-foreground hover:text-primary transition-colors"
+            >
+              Updates
+            </Link>
+            <Link
               to="/hiring"
               onClick={() => setIsOpen(false)}
               className="text-left text-lg font-medium text-foreground hover:text-primary transition-colors"
