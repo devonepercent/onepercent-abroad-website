@@ -102,7 +102,7 @@ const BlogManager = () => {
       setTitle(blog.title);
       setSlug(blog.slug);
       setBody(blog.body);
-      setPublished(blog.published);
+      // published is always true
     } else {
       setEditingBlog(null);
       setTitle("");
