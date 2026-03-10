@@ -108,7 +108,7 @@ const BlogManager = () => {
       setTitle("");
       setSlug("");
       setBody("");
-      setPublished(false);
+      // published is always true
     }
     setView("editor");
   };
