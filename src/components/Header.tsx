@@ -63,6 +63,12 @@ const Header = () => {
             FAQ
           </button>
           <Link
+            to="/blog"
+            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+          >
+            Updates
+          </Link>
+          <Link
             to="/hiring"
             className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
           >
