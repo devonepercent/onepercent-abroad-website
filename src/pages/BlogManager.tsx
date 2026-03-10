@@ -9,7 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Pencil, Trash2, Eye, Plus, ArrowLeft } from "lucide-react";
+import { Pencil, Trash2, Eye, Plus, ArrowLeft, Link2, X } from "lucide-react";
+
+interface SourceLink {
+  label: string;
+  url: string;
+}
 
 interface Blog {
   id: string;
@@ -17,6 +22,7 @@ interface Blog {
   slug: string;
   body: string;
   published: boolean;
+  source_links: SourceLink[];
   created_at: string;
   updated_at: string;
 }
@@ -34,6 +40,7 @@ const BlogManager = () => {
   const [slug, setSlug] = useState("");
   const [body, setBody] = useState("");
   const [published] = useState(true);
+  const [sourceLinks, setSourceLinks] = useState<SourceLink[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
   const { toast } = useToast();
@@ -102,15 +109,29 @@ const BlogManager = () => {
       setTitle(blog.title);
       setSlug(blog.slug);
       setBody(blog.body);
-      // published is always true
+      setSourceLinks(Array.isArray(blog.source_links) ? blog.source_links : []);
     } else {
       setEditingBlog(null);
       setTitle("");
       setSlug("");
       setBody("");
-      // published is always true
+      setSourceLinks([]);
     }
     setView("editor");
+  };
+
+  const addSourceLink = () => {
+    setSourceLinks([...sourceLinks, { label: "", url: "" }]);
+  };
+
+  const updateSourceLink = (index: number, field: keyof SourceLink, value: string) => {
+    const updated = [...sourceLinks];
+    updated[index] = { ...updated[index], [field]: value };
+    setSourceLinks(updated);
+  };
+
+  const removeSourceLink = (index: number) => {
+    setSourceLinks(sourceLinks.filter((_, i) => i !== index));
   };
 
   const handleSave = async () => {
@@ -120,18 +141,19 @@ const BlogManager = () => {
     }
 
     setIsSaving(true);
+    const validLinks = sourceLinks.filter(l => l.url.trim());
     try {
       if (editingBlog) {
         const { error } = await supabase
           .from("blogs" as any)
-          .update({ title, slug, body, published, updated_at: new Date().toISOString() } as any)
+          .update({ title, slug, body, published, source_links: validLinks, updated_at: new Date().toISOString() } as any)
           .eq("id", editingBlog.id);
         if (error) throw error;
         toast({ title: "Updated", description: "Blog post updated successfully." });
       } else {
         const { error } = await supabase
           .from("blogs" as any)
-          .insert({ title, slug, body, published, author_id: userId } as any);
+          .insert({ title, slug, body, published, source_links: validLinks, author_id: userId } as any);
         if (error) throw error;
         toast({ title: "Created", description: "Blog post created successfully." });
       }
@@ -271,6 +293,37 @@ const BlogManager = () => {
                     className="min-h-[300px]" />
                 </div>
 
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label>Source Links</Label>
+                    <Button type="button" variant="outline" size="sm" onClick={addSourceLink}>
+                      <Link2 className="w-4 h-4 mr-2" /> Add Link
+                    </Button>
+                  </div>
+                  {sourceLinks.length === 0 && (
+                    <p className="text-sm text-muted-foreground">No source links added yet.</p>
+                  )}
+                  {sourceLinks.map((link, index) => (
+                    <div key={index} className="flex items-start gap-2 bg-slate-50 border rounded-lg p-3">
+                      <div className="flex-1 space-y-2">
+                        <Input
+                          value={link.label}
+                          onChange={(e) => updateSourceLink(index, "label", e.target.value)}
+                          placeholder="Link label (e.g. Research Paper)"
+                        />
+                        <Input
+                          value={link.url}
+                          onChange={(e) => updateSourceLink(index, "url", e.target.value)}
+                          placeholder="https://example.com/source"
+                        />
+                      </div>
+                      <Button type="button" variant="ghost" size="sm" onClick={() => removeSourceLink(index)}
+                        className="text-destructive hover:text-destructive shrink-0 mt-1">
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
 
                 <div className="flex gap-3">
                   <Button onClick={handleSave} disabled={isSaving}>

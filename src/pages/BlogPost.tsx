@@ -3,13 +3,19 @@ import { useParams, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
+
+interface SourceLink {
+  label: string;
+  url: string;
+}
 
 interface Blog {
   id: string;
   title: string;
   slug: string;
   body: string;
+  source_links: SourceLink[];
   created_at: string;
 }
 
@@ -25,7 +31,7 @@ const BlogPost = () => {
 
       const { data, error } = await supabase
         .from("blogs" as any)
-        .select("id, title, slug, body, created_at")
+        .select("id, title, slug, body, source_links, created_at")
         .eq("slug", slug)
         .eq("published", true)
         .limit(1)
@@ -88,6 +94,27 @@ const BlogPost = () => {
           <div className="prose prose-lg max-w-none text-foreground leading-relaxed whitespace-pre-wrap">
             {blog.body}
           </div>
+
+          {Array.isArray(blog.source_links) && blog.source_links.length > 0 && (
+            <div className="mt-10 pt-6 border-t">
+              <h2 className="text-lg font-semibold mb-3">Sources</h2>
+              <ul className="space-y-2">
+                {blog.source_links.map((link, index) => (
+                  <li key={index}>
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-primary hover:underline"
+                    >
+                      <ExternalLink className="w-4 h-4 shrink-0" />
+                      {link.label?.trim() || link.url}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </article>
       </main>
       <Footer />
