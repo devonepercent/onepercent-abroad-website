@@ -222,13 +222,11 @@ const BlogManager = () => {
                         </p>
                       </div>
                       <div className="flex gap-2 shrink-0">
-                        {blog.published && (
-                          <Button variant="outline" size="sm" asChild>
-                            <a href={`/blog/${blog.slug}`} target="_blank" rel="noreferrer">
-                              <Eye className="w-4 h-4" />
-                            </a>
-                          </Button>
-                        )}
+                        <Button variant="outline" size="sm" asChild>
+                          <a href={`/blog/${blog.slug}`} target="_blank" rel="noreferrer">
+                            <Eye className="w-4 h-4" />
+                          </a>
+                        </Button>
                         <Button variant="outline" size="sm" onClick={() => openEditor(blog)}>
                           <Pencil className="w-4 h-4" />
                         </Button>
