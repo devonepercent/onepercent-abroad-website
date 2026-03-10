@@ -103,10 +103,11 @@ const AdminLogin = () => {
 
       if (roleList.includes("admin")) {
         navigate("/admin/dashboard");
+      } else if (roleList.includes("blog_manager")) {
+        navigate("/internal/blog");
       } else if (roleList.includes("sales")) {
         navigate("/internal");
       } else {
-        // Fallback if some other internal role is added later
         navigate("/internal");
       }
     } catch (error: any) {
