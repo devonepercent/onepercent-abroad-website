@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
+
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Pencil, Trash2, Eye, Plus, ArrowLeft } from "lucide-react";
@@ -33,7 +33,7 @@ const BlogManager = () => {
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [body, setBody] = useState("");
-  const [published, setPublished] = useState(false);
+  const [published] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   const { toast } = useToast();
@@ -102,13 +102,13 @@ const BlogManager = () => {
       setTitle(blog.title);
       setSlug(blog.slug);
       setBody(blog.body);
-      setPublished(blog.published);
+      // published is always true
     } else {
       setEditingBlog(null);
       setTitle("");
       setSlug("");
       setBody("");
-      setPublished(false);
+      // published is always true
     }
     setView("editor");
   };
@@ -216,22 +216,17 @@ const BlogManager = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-semibold truncate">{blog.title}</h3>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${blog.published ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
-                            {blog.published ? "Published" : "Draft"}
-                          </span>
                         </div>
                         <p className="text-sm text-muted-foreground">
                           /{blog.slug} · {new Date(blog.created_at).toLocaleDateString()}
                         </p>
                       </div>
                       <div className="flex gap-2 shrink-0">
-                        {blog.published && (
-                          <Button variant="outline" size="sm" asChild>
-                            <a href={`/blog/${blog.slug}`} target="_blank" rel="noreferrer">
-                              <Eye className="w-4 h-4" />
-                            </a>
-                          </Button>
-                        )}
+                        <Button variant="outline" size="sm" asChild>
+                          <a href={`/blog/${blog.slug}`} target="_blank" rel="noreferrer">
+                            <Eye className="w-4 h-4" />
+                          </a>
+                        </Button>
                         <Button variant="outline" size="sm" onClick={() => openEditor(blog)}>
                           <Pencil className="w-4 h-4" />
                         </Button>
@@ -276,10 +271,6 @@ const BlogManager = () => {
                     className="min-h-[300px]" />
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <Switch id="published" checked={published} onCheckedChange={setPublished} />
-                  <Label htmlFor="published">Publish immediately</Label>
-                </div>
 
                 <div className="flex gap-3">
                   <Button onClick={handleSave} disabled={isSaving}>
