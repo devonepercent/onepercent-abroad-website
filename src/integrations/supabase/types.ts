@@ -47,6 +47,39 @@ export type Database = {
         }
         Relationships: []
       }
+      blogs: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          published: boolean
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          published?: boolean
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          published?: boolean
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       expenses: {
         Row: {
           amount: number
@@ -218,7 +251,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user" | "sales"
+      app_role: "admin" | "user" | "sales" | "blog_manager"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -346,7 +379,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user", "sales"],
+      app_role: ["admin", "user", "sales", "blog_manager"],
     },
   },
 } as const
