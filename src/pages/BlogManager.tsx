@@ -271,10 +271,6 @@ const BlogManager = () => {
                     className="min-h-[300px]" />
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <Switch id="published" checked={published} onCheckedChange={setPublished} />
-                  <Label htmlFor="published">Publish immediately</Label>
-                </div>
 
                 <div className="flex gap-3">
                   <Button onClick={handleSave} disabled={isSaving}>
