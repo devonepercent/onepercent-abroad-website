@@ -33,7 +33,7 @@ const BlogManager = () => {
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [body, setBody] = useState("");
-  const [published, setPublished] = useState(false);
+  const [published] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   const { toast } = useToast();
