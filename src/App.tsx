@@ -19,6 +19,9 @@ import SalesHiring from "./pages/SalesHiring";
 import ResetPassword from "./pages/ResetPassword";
 import AddExpense from "./pages/AddExpense";
 import AdminExpenses from "./pages/AdminExpenses";
+import BlogManager from "./pages/BlogManager";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import { initMetaPixel, trackMetaEvent } from "./lib/metaPixel";
 
 const queryClient = new QueryClient();
