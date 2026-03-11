@@ -2,157 +2,125 @@ import { useEffect, useState } from "react";
 
 const testimonials = [
   {
-    text: "It's a wonderful platform to get the right mentors, and the OnePercent Abroad team will always be there to help you out, no matter what.",
-    name: "Aashik Safar",
-    university: "University of Toronto",
-    initials: "AS",
-    image: "", // Add image URL here (e.g., "/images/aashik.jpg")
+    text: "I never thought that i could achieve this. I have approached many agencies, and I finally came to 1%abroad. They helped me with my confidence and cleared my self-doubts in all stages, it has been very helpful.",
+    name: "Sisa Maria Sunny",
+    background: "From music teacher to world-class journalist.",
+    program: "Masters in Journalism, Media and Globalization, Erasmus Mundus",
+    initials: "SS",
+    image: "/images/testimonials/SISA MARIA SUNNY.png",
   },
   {
-    text: "The guidance I received here has paved the way to secure admission to my dream university and course.",
-    name: "Lamshana",
-    university: "Columbia University",
-    initials: "L",
-    image: "", // Add image URL here
+    text: "Thanks to team 1%abroad for helping me throughout this journey.. Only after the profile analysis through 1%abroad did I realize that i can aim for the very best universities in the world. Team 1% has always been supportive of the choices I made instead of them putting their choices on me. I recommend 1%abroad to anybody who wants to get into top 1% of the people when it comes to studying abroad.",
+    name: "Ananthakrishnan",
+    background: "Online BCA Graduate to AI Pioneer.",
+    program: "AI in Medicine, University of Bern, Switzerland",
+    initials: "AK",
+    image: "/images/testimonials/ANANTHAKRISHNAN.png",
   },
   {
-    text: "OnePercent Abroad's experts guided me at every step of my PhD application process. I would highly recommend them to any PhD aspirant.",
-    name: "Archana",
-    university: "University of Cambridge",
-    initials: "A",
-    image: "", // Add image URL here
-  },
-  {
-    text: "Their systematic approach and access to top-tier mentors made the entire application process manageable and successful.",
+    text: "Mentorship has helped me in shortlisting courses, to understand what is realistically possible for me to achieve. They also helped in practical ways to achieve these results and kept me clocked in with the deadlines.",
     name: "Amaresh",
-    university: "ETH Zurich",
-    initials: "A",
-    image: "", // Add image URL here
-  },
-  {
-    text: "I am incredibly grateful for their support. The personalized strategy they developed for me was a game-changer.",
-    name: "Sisa",
-    university: "Imperial College London",
-    initials: "S",
-    image: "", // Add image URL here
+    background: "60 Lakhs Awarded: The Power of Strategy.",
+    program: "EMINENT, Erasmus Mundus",
+    initials: "AM",
+    image: "/images/testimonials/AMARESH.png",
   },
 ];
 
 const Testimonials = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % testimonials.length);
+    }, 4000);
+    return () => clearInterval(interval);
   }, []);
-
-  useEffect(() => {
-    if (isMobile) {
-      const interval = setInterval(() => {
-        setActiveIndex((prev) => (prev + 1) % testimonials.length);
-      }, 4000);
-      return () => clearInterval(interval);
-    }
-  }, [isMobile]);
 
   return (
     <section id="testimonials" className="w-full px-4 py-24 sm:px-10 lg:px-20 sm:py-32 bg-primary text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-radial from-secondary/20 via-transparent to-transparent opacity-50"></div>
-      <div className="max-w-7xl mx-auto flex flex-col items-center gap-12 z-10 relative">
-        <div className="text-center max-w-2xl">
-          <span className="text-xs sm:text-sm font-bold uppercase tracking-widest text-accent">
-            Social Proof
-          </span>
-          <h2 className="mt-4 text-3xl sm:text-4xl font-bold tracking-tight sm:text-5xl">
-            What Our Students Say
-          </h2>
-          <p className="mt-6 text-base sm:text-lg text-gray-300">
-            Hear from the students we've helped achieve their academic dreams.
-          </p>
-        </div>
+      <div className="max-w-7xl mx-auto z-10 relative">
 
-        {/* Mobile View - Single Card with Fade Animation */}
-        <div className="md:hidden w-full max-w-sm">
+        {/* Mobile View - Slideshow */}
+        <div className="md:hidden w-full max-w-sm mx-auto relative min-h-[320px]">
           {testimonials.map((testimonial, idx) => (
             <div
               key={idx}
-              className={`transition-all duration-700 ${
+              className={`absolute inset-0 transition-all duration-700 ${
                 idx === activeIndex
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 absolute translate-y-4 pointer-events-none"
+                  ? "opacity-100 translate-y-0 pointer-events-auto"
+                  : "opacity-0 translate-y-4 pointer-events-none"
               }`}
             >
-              <div className="flex flex-col gap-6 p-6 rounded-xl border border-white/10 bg-secondary/20 backdrop-blur-sm">
-                <p className="text-gray-200 leading-relaxed">{testimonial.text}</p>
-                <div className="flex items-center gap-4 pt-4 border-t border-white/10">
-                  <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center text-accent text-xl font-bold overflow-hidden shrink-0">
-                    {testimonial.image ? (
-                      <img src={testimonial.image} alt={testimonial.name} className="w-full h-full object-cover" />
-                    ) : (
-                      testimonial.initials
-                    )}
+              <div className="flex flex-col gap-5 p-6 rounded-xl border border-white/10 bg-secondary/20 backdrop-blur-sm h-full">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-accent/20 flex items-center justify-center text-accent text-lg font-bold overflow-hidden shrink-0">
+                    <img
+                      src={testimonial.image}
+                      alt={testimonial.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.display = "none";
+                        (e.currentTarget.parentElement as HTMLElement).innerText = testimonial.initials;
+                      }}
+                    />
                   </div>
                   <div>
                     <p className="font-bold text-white">{testimonial.name}</p>
-                    <p className="text-sm text-accent">{testimonial.university}</p>
+                    <p className="text-xs text-accent italic">{testimonial.background}</p>
                   </div>
                 </div>
+                <p className="text-gray-200 leading-relaxed text-sm flex-1">"{testimonial.text}"</p>
+                <p className="text-xs text-accent/80 border-t border-white/10 pt-3">{testimonial.program}</p>
               </div>
             </div>
           ))}
-          
-          {/* Dots Indicator */}
-          <div className="flex justify-center gap-2 mt-6">
+
+          {/* Dots */}
+          <div className="absolute -bottom-8 left-0 right-0 flex justify-center gap-2">
             {testimonials.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setActiveIndex(idx)}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  idx === activeIndex ? "bg-accent w-8" : "bg-white/30"
+                className={`h-2 rounded-full transition-all ${
+                  idx === activeIndex ? "bg-accent w-8" : "bg-white/30 w-2"
                 }`}
               />
             ))}
           </div>
         </div>
 
-        {/* Desktop View - Scrolling Marquee */}
-        <div className="hidden md:block w-full overflow-hidden relative">
-          {/* Gradient edges */}
-          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-primary to-transparent z-10 pointer-events-none"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-primary to-transparent z-10 pointer-events-none"></div>
-          
-          <div className="flex animate-marquee">
-            <div className="flex shrink-0 items-stretch gap-8 px-4">
-              {testimonials.map((testimonial, idx) => (
-                <div
-                  key={`${idx}-1`}
-                  className="flex w-[380px] flex-col gap-6 p-6 rounded-xl border border-white/10 bg-secondary/20 backdrop-blur-sm whitespace-normal"
-                >
-                  <p className="text-gray-200 leading-relaxed">{testimonial.text}</p>
-                  <div className="flex items-center gap-4 pt-4 border-t border-white/10">
-                    <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center text-accent text-xl font-bold overflow-hidden shrink-0">
-                      {testimonial.image ? (
-                        <img src={testimonial.image} alt={testimonial.name} className="w-full h-full object-cover" />
-                      ) : (
-                        testimonial.initials
-                      )}
-                    </div>
-                    <div className="whitespace-normal">
-                      <p className="font-bold text-white">{testimonial.name}</p>
-                      <p className="text-sm text-accent">{testimonial.university}</p>
-                    </div>
-                  </div>
+        {/* Desktop View - 3 columns */}
+        <div className="hidden md:grid grid-cols-3 gap-8">
+          {testimonials.map((testimonial, idx) => (
+            <div
+              key={idx}
+              className="flex flex-col gap-5 p-7 rounded-xl border border-white/10 bg-secondary/20 backdrop-blur-sm"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-full bg-accent/20 flex items-center justify-center text-accent text-lg font-bold overflow-hidden shrink-0">
+                  <img
+                    src={testimonial.image}
+                    alt={testimonial.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).style.display = "none";
+                      (e.currentTarget.parentElement as HTMLElement).innerText = testimonial.initials;
+                    }}
+                  />
                 </div>
-              ))}
+                <div>
+                  <p className="font-bold text-white">{testimonial.name}</p>
+                  <p className="text-xs text-accent italic">{testimonial.background}</p>
+                </div>
+              </div>
+              <p className="text-gray-200 leading-relaxed flex-1">"{testimonial.text}"</p>
+              <p className="text-sm text-accent/80 border-t border-white/10 pt-4">{testimonial.program}</p>
             </div>
-          </div>
+          ))}
         </div>
+
       </div>
     </section>
   );
