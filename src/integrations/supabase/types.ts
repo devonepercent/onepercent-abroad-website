@@ -155,6 +155,72 @@ export type Database = {
         }
         Relationships: []
       }
+      leads: {
+        Row: {
+          academic_score: string
+          country_code: string
+          course_interests: string[]
+          created_at: string
+          degree: string
+          destinations: string[]
+          email: string
+          full_name: string
+          heard_from: string | null
+          id: string
+          investment_readiness: string
+          phone: string
+          start_year: string
+          step_reached: number
+          utm_ad: string | null
+          utm_adset: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          academic_score: string
+          country_code?: string
+          course_interests?: string[]
+          created_at?: string
+          degree: string
+          destinations: string[]
+          email: string
+          full_name: string
+          heard_from?: string | null
+          id?: string
+          investment_readiness: string
+          phone: string
+          start_year: string
+          step_reached?: number
+          utm_ad?: string | null
+          utm_adset?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          academic_score?: string
+          country_code?: string
+          course_interests?: string[]
+          created_at?: string
+          degree?: string
+          destinations?: string[]
+          email?: string
+          full_name?: string
+          heard_from?: string | null
+          id?: string
+          investment_readiness?: string
+          phone?: string
+          start_year?: string
+          step_reached?: number
+          utm_ad?: string | null
+          utm_adset?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
       sales_evaluations: {
         Row: {
           candidate_name: string | null
