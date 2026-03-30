@@ -22,6 +22,8 @@ import AdminExpenses from "./pages/AdminExpenses";
 import BlogManager from "./pages/BlogManager";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import LeadForm from "./pages/LeadForm";
+import LeadThankYou from "./pages/LeadThankYou";
 import { initMetaPixel, trackMetaEvent } from "./lib/metaPixel";
 
 const queryClient = new QueryClient();
