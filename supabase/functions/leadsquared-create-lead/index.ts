@@ -20,7 +20,7 @@ serve(async (req) => {
       throw new Error('LeadSquared credentials not configured');
     }
 
-    const { name, email, phoneNumber, countryCode } = await req.json();
+    const { name, email, phoneNumber, countryCode, degree, destinations, startYear, courseInterests, investmentReadiness, academicScore, heardFrom, utm_source, utm_campaign, utm_adset, utm_ad, utm_medium } = await req.json();
     console.log('Creating lead for:', { name, email, phoneNumber: `${countryCode}${phoneNumber}` });
 
     // Prepare lead data for LeadSquared
@@ -28,7 +28,18 @@ serve(async (req) => {
       { "Attribute": "EmailAddress", "Value": email },
       { "Attribute": "FirstName", "Value": name },
       { "Attribute": "Phone", "Value": `${countryCode}${phoneNumber}` },
-      { "Attribute": "Source", "Value": "Webinar Registration" }
+      { "Attribute": "Source", "Value": utm_source || "Website Lead Form" },
+      ...(degree ? [{ "Attribute": "mx_Degree", "Value": degree }] : []),
+      ...(destinations ? [{ "Attribute": "mx_Destinations", "Value": destinations }] : []),
+      ...(startYear ? [{ "Attribute": "mx_Start_Year", "Value": startYear }] : []),
+      ...(courseInterests ? [{ "Attribute": "mx_Course_Interests", "Value": courseInterests }] : []),
+      ...(investmentReadiness ? [{ "Attribute": "mx_Investment_Readiness", "Value": investmentReadiness }] : []),
+      ...(academicScore ? [{ "Attribute": "mx_Academic_Score", "Value": academicScore }] : []),
+      ...(heardFrom ? [{ "Attribute": "mx_Heard_From", "Value": heardFrom }] : []),
+      ...(utm_campaign ? [{ "Attribute": "mx_UTM_Campaign", "Value": utm_campaign }] : []),
+      ...(utm_medium ? [{ "Attribute": "mx_UTM_Medium", "Value": utm_medium }] : []),
+      ...(utm_adset ? [{ "Attribute": "mx_UTM_Adset", "Value": utm_adset }] : []),
+      ...(utm_ad ? [{ "Attribute": "mx_UTM_Ad", "Value": utm_ad }] : []),
     ];
 
     const response = await fetch(

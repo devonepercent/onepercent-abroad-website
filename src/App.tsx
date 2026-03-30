@@ -22,6 +22,8 @@ import AdminExpenses from "./pages/AdminExpenses";
 import BlogManager from "./pages/BlogManager";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import LeadForm from "./pages/LeadForm";
+import LeadThankYou from "./pages/LeadThankYou";
 import { initMetaPixel, trackMetaEvent } from "./lib/metaPixel";
 
 const queryClient = new QueryClient();
@@ -57,6 +59,8 @@ const AppRoutes = () => {
       <Route path="/internal/blog" element={<BlogManager />} />
       <Route path="/blog" element={<Blog />} />
       <Route path="/blog/:slug" element={<BlogPost />} />
+      <Route path="/get-started" element={<LeadForm />} />
+      <Route path="/get-started/thank-you" element={<LeadThankYou />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
