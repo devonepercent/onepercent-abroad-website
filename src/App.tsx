@@ -24,6 +24,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import LeadForm from "./pages/LeadForm";
 import LeadThankYou from "./pages/LeadThankYou";
+import MuhasinTask from "./pages/MuhasinTask";
 import { initMetaPixel, trackMetaEvent } from "./lib/metaPixel";
 
 const queryClient = new QueryClient();
@@ -61,6 +62,7 @@ const AppRoutes = () => {
       <Route path="/blog/:slug" element={<BlogPost />} />
       <Route path="/get-started" element={<LeadForm />} />
       <Route path="/get-started/thank-you" element={<LeadThankYou />} />
+      <Route path="/muhasinatask" element={<MuhasinTask />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
