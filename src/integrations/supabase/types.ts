@@ -165,9 +165,8 @@ export type Database = {
           destinations: string[]
           email: string
           full_name: string
-          heard_from: string | null
           id: string
-          investment_readiness: string
+          investment_budget: string | null
           phone: string
           start_year: string
           step_reached: number
@@ -186,9 +185,8 @@ export type Database = {
           destinations: string[]
           email: string
           full_name: string
-          heard_from?: string | null
           id?: string
-          investment_readiness: string
+          investment_budget?: string | null
           phone: string
           start_year: string
           step_reached?: number
@@ -207,9 +205,8 @@ export type Database = {
           destinations?: string[]
           email?: string
           full_name?: string
-          heard_from?: string | null
           id?: string
-          investment_readiness?: string
+          investment_budget?: string | null
           phone?: string
           start_year?: string
           step_reached?: number

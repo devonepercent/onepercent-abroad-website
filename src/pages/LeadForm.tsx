@@ -10,13 +10,13 @@ import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
 const DEGREES = ["Masters", "MBA", "Bachelor's"];
 const DESTINATIONS = ["USA", "Germany", "UK", "Canada", "Australia", "France", "Ireland", "Netherlands", "Other"];
 const START_YEARS = ["2026", "2027", "2028+"];
-const INVESTMENT_OPTIONS = [
-  "Yes, ready to invest",
-  "Open if value is right",
-  "Looking for free options only",
-];
 const ACADEMIC_SCORES = ["Above 7.5 / 75%+", "Below 7.5 or other system"];
-const HEARD_FROM_OPTIONS = ["Instagram", "Facebook", "Friend", "Other"];
+const INVESTMENT_BUDGET_OPTIONS = [
+  "5 to 15 Lakhs",
+  "15 to 40 L",
+  "40 to 70 L",
+  "70+ L",
+];
 const POPULAR_COURSES = [
   "Computer Science", "Data Science", "Artificial Intelligence", "MBA / Business",
   "Mechanical Engineering", "Electrical Engineering", "Civil Engineering",
@@ -45,13 +45,12 @@ type FormData = {
   destinations: string[];
   startYear: string;
   courseInterests: string[];
-  investmentReadiness: string;
   academicScore: string;
+  investmentBudget: string;
   fullName: string;
   email: string;
   phone: string;
   countryCode: string;
-  heardFrom: string;
 };
 
 const LeadForm = () => {
@@ -68,13 +67,12 @@ const LeadForm = () => {
     destinations: [],
     startYear: "",
     courseInterests: [],
-    investmentReadiness: "",
     academicScore: "",
+    investmentBudget: "",
     fullName: "",
     email: "",
     phone: "",
     countryCode: "+91",
-    heardFrom: "",
   });
 
   const utmData = {
@@ -131,7 +129,7 @@ const LeadForm = () => {
     switch (step) {
       case 1: return form.degree !== "" && form.destinations.length > 0;
       case 2: return form.startYear !== "";
-      case 3: return form.investmentReadiness !== "" && form.academicScore !== "";
+      case 3: return form.academicScore !== "" && form.investmentBudget !== "";
       case 4: return form.fullName.trim() !== "" && form.email.includes("@") && form.phone.length >= 7;
       default: return false;
     }
@@ -148,13 +146,12 @@ const LeadForm = () => {
         destinations: form.destinations,
         start_year: form.startYear,
         course_interests: form.courseInterests,
-        investment_readiness: form.investmentReadiness,
         academic_score: form.academicScore,
+        investment_budget: form.investmentBudget,
         full_name: form.fullName.trim(),
         email: form.email.trim().toLowerCase(),
         phone: form.phone.trim(),
         country_code: form.countryCode,
-        heard_from: form.heardFrom || null,
         utm_source: utmData.utm_source || null,
         utm_campaign: utmData.utm_campaign || null,
         utm_adset: utmData.utm_adset || null,
@@ -188,9 +185,8 @@ const LeadForm = () => {
             destinations: form.destinations.join(", "),
             startYear: form.startYear,
             courseInterests: form.courseInterests.join(", "),
-            investmentReadiness: form.investmentReadiness,
             academicScore: form.academicScore,
-            heardFrom: form.heardFrom,
+            investmentBudget: form.investmentBudget,
             ...utmData,
           },
         });
@@ -198,7 +194,7 @@ const LeadForm = () => {
         console.error("LeadSquared error (non-blocking):", lsError);
       }
 
-      navigate("/get-started/thank-you");
+      window.location.href = "https://chat.whatsapp.com/GzkeVrL9N1S749BhMkdXN9";
     } catch (error) {
       console.error("Submission error:", error);
       toast({
@@ -373,26 +369,6 @@ const LeadForm = () => {
           {step === 3 && (
             <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
               <div>
-                <h2 className="text-xl font-bold text-foreground mb-1">Investment readiness</h2>
-                <p className="text-sm text-muted-foreground">How ready are you to invest in your education?</p>
-              </div>
-              <div className="space-y-3">
-                {INVESTMENT_OPTIONS.map((opt) => (
-                  <button
-                    key={opt}
-                    onClick={() => setForm((p) => ({ ...p, investmentReadiness: opt }))}
-                    className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all text-sm font-medium ${
-                      form.investmentReadiness === opt
-                        ? "border-primary bg-primary/5 text-primary"
-                        : "border-border bg-card text-foreground hover:border-primary/40"
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-
-              <div>
                 <h2 className="text-xl font-bold text-foreground mb-1">Your academic score</h2>
                 <p className="text-sm text-muted-foreground">Select the range that applies</p>
               </div>
@@ -408,6 +384,26 @@ const LeadForm = () => {
                     }`}
                   >
                     {s}
+                  </button>
+                ))}
+              </div>
+
+              <div>
+                <h2 className="text-xl font-bold text-foreground mb-1">How much are you willing to invest in higher education?</h2>
+                <p className="text-sm text-muted-foreground">Select one</p>
+              </div>
+              <div className="space-y-3">
+                {INVESTMENT_BUDGET_OPTIONS.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => setForm((p) => ({ ...p, investmentBudget: opt }))}
+                    className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all text-sm font-medium ${
+                      form.investmentBudget === opt
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-border bg-card text-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    {opt}
                   </button>
                 ))}
               </div>
@@ -464,24 +460,6 @@ const LeadForm = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="text-sm font-medium text-foreground mb-1.5 block">How did you hear about us?</label>
-                  <div className="flex flex-wrap gap-2">
-                    {HEARD_FROM_OPTIONS.map((opt) => (
-                      <button
-                        key={opt}
-                        onClick={() => setForm((p) => ({ ...p, heardFrom: p.heardFrom === opt ? "" : opt }))}
-                        className={`px-4 py-2 rounded-full border-2 text-sm font-medium transition-all ${
-                          form.heardFrom === opt
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-border bg-card text-foreground hover:border-primary/40"
-                        }`}
-                      >
-                        {opt}
-                      </button>
-                    ))}
-                  </div>
-                </div>
               </div>
             </div>
           )}

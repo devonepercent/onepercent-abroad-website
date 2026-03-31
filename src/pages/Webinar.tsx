@@ -169,7 +169,8 @@ const Webinar = () => {
           name,
           email,
           phoneNumber,
-          countryCode
+          countryCode,
+          utm_source: "Webinar"
         }
       }).then(({
         error: lsError

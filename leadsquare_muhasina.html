@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LeadSquared Setup — OnePercent Abroad</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f4f6f9;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #0f3460;
+      color: white;
+      padding: 24px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+    header p { font-size: 13px; opacity: 0.7; margin-top: 4px; }
+    .badge {
+      background: #e94560;
+      color: white;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      padding: 20px 40px 0;
+      border-bottom: 2px solid #e0e4ed;
+      background: #fff;
+    }
+
+    .tab-btn {
+      padding: 12px 24px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: #6b7280;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      border-radius: 6px 6px 0 0;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover { color: #0f3460; background: #f4f6f9; }
+    .tab-btn.active { color: #0f3460; border-bottom-color: #e94560; background: #fff; }
+
+    .tab-content { display: none; padding: 36px 40px; max-width: 1100px; }
+    .tab-content.active { display: block; }
+
+    /* SECTION */
+    .section {
+      background: white;
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-bottom: 28px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .section-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .icon-blue { background: #dbeafe; }
+    .icon-green { background: #dcfce7; }
+    .icon-orange { background: #ffedd5; }
+    .icon-purple { background: #ede9fe; }
+    .icon-red { background: #fee2e2; }
+
+    .section h2 { font-size: 17px; font-weight: 700; color: #0f3460; }
+    .section p.subtitle { font-size: 13px; color: #6b7280; margin-top: 3px; }
+
+    /* TABLE */
+    table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    thead tr { background: #f8fafc; }
+    th {
+      text-align: left;
+      padding: 11px 16px;
+      font-weight: 600;
+      color: #374151;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    td {
+      padding: 11px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #374151;
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafbff; }
+
+    code {
+      background: #f1f5f9;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 12px;
+      color: #0f3460;
+    }
+
+    /* PILLS */
+    .pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .pill-required { background: #fee2e2; color: #b91c1c; }
+    .pill-optional { background: #dcfce7; color: #166534; }
+    .pill-new { background: #fef3c7; color: #92400e; }
+    .pill-verify { background: #dbeafe; color: #1e40af; }
+    .pill-action { background: #ede9fe; color: #5b21b6; }
+
+    /* STEPS */
+    .steps { counter-reset: step; }
+    .step {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      align-items: flex-start;
+    }
+    .step-num {
+      counter-increment: step;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #0f3460;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .step-body h4 { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .step-body p { font-size: 13px; color: #4b5563; line-height: 1.6; }
+    .step-body ul { margin-top: 8px; padding-left: 18px; }
+    .step-body ul li { font-size: 13px; color: #4b5563; margin-bottom: 4px; }
+
+    /* NOTE BOX */
+    .note {
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin-top: 16px;
+      font-size: 13px;
+      color: #78350f;
+      line-height: 1.6;
+    }
+
+    .info {
+      background: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin-top: 16px;
+      font-size: 13px;
+      color: #1e3a8a;
+      line-height: 1.6;
+    }
+
+    /* UTM EXAMPLE */
+    .utm-box {
+      background: #0f3460;
+      color: #e2e8f0;
+      padding: 16px 20px;
+      border-radius: 8px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      margin-top: 12px;
+      word-break: break-all;
+    }
+    .utm-box .highlight { color: #f6c90e; font-weight: 700; }
+
+    /* FLOW */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 16px 0;
+    }
+    .flow-box {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #0f3460;
+      text-align: center;
+    }
+    .flow-arrow { color: #9ca3af; font-size: 20px; }
+
+    /* TWO COLUMN */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+    .source-card {
+      border: 1.5px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 18px 20px;
+    }
+    .source-card h4 { font-size: 14px; font-weight: 700; color: #0f3460; margin-bottom: 8px; }
+    .source-card p { font-size: 12.5px; color: #4b5563; line-height: 1.6; }
+
+    .divider { height: 1px; background: #f1f5f9; margin: 20px 0; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>LeadSquared Setup — OnePercent Abroad</h1>
+    <p>Implementation guide for the LeadSquared team</p>
+  </div>
+  <span class="badge">INTERNAL DOC</span>
+</header>
+
+<!-- TABS -->
+<div style="background:white;">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('setup')">Setup &amp; Changes</button>
+    <button class="tab-btn" onclick="showTab('plan')">Overall UTM Plan</button>
+  </div>
+</div>
+
+<!-- ===================== TAB 1: SETUP ===================== -->
+<div id="tab-setup" class="tab-content active">
+
+  <!-- SOURCE FIELD -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🏷️</div>
+      <div>
+        <h2>1. Lead Source Field — Add New Values</h2>
+        <p class="subtitle">Go to LeadSquared → Settings → Lead Fields → Lead Source (dropdown) → Add the following values. This field already exists — just add the new values below.</p>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Value to Add</th>
+          <th>Where it comes from</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>Meta</code></td>
+          <td>Leads from Meta (Facebook/Instagram) paid ads clicking through to website</td>
+          <td><span class="pill pill-new">Add New</span></td>
+        </tr>
+        <tr>
+          <td><code>Instagram_DM</code></td>
+          <td>Leads from Instagram DM links sent manually</td>
+          <td><span class="pill pill-new">Add New</span></td>
+        </tr>
+        <tr>
+          <td><code>Referral</code></td>
+          <td>Leads referred by someone, clicking a referral link</td>
+          <td><span class="pill pill-new">Add New</span></td>
+        </tr>
+        <tr>
+          <td><code>Webinar</code></td>
+          <td>Leads who registered via the Webinar registration form on the website</td>
+          <td><span class="pill pill-new">Add New</span></td>
+        </tr>
+        <tr>
+          <td><code>Website Lead Form</code></td>
+          <td>Default — leads from /get-started page with no UTM source (organic/direct)</td>
+          <td><span class="pill pill-verify">Verify Exists</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note">
+      <strong>Important:</strong> The value in the Source dropdown must match the <code>utm_source</code> parameter in the URL <em>exactly</em> (case-sensitive). E.g. if the ad link uses <code>utm_source=Meta</code>, the dropdown value must be <code>Meta</code> not <code>meta</code>.
+    </div>
+  </div>
+
+  <!-- CUSTOM FIELDS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-blue">📋</div>
+      <div>
+        <h2>2. Custom Fields — Create All of These</h2>
+        <p class="subtitle">Go to LeadSquared → Settings → Lead Fields → Add Field. LeadSquared will automatically prefix with <code>mx_</code></p>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Field Name to Enter</th>
+          <th>LeadSquared stores as</th>
+          <th>Field Type</th>
+          <th>Possible Values</th>
+          <th>Populated by</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Degree</strong></td>
+          <td><code>mx_Degree</code></td>
+          <td>Dropdown / Text</td>
+          <td>Masters, MBA, Bachelor's</td>
+          <td>Get Started form</td>
+        </tr>
+        <tr>
+          <td><strong>Destinations</strong></td>
+          <td><code>mx_Destinations</code></td>
+          <td>Text</td>
+          <td>USA, Germany, UK, Canada, Australia, France, Ireland, Netherlands, Other</td>
+          <td>Get Started form</td>
+        </tr>
+        <tr>
+          <td><strong>Start Year</strong></td>
+          <td><code>mx_Start_Year</code></td>
+          <td>Dropdown / Text</td>
+          <td>2026, 2027, 2028+</td>
+          <td>Get Started form</td>
+        </tr>
+        <tr>
+          <td><strong>Course Interests</strong></td>
+          <td><code>mx_Course_Interests</code></td>
+          <td>Text</td>
+          <td>Computer Science, MBA, Data Science, etc.</td>
+          <td>Get Started form</td>
+        </tr>
+        <tr>
+          <td><strong>Academic Score</strong></td>
+          <td><code>mx_Academic_Score</code></td>
+          <td>Dropdown / Text</td>
+          <td>Above 7.5 / 75%+, Below 7.5 or other system</td>
+          <td>Get Started form</td>
+        </tr>
+        <tr>
+          <td><strong>Investment Budget</strong></td>
+          <td><code>mx_Investment_Budget</code></td>
+          <td>Dropdown / Text</td>
+          <td>5 to 15 Lakhs, 15 to 40 L, 40 to 70 L, 70+ L</td>
+          <td>Get Started form</td>
+        </tr>
+        <tr>
+          <td><strong>UTM Campaign</strong></td>
+          <td><code>mx_UTM_Campaign</code></td>
+          <td>Text</td>
+          <td>Campaign name from Meta Ads Manager</td>
+          <td>Auto from URL</td>
+        </tr>
+        <tr>
+          <td><strong>UTM Medium</strong></td>
+          <td><code>mx_UTM_Medium</code></td>
+          <td>Text</td>
+          <td>paid_social, social_dm, referral</td>
+          <td>Auto from URL</td>
+        </tr>
+        <tr>
+          <td><strong>UTM Adset</strong></td>
+          <td><code>mx_UTM_Adset</code></td>
+          <td>Text</td>
+          <td>Ad set name from Meta Ads Manager</td>
+          <td>Auto from URL</td>
+        </tr>
+        <tr>
+          <td><strong>UTM Ad</strong></td>
+          <td><code>mx_UTM_Ad</code></td>
+          <td>Text</td>
+          <td>Ad creative name from Meta Ads Manager</td>
+          <td>Auto from URL</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="info">
+      <strong>Note:</strong> Webinar leads will only have Name, Email, Phone, and Source = "Webinar" populated. All other fields will be blank for webinar registrations — this is expected behaviour.
+    </div>
+  </div>
+
+  <!-- STANDARD FIELDS VERIFY -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-green">✅</div>
+      <div>
+        <h2>3. Standard Fields — Verify These Exist</h2>
+        <p class="subtitle">These are built-in LeadSquared fields. Just confirm they are active and not hidden.</p>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>LeadSquared Name</th>
+          <th>What gets sent</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Full Name</td>
+          <td><code>FirstName</code></td>
+          <td>Full name entered by user</td>
+          <td><span class="pill pill-verify">Verify Active</span></td>
+        </tr>
+        <tr>
+          <td>Email</td>
+          <td><code>EmailAddress</code></td>
+          <td>Email entered by user</td>
+          <td><span class="pill pill-verify">Verify Active</span></td>
+        </tr>
+        <tr>
+          <td>Phone</td>
+          <td><code>Phone</code></td>
+          <td>Country code + phone number (e.g. +919876543210)</td>
+          <td><span class="pill pill-verify">Verify Active</span></td>
+        </tr>
+        <tr>
+          <td>Lead Source</td>
+          <td><code>Source</code> (API) / "Lead Source" (UI)</td>
+          <td>utm_source value from URL, or "Website Lead Form" if none</td>
+          <td><span class="pill pill-action">Add Values (see Section 1)</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- TWO FORMS SUMMARY -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-purple">📝</div>
+      <div>
+        <h2>4. Two Website Forms — What Each Sends</h2>
+        <p class="subtitle">Both forms push data to LeadSquared via the same API endpoint</p>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="source-card">
+        <h4>Get Started Form — /get-started</h4>
+        <p>Full 4-step lead capture form. Sends all fields.</p>
+        <br/>
+        <p><strong>Fields sent:</strong> Name, Email, Phone, Source (from UTM), Degree, Destinations, Start Year, Course Interests, Academic Score, Investment Budget, UTM Campaign, UTM Medium, UTM Adset, UTM Ad</p>
+      </div>
+      <div class="source-card">
+        <h4>Webinar Registration Form — /webinar</h4>
+        <p>Short registration form. Sends minimal fields.</p>
+        <br/>
+        <p><strong>Fields sent:</strong> Name, Email, Phone, Source = <code>Webinar</code> (hardcoded)</p>
+        <br/>
+        <p><em>All other fields will be blank for webinar leads.</em></p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===================== TAB 2: UTM PLAN ===================== -->
+<div id="tab-plan" class="tab-content">
+
+  <!-- HOW IT WORKS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🔁</div>
+      <div>
+        <h2>How the Full Flow Works</h2>
+        <p class="subtitle">End-to-end from ad click to LeadSquared CRM entry</p>
+      </div>
+    </div>
+    <div class="flow">
+      <div class="flow-box">User sees ad / DM / referral link</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">Clicks link with UTM tags</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">Lands on /get-started</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">Fills 4-step form</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">Submits</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">Saved to website DB</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box" style="background:#dcfce7; border-color:#86efac;">Lead appears in LeadSquared with full UTM data</div>
+    </div>
+    <div class="info">
+      The website reads UTM parameters from the URL automatically when the page loads. The user never sees or interacts with UTMs — they just fill the form normally. UTM data is captured silently in the background.
+    </div>
+  </div>
+
+  <!-- UTM STRUCTURE -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🔗</div>
+      <div>
+        <h2>UTM Parameter Structure</h2>
+        <p class="subtitle">5 parameters used — each maps to a field in LeadSquared</p>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>UTM Parameter</th>
+          <th>LeadSquared Field</th>
+          <th>Purpose</th>
+          <th>Example Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>utm_source</code></td>
+          <td><code>Source</code></td>
+          <td>Which platform the lead came from</td>
+          <td>Meta, Instagram_DM, Referral</td>
+        </tr>
+        <tr>
+          <td><code>utm_medium</code></td>
+          <td><code>mx_UTM_Medium</code></td>
+          <td>Type of traffic</td>
+          <td>paid_social, social_dm, referral</td>
+        </tr>
+        <tr>
+          <td><code>utm_campaign</code></td>
+          <td><code>mx_UTM_Campaign</code></td>
+          <td>Campaign name</td>
+          <td>Masters_India_April2026</td>
+        </tr>
+        <tr>
+          <td><code>utm_adset</code></td>
+          <td><code>mx_UTM_Adset</code></td>
+          <td>Ad set / audience name</td>
+          <td>India_18-25_Lookalike</td>
+        </tr>
+        <tr>
+          <td><code>utm_ad</code></td>
+          <td><code>mx_UTM_Ad</code></td>
+          <td>Specific ad creative name</td>
+          <td>VideoAd_Testimonial_V2</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PER SOURCE -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-purple">📡</div>
+      <div>
+        <h2>UTM Setup Per Source</h2>
+        <p class="subtitle">How to build links for each channel</p>
+      </div>
+    </div>
+
+    <!-- Meta Ads -->
+    <h3 style="font-size:15px; color:#0f3460; margin-bottom:8px;">Meta Paid Ads (Facebook / Instagram)</h3>
+    <p style="font-size:13px; color:#4b5563; margin-bottom:6px;">In Meta Ads Manager → Ad level → URL Parameters, add the following. Meta will auto-fill campaign/adset/ad names dynamically for every ad.</p>
+    <div class="utm-box">
+      https://onepercent.in/get-started?<span class="highlight">utm_source=Meta</span>&amp;<span class="highlight">utm_medium=paid_social</span>&amp;<span class="highlight">utm_campaign={{campaign.name}}</span>&amp;<span class="highlight">utm_adset={{adset.name}}</span>&amp;<span class="highlight">utm_ad={{ad.name}}</span>
+    </div>
+    <p style="font-size:12px; color:#6b7280; margin-top:8px;">The <code>{{campaign.name}}</code> etc. are Meta dynamic parameters — Ads Manager replaces them automatically.</p>
+
+    <div class="divider"></div>
+
+    <!-- Instagram DM -->
+    <h3 style="font-size:15px; color:#0f3460; margin-bottom:8px;">Instagram / WhatsApp DM Links</h3>
+    <p style="font-size:13px; color:#4b5563; margin-bottom:6px;">Manually created link — paste into DMs. Can add a campaign name to track which DM campaign it was.</p>
+    <div class="utm-box">
+      https://onepercent.in/get-started?<span class="highlight">utm_source=Instagram_DM</span>&amp;<span class="highlight">utm_medium=social_dm</span>&amp;<span class="highlight">utm_campaign=April_Outreach</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Referral -->
+    <h3 style="font-size:15px; color:#0f3460; margin-bottom:8px;">Referral Links</h3>
+    <p style="font-size:13px; color:#4b5563; margin-bottom:6px;">Links shared by existing students or partners. No referral code needed at this stage.</p>
+    <div class="utm-box">
+      https://onepercent.in/get-started?<span class="highlight">utm_source=Referral</span>&amp;<span class="highlight">utm_medium=referral</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Webinar -->
+    <h3 style="font-size:15px; color:#0f3460; margin-bottom:8px;">Webinar Registrations</h3>
+    <p style="font-size:13px; color:#4b5563; margin-bottom:6px;">Source is hardcoded in the website — no UTM needed on the link. All webinar leads automatically appear as Source = Webinar in LeadSquared.</p>
+    <div class="utm-box">
+      https://onepercent.in/webinar <span style="color:#9ca3af;">← no UTM needed, source is set automatically</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Organic -->
+    <h3 style="font-size:15px; color:#0f3460; margin-bottom:8px;">Organic / Direct Traffic</h3>
+    <p style="font-size:13px; color:#4b5563; margin-bottom:6px;">No UTM on the link. LeadSquared will show Source = "Website Lead Form" (default fallback).</p>
+    <div class="utm-box">
+      https://onepercent.in/get-started <span style="color:#9ca3af;">← no UTM, defaults to "Website Lead Form"</span>
+    </div>
+  </div>
+
+  <!-- HOW LEADSQUARED DIFFERENTIATES -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-green">🗂️</div>
+      <div>
+        <h2>How LeadSquared Will Differentiate Each Lead</h2>
+        <p class="subtitle">Every lead is identifiable by Source + campaign fields</p>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Lead Origin</th>
+          <th>Source in LeadSquared</th>
+          <th>Campaign / Extra Info</th>
+          <th>Form Used</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Meta paid ad</td>
+          <td><code>Meta</code></td>
+          <td>Campaign, Adset, Ad names auto-filled</td>
+          <td>Get Started</td>
+        </tr>
+        <tr>
+          <td>Instagram DM</td>
+          <td><code>Instagram_DM</code></td>
+          <td>Campaign name if added to link</td>
+          <td>Get Started</td>
+        </tr>
+        <tr>
+          <td>Referral link</td>
+          <td><code>Referral</code></td>
+          <td>—</td>
+          <td>Get Started</td>
+        </tr>
+        <tr>
+          <td>Webinar registration</td>
+          <td><code>Webinar</code></td>
+          <td>—</td>
+          <td>Webinar form</td>
+        </tr>
+        <tr>
+          <td>Organic / direct</td>
+          <td><code>Website Lead Form</code></td>
+          <td>—</td>
+          <td>Get Started</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- IMPLEMENTATION CHECKLIST -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-red">☑️</div>
+      <div>
+        <h2>Implementation Checklist</h2>
+        <p class="subtitle">Steps for the LeadSquared team in order</p>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Add Source dropdown values</h4>
+          <p>Settings → Lead Fields → Source → Add: <code>Meta</code>, <code>Instagram_DM</code>, <code>Referral</code>, <code>Webinar</code>. Verify <code>Website Lead Form</code> already exists.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Create all 10 custom fields</h4>
+          <p>Settings → Lead Fields → Add Field for each: Degree, Destinations, Start Year, Course Interests, Academic Score, Investment Budget, UTM Campaign, UTM Medium, UTM Adset, UTM Ad.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>Verify standard fields are active</h4>
+          <p>Confirm FirstName, EmailAddress, Phone, Source fields are active and visible in lead detail view.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h4>Test with a live submission</h4>
+          <p>Submit a test lead on <code>onepercent.in/get-started</code> and verify it appears in LeadSquared with all fields populated correctly.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <h4>Test UTM tracking</h4>
+          <p>Submit a test lead using a UTM link like:<br/><code>onepercent.in/get-started?utm_source=Meta&utm_campaign=Test</code><br/>Verify Source = Meta and UTM Campaign = Test in LeadSquared.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-body">
+          <h4>Set up Meta Ads UTM parameters</h4>
+          <p>In Meta Ads Manager, add URL parameters to all active ads using the dynamic template from the UTM Plan tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function showTab(name) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
