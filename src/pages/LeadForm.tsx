@@ -1,11 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
+import { ArrowRight, Check, Loader2 } from "lucide-react";
 
 const DEGREES = ["Masters", "MBA", "Bachelor's"];
 const DESTINATIONS = ["USA", "Germany", "UK", "Canada", "Australia", "France", "Ireland", "Netherlands", "Other"];
@@ -54,7 +52,6 @@ type FormData = {
 };
 
 const LeadForm = () => {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
@@ -83,14 +80,8 @@ const LeadForm = () => {
     utm_medium: searchParams.get("utm_medium") || "",
   };
 
-  // Track step reached for drop-off analysis
   const trackStep = useCallback(async (stepNum: number) => {
-    try {
-      // We'll store partial data on final submit; this is just for analytics
-      console.log(`Form step reached: ${stepNum}`);
-    } catch (e) {
-      // silent
-    }
+    console.log(`Form step reached: ${stepNum}`);
   }, []);
 
   useEffect(() => {
@@ -140,7 +131,6 @@ const LeadForm = () => {
     setSubmitting(true);
 
     try {
-      // Insert into Supabase
       const { error: dbError } = await supabase.from("leads" as any).insert({
         degree: form.degree,
         destinations: form.destinations,
@@ -173,7 +163,6 @@ const LeadForm = () => {
         throw dbError;
       }
 
-      // Send to LeadSquared
       try {
         await supabase.functions.invoke("leadsquared-create-lead", {
           body: {
@@ -207,73 +196,72 @@ const LeadForm = () => {
     }
   };
 
-  const progress = (step / 4) * 100;
+  const progressPercent = (step / 4) * 100;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <div className="w-full px-4 py-4 border-b border-border bg-card">
-        <div className="max-w-lg mx-auto flex items-center gap-3">
-          <img src="/logo-blue.png" alt="OnePercent Abroad" className="h-8 w-auto" />
-        </div>
-      </div>
+    <div className="min-h-screen bg-primary flex items-start md:items-center justify-center p-4 md:p-8">
+      <div className="bg-white w-full max-w-2xl rounded-2xl md:rounded-3xl flex flex-col shadow-2xl overflow-hidden my-4 md:my-0">
 
-      {/* Progress */}
-      <div className="w-full px-4 pt-6">
-        <div className="max-w-lg mx-auto">
-          <div className="flex justify-between text-xs text-muted-foreground mb-2">
-            <span>Step {step} of 4</span>
-            <span>{Math.round(progress)}% complete</span>
-          </div>
-          <Progress value={progress} className="h-2" />
+        {/* Card header */}
+        <div className="px-8 md:px-12 pt-8 md:pt-10 pb-6">
+          <img src="/logo-blue.png" alt="OnePercent Abroad" className="h-9 w-auto mb-3" />
+          <p className="text-sm text-muted-foreground">
+            Tell us about your study abroad goals — we'll match you with the right guidance.
+          </p>
         </div>
-      </div>
 
-      {/* Form Content */}
-      <div className="flex-1 px-4 py-8">
-        <div className="max-w-lg mx-auto">
+        {/* Step content */}
+        <div className="flex-1 px-8 md:px-12 pb-4">
 
           {/* STEP 1 */}
           {step === 1 && (
             <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
               <div>
-                <h2 className="text-xl font-bold text-foreground mb-1">What degree are you looking for?</h2>
-                <p className="text-sm text-muted-foreground">Select one</p>
-              </div>
-              <div className="space-y-3">
-                {DEGREES.map((d) => (
-                  <button
-                    key={d}
-                    onClick={() => setForm((p) => ({ ...p, degree: d }))}
-                    className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all text-sm font-medium ${
-                      form.degree === d
-                        ? "border-primary bg-primary/5 text-primary"
-                        : "border-border bg-card text-foreground hover:border-primary/40"
-                    }`}
-                  >
-                    {d}
-                  </button>
-                ))}
+                <div className="flex items-start gap-0 mb-5">
+                  <div className="w-1 self-stretch bg-primary rounded-full mr-4 shrink-0" />
+                  <h2 className="text-lg md:text-xl font-display font-semibold text-foreground leading-snug">
+                    What <span className="font-bold">degree</span> are you looking for?
+                  </h2>
+                </div>
+                <div className="flex flex-wrap gap-2 pl-5">
+                  {DEGREES.map((d) => (
+                    <button
+                      key={d}
+                      onClick={() => setForm((p) => ({ ...p, degree: d }))}
+                      className={`px-5 py-2 rounded-full text-sm font-medium transition-all border ${
+                        form.degree === d
+                          ? "bg-foreground text-white border-foreground"
+                          : "bg-white text-muted-foreground border-border hover:border-foreground/30"
+                      }`}
+                    >
+                      {d}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-foreground mb-1">Preferred study destinations</h2>
-                <p className="text-sm text-muted-foreground">Select all that apply</p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {DESTINATIONS.map((dest) => (
-                  <button
-                    key={dest}
-                    onClick={() => toggleDestination(dest)}
-                    className={`px-4 py-2 rounded-full border-2 text-sm font-medium transition-all ${
-                      form.destinations.includes(dest)
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border bg-card text-foreground hover:border-primary/40"
-                    }`}
-                  >
-                    {dest}
-                  </button>
-                ))}
+                <div className="flex items-start gap-0 mb-5">
+                  <div className="w-1 self-stretch bg-primary rounded-full mr-4 shrink-0" />
+                  <h2 className="text-lg md:text-xl font-display font-semibold text-foreground leading-snug">
+                    Preferred <span className="font-bold">study destinations</span>
+                  </h2>
+                </div>
+                <div className="flex flex-wrap gap-2 pl-5">
+                  {DESTINATIONS.map((dest) => (
+                    <button
+                      key={dest}
+                      onClick={() => toggleDestination(dest)}
+                      className={`px-5 py-2 rounded-full text-sm font-medium transition-all border ${
+                        form.destinations.includes(dest)
+                          ? "bg-foreground text-white border-foreground"
+                          : "bg-white text-muted-foreground border-border hover:border-foreground/30"
+                      }`}
+                    >
+                      {dest}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -282,85 +270,84 @@ const LeadForm = () => {
           {step === 2 && (
             <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
               <div>
-                <h2 className="text-xl font-bold text-foreground mb-1">When do you plan to start?</h2>
-                <p className="text-sm text-muted-foreground">Select your intended start year</p>
-              </div>
-              <div className="space-y-3">
-                {START_YEARS.map((y) => (
-                  <button
-                    key={y}
-                    onClick={() => setForm((p) => ({ ...p, startYear: y }))}
-                    className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all text-sm font-medium ${
-                      form.startYear === y
-                        ? "border-primary bg-primary/5 text-primary"
-                        : "border-border bg-card text-foreground hover:border-primary/40"
-                    }`}
-                  >
-                    {y}
-                  </button>
-                ))}
+                <div className="flex items-start gap-0 mb-5">
+                  <div className="w-1 self-stretch bg-primary rounded-full mr-4 shrink-0" />
+                  <h2 className="text-lg md:text-xl font-display font-semibold text-foreground leading-snug">
+                    When do you plan to <span className="font-bold">start</span>?
+                  </h2>
+                </div>
+                <div className="flex flex-wrap gap-2 pl-5">
+                  {START_YEARS.map((y) => (
+                    <button
+                      key={y}
+                      onClick={() => setForm((p) => ({ ...p, startYear: y }))}
+                      className={`px-5 py-2 rounded-full text-sm font-medium transition-all border ${
+                        form.startYear === y
+                          ? "bg-foreground text-white border-foreground"
+                          : "bg-white text-muted-foreground border-border hover:border-foreground/30"
+                      }`}
+                    >
+                      {y}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-foreground mb-1">What courses interest you?</h2>
-                <p className="text-sm text-muted-foreground">Search and select (optional)</p>
-              </div>
-
-              {/* Selected courses */}
-              {form.courseInterests.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {form.courseInterests.map((c) => (
-                    <span
-                      key={c}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-medium"
-                    >
-                      {c}
-                      <button onClick={() => removeCourse(c)} className="ml-1 hover:opacity-70">×</button>
-                    </span>
-                  ))}
+                <div className="flex items-start gap-0 mb-5">
+                  <div className="w-1 self-stretch bg-primary rounded-full mr-4 shrink-0" />
+                  <h2 className="text-lg md:text-xl font-display font-semibold text-foreground leading-snug">
+                    What <span className="font-bold">courses</span> interest you?{" "}
+                    <span className="text-muted-foreground font-normal text-base">(optional)</span>
+                  </h2>
                 </div>
-              )}
-
-              {/* Search input */}
-              <div className="relative">
-                <Input
-                  placeholder="Type to search courses..."
-                  value={courseSearch}
-                  onChange={(e) => {
-                    setCourseSearch(e.target.value);
-                    setShowCourseDropdown(true);
-                  }}
-                  onFocus={() => setShowCourseDropdown(true)}
-                  className="w-full"
-                />
-                {showCourseDropdown && (courseSearch || true) && (
-                  <div className="absolute z-10 w-full mt-1 max-h-48 overflow-y-auto bg-card border border-border rounded-lg shadow-lg">
-                    {filteredCourses.length > 0 ? (
-                      filteredCourses.map((c) => (
-                        <button
+                <div className="pl-5 space-y-3">
+                  {form.courseInterests.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {form.courseInterests.map((c) => (
+                        <span
                           key={c}
-                          onClick={() => addCourse(c)}
-                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted transition-colors"
+                          className="inline-flex items-center gap-1 px-4 py-1.5 rounded-full bg-foreground text-white text-xs font-medium"
                         >
                           {c}
-                        </button>
-                      ))
-                    ) : (
-                      <div className="px-4 py-3 text-sm text-muted-foreground">
-                        {courseSearch.trim() ? (
-                          <button
-                            onClick={() => addCourse(courseSearch.trim())}
-                            className="text-primary hover:underline"
-                          >
-                            Add "{courseSearch.trim()}"
-                          </button>
+                          <button onClick={() => removeCourse(c)} className="ml-1 hover:opacity-70 text-base leading-none">×</button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <div className="relative">
+                    <Input
+                      placeholder="Type to search courses..."
+                      value={courseSearch}
+                      onChange={(e) => { setCourseSearch(e.target.value); setShowCourseDropdown(true); }}
+                      onFocus={() => setShowCourseDropdown(true)}
+                      className="rounded-full border-border text-sm"
+                    />
+                    {showCourseDropdown && (
+                      <div className="absolute z-10 w-full mt-1 max-h-48 overflow-y-auto bg-white border border-border rounded-2xl shadow-lg">
+                        {filteredCourses.length > 0 ? (
+                          filteredCourses.map((c) => (
+                            <button
+                              key={c}
+                              onClick={() => addCourse(c)}
+                              className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted transition-colors"
+                            >
+                              {c}
+                            </button>
+                          ))
                         ) : (
-                          "All courses selected"
+                          <div className="px-4 py-3 text-sm text-muted-foreground">
+                            {courseSearch.trim() ? (
+                              <button onClick={() => addCourse(courseSearch.trim())} className="text-primary hover:underline">
+                                Add "{courseSearch.trim()}"
+                              </button>
+                            ) : "All courses selected"}
+                          </div>
                         )}
                       </div>
                     )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
           )}
@@ -369,43 +356,51 @@ const LeadForm = () => {
           {step === 3 && (
             <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
               <div>
-                <h2 className="text-xl font-bold text-foreground mb-1">Your academic score</h2>
-                <p className="text-sm text-muted-foreground">Select the range that applies</p>
-              </div>
-              <div className="space-y-3">
-                {ACADEMIC_SCORES.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setForm((p) => ({ ...p, academicScore: s }))}
-                    className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all text-sm font-medium ${
-                      form.academicScore === s
-                        ? "border-primary bg-primary/5 text-primary"
-                        : "border-border bg-card text-foreground hover:border-primary/40"
-                    }`}
-                  >
-                    {s}
-                  </button>
-                ))}
+                <div className="flex items-start gap-0 mb-5">
+                  <div className="w-1 self-stretch bg-primary rounded-full mr-4 shrink-0" />
+                  <h2 className="text-lg md:text-xl font-display font-semibold text-foreground leading-snug">
+                    Your <span className="font-bold">academic score</span>
+                  </h2>
+                </div>
+                <div className="flex flex-wrap gap-2 pl-5">
+                  {ACADEMIC_SCORES.map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setForm((p) => ({ ...p, academicScore: s }))}
+                      className={`px-5 py-2 rounded-full text-sm font-medium transition-all border ${
+                        form.academicScore === s
+                          ? "bg-foreground text-white border-foreground"
+                          : "bg-white text-muted-foreground border-border hover:border-foreground/30"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-foreground mb-1">How much are you willing to invest in higher education?</h2>
-                <p className="text-sm text-muted-foreground">Select one</p>
-              </div>
-              <div className="space-y-3">
-                {INVESTMENT_BUDGET_OPTIONS.map((opt) => (
-                  <button
-                    key={opt}
-                    onClick={() => setForm((p) => ({ ...p, investmentBudget: opt }))}
-                    className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all text-sm font-medium ${
-                      form.investmentBudget === opt
-                        ? "border-primary bg-primary/5 text-primary"
-                        : "border-border bg-card text-foreground hover:border-primary/40"
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                ))}
+                <div className="flex items-start gap-0 mb-5">
+                  <div className="w-1 self-stretch bg-primary rounded-full mr-4 shrink-0" />
+                  <h2 className="text-lg md:text-xl font-display font-semibold text-foreground leading-snug">
+                    How much are you willing to <span className="font-bold">invest</span> in higher education?
+                  </h2>
+                </div>
+                <div className="flex flex-wrap gap-2 pl-5">
+                  {INVESTMENT_BUDGET_OPTIONS.map((opt) => (
+                    <button
+                      key={opt}
+                      onClick={() => setForm((p) => ({ ...p, investmentBudget: opt }))}
+                      className={`px-5 py-2 rounded-full text-sm font-medium transition-all border ${
+                        form.investmentBudget === opt
+                          ? "bg-foreground text-white border-foreground"
+                          : "bg-white text-muted-foreground border-border hover:border-foreground/30"
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -413,21 +408,23 @@ const LeadForm = () => {
           {/* STEP 4 */}
           {step === 4 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-              <div>
-                <h2 className="text-xl font-bold text-foreground mb-1">Almost there! Your details</h2>
-                <p className="text-sm text-muted-foreground">We'll use this to get in touch with you</p>
+              <div className="flex items-start gap-0 mb-5">
+                <div className="w-1 self-stretch bg-primary rounded-full mr-4 shrink-0" />
+                <h2 className="text-lg md:text-xl font-display font-semibold text-foreground leading-snug">
+                  Almost there! Your <span className="font-bold">contact details</span>
+                </h2>
               </div>
 
-              <div className="space-y-4">
+              <div className="pl-5 space-y-4">
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1.5 block">Full Name</label>
                   <Input
                     placeholder="Your full name"
                     value={form.fullName}
                     onChange={(e) => setForm((p) => ({ ...p, fullName: e.target.value }))}
+                    className="rounded-full"
                   />
                 </div>
-
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1.5 block">Email</label>
                   <Input
@@ -435,16 +432,16 @@ const LeadForm = () => {
                     placeholder="your@email.com"
                     value={form.email}
                     onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+                    className="rounded-full"
                   />
                 </div>
-
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1.5 block">Phone Number</label>
                   <div className="flex gap-2">
                     <select
                       value={form.countryCode}
                       onChange={(e) => setForm((p) => ({ ...p, countryCode: e.target.value }))}
-                      className="h-10 rounded-md border border-input bg-background px-2 text-sm min-w-[90px]"
+                      className="h-10 rounded-full border border-input bg-background px-3 text-sm min-w-[100px]"
                     >
                       {COUNTRY_CODES.map((cc) => (
                         <option key={cc.code} value={cc.code}>{cc.label}</option>
@@ -455,59 +452,76 @@ const LeadForm = () => {
                       placeholder="Phone number"
                       value={form.phone}
                       onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value.replace(/\D/g, "") }))}
-                      className="flex-1"
+                      className="flex-1 rounded-full"
                     />
                   </div>
                 </div>
-
               </div>
             </div>
           )}
         </div>
-      </div>
 
-      {/* Navigation */}
-      <div className="sticky bottom-0 w-full px-4 py-4 border-t border-border bg-card/95 backdrop-blur-sm">
-        <div className="max-w-lg mx-auto flex gap-3">
-          {step > 1 && (
-            <Button
-              variant="outline"
-              onClick={() => setStep((s) => s - 1)}
-              className="rounded-xl"
-            >
-              <ArrowLeft className="w-4 h-4 mr-1" />
-              Back
-            </Button>
-          )}
-          {step < 4 ? (
-            <Button
-              onClick={() => setStep((s) => s + 1)}
-              disabled={!canProceed()}
-              className="flex-1 rounded-xl"
-            >
-              Continue
-              <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
-          ) : (
-            <Button
-              onClick={handleSubmit}
-              disabled={!canProceed() || submitting}
-              className="flex-1 rounded-xl"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  <Check className="w-4 h-4 mr-1" />
-                  Submit
-                </>
+        {/* Bottom bar */}
+        <div className="px-8 md:px-12 pb-8 md:pb-10 pt-4">
+          <hr className="border-border mb-4" />
+          <div className="flex items-center justify-between gap-4">
+            {/* Step counter + progress */}
+            <div className="flex flex-col gap-1.5 min-w-[80px]">
+              <span className="text-xs text-muted-foreground font-medium">
+                {step} of 4
+              </span>
+              <div className="h-1 w-24 rounded-full bg-muted overflow-hidden">
+                <div
+                  className="h-full bg-primary rounded-full transition-all duration-300"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Navigation buttons */}
+            <div className="flex items-center gap-2">
+              {step > 1 && (
+                <button
+                  onClick={() => setStep((s) => s - 1)}
+                  className="px-5 py-2.5 rounded-full text-sm font-medium border border-border text-muted-foreground hover:border-foreground/30 transition-all"
+                >
+                  Back
+                </button>
               )}
-            </Button>
-          )}
+              {step < 4 ? (
+                <button
+                  onClick={() => setStep((s) => s + 1)}
+                  disabled={!canProceed()}
+                  className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold transition-all ${
+                    canProceed()
+                      ? "bg-primary text-white hover:bg-primary/90"
+                      : "bg-muted text-muted-foreground cursor-not-allowed"
+                  }`}
+                >
+                  Next
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <button
+                  onClick={handleSubmit}
+                  disabled={!canProceed() || submitting}
+                  className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold transition-all ${
+                    canProceed() && !submitting
+                      ? "bg-primary text-white hover:bg-primary/90"
+                      : "bg-muted text-muted-foreground cursor-not-allowed"
+                  }`}
+                >
+                  {submitting ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</>
+                  ) : (
+                    <><Check className="w-4 h-4" /> Submit</>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
   );

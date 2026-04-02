@@ -134,6 +134,7 @@ const Footer = () => {
 
         <div className="border-t border-white/10 mt-12 pt-8 text-center text-sm text-gray-500">
           <p>© 2024 OnePercent Abroad. All rights reserved.</p>
+          <p className="mt-1">Aspira Onepercent Pvt Ltd</p>
         </div>
       </div>
     </footer>
