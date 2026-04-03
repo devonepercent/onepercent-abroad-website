@@ -141,6 +141,22 @@ const InternalDashboard = () => {
                 </div>
               </article>
             )}
+
+            {hasSalesAccess && (
+              <article className="bg-card border rounded-xl p-6 shadow-sm flex flex-col justify-between">
+                <div>
+                  <h2 className="text-xl font-semibold mb-2">OfferDesk</h2>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Generate personalised offer cards and closer coupons for prospects. Track all issued offers in one place.
+                  </p>
+                </div>
+                <div className="mt-4">
+                  <Button asChild className="w-full md:w-auto">
+                    <Link to="/internal/offer-desk">Open tool</Link>
+                  </Button>
+                </div>
+              </article>
+            )}
           </div>
         </section>
       </main>
