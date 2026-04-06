@@ -1,9 +1,11 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { toPng } from "html-to-image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import logoWhite from "@/assets/logo-white.png";
 
 type Role = "admin" | "user" | "sales";
 type CardType = "standard" | "closer";
@@ -35,8 +37,6 @@ const PROGRAMS: Record<ProgramKey, ProgramInfo> = {
   masters: { name: "Masters of Your Dreams", price: 100000, discount: 0.15 },
   doctorate: { name: "Doctorate of Your Dreams", price: 200000, discount: 0.10 },
 };
-
-const STORAGE_KEY = "offerdesk_v2";
 
 const INR = (n: number) => "₹" + n.toLocaleString("en-IN");
 
@@ -73,20 +73,35 @@ const OfferCardTool = () => {
   const [offers, setOffers] = useState<OfferRecord[]>([]);
   const [generatedRef, setGeneratedRef] = useState<string | null>(null);
   const [notif, setNotif] = useState<string | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  // Load offers from localStorage
+  // Load offers from Supabase
+  const fetchOffers = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("offer_cards" as any)
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (!error && data) {
+      const mapped = (data as any[]).map((r: any) => ({
+        id: r.id,
+        type: r.type as CardType,
+        prospect: r.prospect,
+        bda: r.bda,
+        program: r.program as ProgramKey,
+        programName: r.program_name,
+        original: r.original,
+        discountAmt: r.discount_amt,
+        final: r.final_price,
+        expiry: r.expiry,
+        createdAt: r.created_at,
+      }));
+      setOffers(mapped);
+    }
+  }, []);
+
   useEffect(() => {
-    try {
-      const s = localStorage.getItem(STORAGE_KEY);
-      if (s) setOffers(JSON.parse(s));
-    } catch {}
-  }, []);
-
-  const persist = useCallback((data: OfferRecord[]) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch {}
-  }, []);
+    fetchOffers();
+  }, [fetchOffers]);
 
   const showNotif = useCallback((msg: string) => {
     setNotif(msg);
@@ -149,27 +164,29 @@ const OfferCardTool = () => {
     setActiveTab("preview");
   };
 
-  const saveOffer = () => {
+  const saveOffer = async () => {
     if (!prospectName.trim() || !bdaName.trim()) { showNotif("Complete the form first"); return; }
     const expiry = calcExpiry(isCloser ? 2 : 3);
     const discountAmt = prog.price * (isCloser ? 0.05 : prog.discount);
     const finalPrice = prog.price - discountAmt;
-    const newOffer: OfferRecord = {
-      id: genRef(isCloser ? "CPT" : "OFR"),
+    const ref = genRef(isCloser ? "CPT" : "OFR");
+    const { error } = await supabase.from("offer_cards" as any).insert({
+      id: ref,
       type: cardType,
       prospect: prospectName.trim(),
       bda: bdaName.trim(),
       program,
-      programName: prog.name,
+      program_name: prog.name,
       original: prog.price,
-      discountAmt,
-      final: finalPrice,
+      discount_amt: discountAmt,
+      final_price: finalPrice,
       expiry: expiry.toISOString(),
-      createdAt: new Date().toISOString(),
-    };
-    const updated = [newOffer, ...offers];
-    setOffers(updated);
-    persist(updated);
+    });
+    if (error) {
+      showNotif("Save failed — check connection");
+      return;
+    }
+    await fetchOffers();
     showNotif("Logged to All Offers");
     setTimeout(() => setActiveTab("history"), 700);
   };
@@ -192,6 +209,22 @@ const OfferCardTool = () => {
     setProgram(o.program);
     setCardType(o.type);
     setActiveTab("preview");
+  };
+
+  const downloadPng = async () => {
+    if (!cardRef.current) { showNotif("Generate a card first"); return; }
+    try {
+      const dataUrl = await toPng(cardRef.current, { pixelRatio: 2 });
+      const link = document.createElement("a");
+      const name = prospectName.trim().replace(/\s+/g, "-") || "prospect";
+      const ref = generatedRef || (isCloser ? "CPT" : "OFR");
+      link.download = `offer-${name}-${ref}.png`;
+      link.href = dataUrl;
+      link.click();
+      showNotif("PNG downloaded!");
+    } catch {
+      showNotif("Download failed — try again");
+    }
   };
 
   const handleLogout = async () => {
@@ -368,10 +401,10 @@ const OfferCardTool = () => {
               <div className="od-card-preview-wrap">
                 {/* Standard Card */}
                 {cardType === "standard" && (
-                  <div className="od-offer-card">
+                  <div className="od-offer-card" ref={cardRef}>
                     <div className="od-card-header">
                       <span className="od-card-type-pill">Standard Offer</span>
-                      <div className="od-card-logo">OnePercent</div>
+                      <img src={logoWhite} alt="1%abroad" className="od-card-logo-img" />
                       <div className="od-card-greeting">Exclusive offer prepared for</div>
                       <div className="od-card-prospect-name">{prospect}</div>
                     </div>
@@ -413,8 +446,9 @@ const OfferCardTool = () => {
 
                 {/* Closer Coupon Card */}
                 {cardType === "closer" && (
-                  <div className="od-coupon-card">
+                  <div className="od-coupon-card" ref={cardRef}>
                     <div className="od-coupon-header">
+                      <img src={logoWhite} alt="1%abroad" className="od-card-logo-img od-coupon-logo" />
                       <div className="od-coupon-tag">Closer's Edge · Exclusive Discount Coupon</div>
                       <div className="od-coupon-title">5% Extra Off</div>
                       <div className="od-coupon-subtitle">Exclusively issued for you — valid for 48 hours only</div>
@@ -466,6 +500,7 @@ const OfferCardTool = () => {
 
               <div className="od-card-actions">
                 <button className="od-btn-action od-btn-outline" onClick={copyOfferText}>Copy Text</button>
+                <button className="od-btn-action od-btn-outline" onClick={downloadPng}>Download PNG</button>
                 <button className="od-btn-action od-btn-outline" onClick={() => window.print()}>Print</button>
                 <button
                   className={`od-btn-action ${isCloser ? "od-btn-gold" : "od-btn-primary-sm"}`}
@@ -780,7 +815,8 @@ const offerCardStyles = `
     background: rgba(200,150,62,0.25);
     color: #e6b86a;
   }
-  .od-card-logo { font-size: 15px; font-weight: 700; color: #e6b86a; margin-bottom: 12px; position: relative; z-index: 1; }
+  .od-card-logo-img { height: 28px; width: auto; margin-bottom: 12px; position: relative; z-index: 1; display: block; }
+  .od-coupon-logo { margin-bottom: 8px; }
   .od-card-greeting { font-size: 11px; color: rgba(255,255,255,0.55); position: relative; z-index: 1; margin-bottom: 2px; }
   .od-card-prospect-name { font-size: 24px; font-weight: 700; color: #fff; position: relative; z-index: 1; }
   .od-card-body { padding: 20px 28px; }
