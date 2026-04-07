@@ -80,8 +80,14 @@ const LeadForm = () => {
     utm_medium: searchParams.get("utm_medium") || "",
   };
 
-  const trackStep = useCallback(async (stepNum: number) => {
-    console.log(`Form step reached: ${stepNum}`);
+  const trackStep = useCallback((stepNum: number) => {
+    if (typeof window !== "undefined" && (window as any).gtag) {
+      (window as any).gtag("event", "form_step_reached", {
+        event_category: "get_started_form",
+        event_label: `Step ${stepNum}`,
+        value: stepNum,
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -181,6 +187,13 @@ const LeadForm = () => {
         });
       } catch (lsError) {
         console.error("LeadSquared error (non-blocking):", lsError);
+      }
+
+      if (typeof window !== "undefined" && (window as any).gtag) {
+        (window as any).gtag("event", "form_submitted", {
+          event_category: "get_started_form",
+          event_label: "Submitted",
+        });
       }
 
       window.location.href = "/get-started/thank-you";
