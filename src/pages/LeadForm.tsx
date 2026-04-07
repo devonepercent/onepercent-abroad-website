@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, Check, Loader2 } from "lucide-react";
 
-const DEGREES = ["Masters", "MBA", "Bachelor's"];
+const DEGREES = ["Masters", "MBA", "Bachelor's", "PhD"];
 const DESTINATIONS = ["USA", "Germany", "UK", "Canada", "Australia", "France", "Ireland", "Netherlands", "Other"];
 const START_YEARS = ["2026", "2027", "2028+"];
 const ACADEMIC_SCORES = ["Above 7.5 / 75%+", "Below 7.5 or other system"];
