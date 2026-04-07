@@ -46,6 +46,24 @@ interface HiringApplication {
   created_at: string;
 }
 
+interface Lead {
+  id: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  country_code: string;
+  degree: string;
+  destinations: string[];
+  start_year: string;
+  course_interests: string[];
+  academic_score: string;
+  investment_budget: string;
+  utm_source: string | null;
+  utm_campaign: string | null;
+  utm_medium: string | null;
+  created_at: string;
+}
+
 interface SalesEvaluationAdmin {
   id: string;
   candidate_name: string | null;
@@ -89,6 +107,7 @@ const EXPENSE_CATEGORIES = [
 
 const AdminDashboard = () => {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [leads, setLeads] = useState<Lead[]>([]);
   const [hiring, setHiring] = useState<HiringApplication[]>([]);
   const [salesEvaluations, setSalesEvaluations] = useState<SalesEvaluationAdmin[]>([]);
   const [billingCycles, setBillingCycles] = useState<BillingCycle[]>([]);
@@ -141,6 +160,7 @@ const AdminDashboard = () => {
       // Fetch data in parallel
       const [
         { data: webinarData, error: webinarError },
+        { data: leadsData, error: leadsError },
         { data: hiringData, error: hiringError },
         { data: salesData, error: salesError },
         { data: billingData, error: billingError },
@@ -148,6 +168,10 @@ const AdminDashboard = () => {
       ] = await Promise.all([
         supabase
           .from("webinar_registrations" as any)
+          .select("*")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("leads" as any)
           .select("*")
           .order("created_at", { ascending: false }),
         supabase
@@ -174,6 +198,12 @@ const AdminDashboard = () => {
       }
 
       setRegistrations((webinarData as unknown as Registration[]) || []);
+
+      if (leadsError) {
+        console.error("Error loading leads:", leadsError);
+      } else {
+        setLeads((leadsData as unknown as Lead[]) || []);
+      }
 
       if (hiringError) {
         console.error("Error loading hiring applications:", hiringError);
@@ -310,8 +340,9 @@ const AdminDashboard = () => {
           </Button>
         </div>
 
-        <Tabs defaultValue="webinar" className="space-y-6">
+        <Tabs defaultValue="leads" className="space-y-6">
           <TabsList>
+            <TabsTrigger value="leads">Get started leads</TabsTrigger>
             <TabsTrigger value="webinar">Webinar registrations</TabsTrigger>
             <TabsTrigger value="hiring">Hiring submissions</TabsTrigger>
             <TabsTrigger value="sales-evaluations">Sales evaluation reports</TabsTrigger>
@@ -319,6 +350,103 @@ const AdminDashboard = () => {
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
             <TabsTrigger value="internal-tools">Internal tools</TabsTrigger>
           </TabsList>
+
+          {/* Get started leads tab */}
+          <TabsContent value="leads">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-4">
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold">Get started leads</h2>
+                <p className="text-sm text-muted-foreground">
+                  All submissions from the /get-started form. {leads.length} total.
+                </p>
+              </div>
+              <Button
+                onClick={() => {
+                  if (leads.length === 0) return;
+                  const headers = [
+                    "Timestamp", "Name", "Email", "Phone", "Degree",
+                    "Destinations", "Start Year", "Courses", "Academic Score",
+                    "Investment Budget", "UTM Source", "UTM Campaign", "UTM Medium",
+                  ];
+                  const rows = leads.map((l) =>
+                    [
+                      new Date(l.created_at).toLocaleString(),
+                      `"${l.full_name}"`,
+                      l.email,
+                      `"${l.country_code} ${l.phone}"`,
+                      l.degree,
+                      `"${(l.destinations || []).join(", ")}"`,
+                      l.start_year,
+                      `"${(l.course_interests || []).join(", ")}"`,
+                      `"${l.academic_score}"`,
+                      `"${l.investment_budget}"`,
+                      l.utm_source || "",
+                      l.utm_campaign || "",
+                      l.utm_medium || "",
+                    ].join(",")
+                  );
+                  const blob = new Blob([[headers.join(","), ...rows].join("\n")], { type: "text/csv" });
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `leads-${new Date().toISOString().split("T")[0]}.csv`;
+                  a.click();
+                  window.URL.revokeObjectURL(url);
+                }}
+                size="sm"
+                variant="outline"
+                disabled={leads.length === 0}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Export CSV
+              </Button>
+            </div>
+
+            <div className="bg-card rounded-lg shadow border overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Phone</TableHead>
+                    <TableHead>Degree</TableHead>
+                    <TableHead>Destinations</TableHead>
+                    <TableHead>Start Year</TableHead>
+                    <TableHead>Courses</TableHead>
+                    <TableHead>Academic Score</TableHead>
+                    <TableHead>Budget</TableHead>
+                    <TableHead>UTM Source</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {leads.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
+                        No leads yet
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    leads.map((l) => (
+                      <TableRow key={l.id}>
+                        <TableCell className="whitespace-nowrap">{new Date(l.created_at).toLocaleString()}</TableCell>
+                        <TableCell className="whitespace-nowrap">{l.full_name}</TableCell>
+                        <TableCell>{l.email}</TableCell>
+                        <TableCell className="whitespace-nowrap">{l.country_code} {l.phone}</TableCell>
+                        <TableCell>{l.degree}</TableCell>
+                        <TableCell>{(l.destinations || []).join(", ")}</TableCell>
+                        <TableCell>{l.start_year}</TableCell>
+                        <TableCell className="max-w-[160px] truncate">{(l.course_interests || []).join(", ") || "-"}</TableCell>
+                        <TableCell className="whitespace-nowrap">{l.academic_score}</TableCell>
+                        <TableCell className="whitespace-nowrap">{l.investment_budget}</TableCell>
+                        <TableCell>{l.utm_source || "-"}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </TabsContent>
 
           {/* Webinar tab */}
           <TabsContent value="webinar">
