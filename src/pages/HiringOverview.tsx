@@ -1,13 +1,16 @@
+import { useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { trackMetaEvent } from "@/lib/metaPixel";
+import { trackMetaEvent, initHiringPixel } from "@/lib/metaPixel";
 
 const ROLE_NAME = "Student Counsellor";
 
 const HiringOverview = () => {
   const navigate = useNavigate();
+
+  useEffect(() => { initHiringPixel(); }, []);
 
   const goToStudentCounsellor = () => {
     trackMetaEvent("HiringApplyCardClick");

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useNavigate } from "react-router-dom";
-import { trackMetaEvent } from "@/lib/metaPixel";
+import { trackMetaEvent, initHiringPixel } from "@/lib/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
 
 type ExperienceBand =
@@ -69,6 +69,8 @@ const StudentMentorHiring = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => { initHiringPixel(); }, []);
 
   const form = useForm<HiringFormValues>({
     defaultValues: {

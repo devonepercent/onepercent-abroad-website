@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -7,12 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { trackMetaEvent } from "@/lib/metaPixel";
+import { trackMetaEvent, initHiringPixel } from "@/lib/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
 
 const ROLE_NAME = "High-Ticket Sales Executive";
 
 const SalesHiring = () => {
+  useEffect(() => { initHiringPixel(); }, []);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");

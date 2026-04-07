@@ -4,23 +4,17 @@ declare global {
   }
 }
 
-const DEFAULT_PIXEL_ID = "703668536011397";
+const LEADS_PIXEL_ID = "1270136815184632";
+const HIRING_PIXEL_ID = "703668536011397";
 
-const getPixelId = () => import.meta.env.VITE_META_PIXEL_ID as string | undefined;
-
-export const initMetaPixel = () => {
+const ensureFbq = () => {
   if (typeof window === "undefined") return;
-  const pixelId = getPixelId() || DEFAULT_PIXEL_ID;
-  if (!pixelId) return;
-
   if (!window.fbq) {
-    // Minimal, safe fbq implementation that matches Meta's API shape
     const fbq: any = function () {
       fbq.callMethod ? fbq.callMethod.apply(fbq, arguments) : fbq.queue.push(arguments);
     };
     fbq.queue = [];
     fbq.version = "2.0";
-
     window.fbq = fbq;
 
     const script = document.createElement("script");
@@ -28,8 +22,19 @@ export const initMetaPixel = () => {
     script.src = "https://connect.facebook.net/en_US/fbevents.js";
     document.head.appendChild(script);
   }
+};
 
-  window.fbq!("init", pixelId);
+export const initMetaPixel = () => {
+  if (typeof window === "undefined") return;
+  ensureFbq();
+  window.fbq!("init", LEADS_PIXEL_ID);
+  window.fbq!("track", "PageView");
+};
+
+export const initHiringPixel = () => {
+  if (typeof window === "undefined") return;
+  ensureFbq();
+  window.fbq!("init", HIRING_PIXEL_ID);
   window.fbq!("track", "PageView");
 };
 

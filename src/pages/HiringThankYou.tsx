@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import { trackMetaEvent } from "@/lib/metaPixel";
+import { trackMetaEvent, initHiringPixel } from "@/lib/metaPixel";
 
 const HiringThankYou = () => {
   useEffect(() => {
-    // Fire Meta Lead event only after successful application redirect
+    initHiringPixel();
     trackMetaEvent("Lead");
   }, []);
 
