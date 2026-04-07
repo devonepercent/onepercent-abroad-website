@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, Check, Loader2 } from "lucide-react";
-import { trackMetaEvent } from "@/lib/metaPixel";
 
 const DEGREES = ["Masters", "MBA", "Bachelor's", "PhD"];
 const DESTINATIONS = ["USA", "Germany", "UK", "Canada", "Australia", "France", "Ireland", "Netherlands", "Other"];
@@ -184,8 +183,7 @@ const LeadForm = () => {
         console.error("LeadSquared error (non-blocking):", lsError);
       }
 
-      trackMetaEvent("Lead");
-      window.location.href = "https://chat.whatsapp.com/GzkeVrL9N1S749BhMkdXN9";
+      window.location.href = "/get-started/thank-you";
     } catch (error) {
       console.error("Submission error:", error);
       toast({
