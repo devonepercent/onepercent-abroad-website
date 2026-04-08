@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, Check, Loader2 } from "lucide-react";
+import { INDIAN_CITIES, INDIAN_STATES } from "@/lib/indianLocations";
 
 const DEGREES = ["Masters", "MBA", "Bachelor's", "PhD"];
 const DESTINATIONS = ["USA", "Germany", "UK", "Canada", "Australia", "France", "Ireland", "Netherlands", "Other"];
@@ -49,6 +50,8 @@ type FormData = {
   email: string;
   phone: string;
   countryCode: string;
+  city: string;
+  state: string;
 };
 
 const LeadForm = () => {
@@ -70,7 +73,16 @@ const LeadForm = () => {
     email: "",
     phone: "",
     countryCode: "+91",
+    city: "",
+    state: "",
   });
+
+  const [stateSearch, setStateSearch] = useState("");
+  const [showStateDropdown, setShowStateDropdown] = useState(false);
+  const [citySearch, setCitySearch] = useState("");
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const stateDropdownRef = useRef<HTMLDivElement>(null);
+  const cityDropdownRef = useRef<HTMLDivElement>(null);
 
   const utmData = {
     utm_source: searchParams.get("utm_source") || "",
@@ -97,6 +109,28 @@ const LeadForm = () => {
   const filteredCourses = POPULAR_COURSES.filter(
     (c) => c.toLowerCase().includes(courseSearch.toLowerCase()) && !form.courseInterests.includes(c)
   );
+
+  const stateOptions = [...INDIAN_STATES.filter(s =>
+    s.toLowerCase().includes(stateSearch.toLowerCase())
+  ), "Other"];
+
+  const cityOptions = [...INDIAN_CITIES.filter(c =>
+    (form.state === "" || form.state === "Other" || c.state === form.state) &&
+    c.city.toLowerCase().includes(citySearch.toLowerCase())
+  ).map(c => c.city).filter((v, i, arr) => arr.indexOf(v) === i).slice(0, 100), "Other"];
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (stateDropdownRef.current && !stateDropdownRef.current.contains(e.target as Node)) {
+        setShowStateDropdown(false);
+      }
+      if (cityDropdownRef.current && !cityDropdownRef.current.contains(e.target as Node)) {
+        setShowCityDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const toggleDestination = (dest: string) => {
     setForm((prev) => ({
@@ -127,7 +161,7 @@ const LeadForm = () => {
       case 1: return form.degree !== "" && form.destinations.length > 0;
       case 2: return form.startYear !== "";
       case 3: return form.academicScore !== "" && form.investmentBudget !== "";
-      case 4: return form.fullName.trim() !== "" && form.email.includes("@") && form.phone.length >= 7;
+      case 4: return form.fullName.trim() !== "" && form.email.includes("@") && form.phone.length >= 7 && form.city !== "" && form.state !== "";
       default: return false;
     }
   };
@@ -148,6 +182,8 @@ const LeadForm = () => {
         email: form.email.trim().toLowerCase(),
         phone: form.phone.trim(),
         country_code: form.countryCode,
+        city: form.city,
+        state: form.state,
         utm_source: utmData.utm_source || null,
         utm_campaign: utmData.utm_campaign || null,
         utm_adset: utmData.utm_adset || null,
@@ -182,6 +218,8 @@ const LeadForm = () => {
             courseInterests: form.courseInterests.join(", "),
             academicScore: form.academicScore,
             investmentBudget: form.investmentBudget,
+            city: form.city,
+            state: form.state,
             ...utmData,
           },
         });
@@ -469,6 +507,92 @@ const LeadForm = () => {
                     />
                   </div>
                 </div>
+
+                <div ref={stateDropdownRef} className="relative">
+                  <label className="text-sm font-medium text-foreground mb-1.5 block">State</label>
+                  <Input
+                    placeholder="Search state..."
+                    value={form.state && !showStateDropdown ? form.state : stateSearch}
+                    onChange={(e) => {
+                      setStateSearch(e.target.value);
+                      setForm((p) => ({ ...p, state: "", city: "" }));
+                      setCitySearch("");
+                      setShowStateDropdown(true);
+                    }}
+                    onFocus={() => {
+                      setStateSearch(form.state === "Other" || form.state === "" ? stateSearch : form.state);
+                      setShowStateDropdown(true);
+                    }}
+                    className="rounded-full"
+                  />
+                  {showStateDropdown && (
+                    <div className="absolute z-20 w-full mt-1 max-h-48 overflow-y-auto bg-white border border-border rounded-2xl shadow-lg">
+                      {stateOptions.filter(s => s.toLowerCase().includes(stateSearch.toLowerCase())).length > 0 ? (
+                        stateOptions
+                          .filter(s => s.toLowerCase().includes(stateSearch.toLowerCase()))
+                          .map((s) => (
+                            <button
+                              key={s}
+                              onClick={() => {
+                                setForm((p) => ({ ...p, state: s, city: "" }));
+                                setStateSearch("");
+                                setCitySearch("");
+                                setShowStateDropdown(false);
+                              }}
+                              className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted transition-colors"
+                            >
+                              {s}
+                            </button>
+                          ))
+                      ) : (
+                        <div className="px-4 py-3 text-sm text-muted-foreground">No states found</div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div ref={cityDropdownRef} className="relative">
+                  <label className="text-sm font-medium text-foreground mb-1.5 block">City</label>
+                  <Input
+                    placeholder={form.state ? "Search city..." : "Select a state first..."}
+                    value={form.city && !showCityDropdown ? form.city : citySearch}
+                    onChange={(e) => {
+                      setCitySearch(e.target.value);
+                      setForm((p) => ({ ...p, city: "" }));
+                      setShowCityDropdown(true);
+                    }}
+                    onFocus={() => {
+                      setCitySearch(form.city === "Other" || form.city === "" ? citySearch : form.city);
+                      setShowCityDropdown(true);
+                    }}
+                    disabled={!form.state}
+                    className="rounded-full disabled:opacity-50"
+                  />
+                  {showCityDropdown && form.state && (
+                    <div className="absolute z-20 w-full mt-1 max-h-48 overflow-y-auto bg-white border border-border rounded-2xl shadow-lg">
+                      {cityOptions.filter(c => c.toLowerCase().includes(citySearch.toLowerCase())).length > 0 ? (
+                        cityOptions
+                          .filter(c => c.toLowerCase().includes(citySearch.toLowerCase()))
+                          .map((c) => (
+                            <button
+                              key={c}
+                              onClick={() => {
+                                setForm((p) => ({ ...p, city: c }));
+                                setCitySearch("");
+                                setShowCityDropdown(false);
+                              }}
+                              className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted transition-colors"
+                            >
+                              {c}
+                            </button>
+                          ))
+                      ) : (
+                        <div className="px-4 py-3 text-sm text-muted-foreground">No cities found</div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
               </div>
             </div>
           )}
