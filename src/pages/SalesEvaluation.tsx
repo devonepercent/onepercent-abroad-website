@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import logoBlue from "@/assets/logo-blue.png";
 import { generateEvaluationPdf } from "@/lib/generateEvaluationPdf";
+import { ArrowLeft } from "lucide-react";
 
 type Role = "admin" | "user" | "sales";
 
@@ -258,6 +259,14 @@ const SalesEvaluation = () => {
         )}
         <section className="border-b bg-white">
           <div className="container mx-auto px-4 py-10 md:py-14">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mb-4"
+              onClick={() => navigate("/internal")}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back to dashboard
+            </Button>
             <h1 className="text-3xl md:text-4xl font-bold mb-3">Sales Evaluation AI</h1>
             <p className="text-muted-foreground max-w-2xl">
               Upload a candidate&apos;s resume or paste their CV text to generate a structured AI evaluation
