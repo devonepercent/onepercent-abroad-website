@@ -199,7 +199,7 @@ const Webinar = () => {
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold mb-4">Erasmus Mundus Webinar</h1>
-            <p className="text-xl text-muted-foreground">At Friday 7:30 PM</p>
+            <p className="text-xl text-muted-foreground">At 7:30 PM</p>
           </div>
 
           <div className="bg-card p-8 rounded-lg shadow-lg border">
