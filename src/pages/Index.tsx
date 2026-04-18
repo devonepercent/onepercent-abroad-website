@@ -445,12 +445,12 @@ const Index = () => {
 
       {/* ── Milestone cards ── */}
       {milestones.map((m, i) => (
-        <div key={i} ref={el => { cardRefs.current[i] = el; }} style={{ position:"fixed",zIndex:8,opacity:0,pointerEvents:"none",willChange:"transform,opacity",width:480 }}>
-          <div style={{ background:"rgba(10,22,40,0.75)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",border:"1px solid rgba(97,162,254,0.12)",borderRadius:20,padding:"36px 44px",width:"100%",boxSizing:"border-box",boxShadow:"0 8px 40px rgba(0,0,0,0.3)" }}>
+        <div key={i} ref={el => { cardRefs.current[i] = el; }} style={{ position:"fixed",zIndex:8,opacity:0,pointerEvents:"none",willChange:"transform,opacity",width:"min(480px, 90vw)" }}>
+          <div style={{ background:"rgba(10,22,40,0.75)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",border:"1px solid rgba(97,162,254,0.12)",borderRadius:20,padding:"clamp(24px, 5vw, 36px) clamp(20px, 5vw, 44px)",width:"100%",boxSizing:"border-box",boxShadow:"0 8px 40px rgba(0,0,0,0.3)" }}>
             <div style={{ display:"inline-flex",padding:"8px 20px",background:"rgba(59,130,246,0.12)",border:"1px solid rgba(59,130,246,0.2)",borderRadius:50,fontSize:14,fontWeight:600,letterSpacing:2,textTransform:"uppercase",color:"#3b82f6",marginBottom:20 }}>{m.step}</div>
             <div style={{ width:68,height:2,background:"linear-gradient(90deg,#3b82f6,#61A2FE)",marginBottom:20,borderRadius:1 }} />
-            <h3 style={{ fontFamily:"'Playfair Display',serif",fontSize:32,fontWeight:600,lineHeight:1.2,marginBottom:14 }}>{m.title}</h3>
-            <p style={{ fontSize:16,color:"rgba(255,255,255,0.6)",lineHeight:1.7,margin:0 }}>{m.desc}</p>
+            <h3 style={{ fontFamily:"'Playfair Display',serif",fontSize:"clamp(24px, 5vw, 32px)",fontWeight:600,lineHeight:1.2,marginBottom:14 }}>{m.title}</h3>
+            <p style={{ fontSize:"clamp(14px, 3vw, 16px)",color:"rgba(255,255,255,0.6)",lineHeight:1.7,margin:0 }}>{m.desc}</p>
           </div>
         </div>
       ))}

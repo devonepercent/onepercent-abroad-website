@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const testimonials = [
   {
@@ -46,6 +47,7 @@ const TestimonialCard = ({ t }: { t: typeof testimonials[0] }) => (
 
 const Testimonials = () => {
   const [active, setActive] = useState(0);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const id = setInterval(() => setActive(p => (p + 1) % n), 3000);
@@ -78,36 +80,53 @@ const Testimonials = () => {
   };
 
   return (
-    <section id="testimonials" style={{ background:"#0a1628",padding:"120px 60px 100px",borderTop:"1px solid rgba(97,162,254,0.06)",fontFamily:"'DM Sans',sans-serif",color:"#fff" }}>
+    <section id="testimonials" style={{ background:"#0a1628",padding:isMobile?"72px 20px 60px":"120px 60px 100px",borderTop:"1px solid rgba(97,162,254,0.06)",fontFamily:"'DM Sans',sans-serif",color:"#fff" }}>
       <div style={{ maxWidth:1160,margin:"0 auto" }}>
         {/* Heading */}
-        <div style={{ textAlign:"center",marginBottom:72 }}>
+        <div style={{ textAlign:"center",marginBottom:isMobile?40:72 }}>
           <div style={{ fontSize:11,fontWeight:500,letterSpacing:4,textTransform:"uppercase",color:"#d4a843",marginBottom:16 }}>Student Stories</div>
-          <h2 style={{ fontFamily:"'Playfair Display',serif",fontSize:"clamp(30px,4vw,50px)",fontWeight:600,lineHeight:1.15,marginBottom:16 }}>
+          <h2 style={{ fontFamily:"'Playfair Display',serif",fontSize:"clamp(28px,4vw,50px)",fontWeight:600,lineHeight:1.15,marginBottom:16 }}>
             Lives changed, <em style={{ fontStyle:"italic",color:"#61A2FE" }}>dreams realised</em>
           </h2>
-          <p style={{ color:"rgba(255,255,255,0.6)",fontSize:16,maxWidth:480,margin:"0 auto" }}>
+          <p style={{ color:"rgba(255,255,255,0.6)",fontSize:isMobile?14:16,maxWidth:480,margin:"0 auto" }}>
             From aspiration to acceptance — hear directly from students who made the climb.
           </p>
         </div>
 
-        {/* 3D Carousel */}
-        <div style={{ position:"relative",height:320,overflow:"hidden" }}>
-          {testimonials.map((t, i) => (
-            <div key={i} style={{
-              position: "absolute",
-              top: 0,
-              left: "50%",
-              width: 520,
-              marginLeft: -260,
-              transition: "transform 0.7s cubic-bezier(0.4,0,0.2,1), opacity 0.7s ease, filter 0.7s ease",
-              transformOrigin: "center center",
-              ...getCardStyle(i),
-            }}>
-              <TestimonialCard t={t} />
-            </div>
-          ))}
-        </div>
+        {isMobile ? (
+          /* Mobile: full-width single card with fade transition */
+          <div style={{ position:"relative" }}>
+            {testimonials.map((t, i) => (
+              <div key={i} style={{
+                position: i === active ? "relative" : "absolute",
+                top: 0, left: 0, width: "100%",
+                opacity: i === active ? 1 : 0,
+                transition: "opacity 0.7s ease",
+                pointerEvents: i === active ? "auto" : "none",
+              }}>
+                <TestimonialCard t={t} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          /* Desktop: 3D carousel */
+          <div style={{ position:"relative",height:320,overflow:"hidden" }}>
+            {testimonials.map((t, i) => (
+              <div key={i} style={{
+                position: "absolute",
+                top: 0,
+                left: "50%",
+                width: 520,
+                marginLeft: -260,
+                transition: "transform 0.7s cubic-bezier(0.4,0,0.2,1), opacity 0.7s ease, filter 0.7s ease",
+                transformOrigin: "center center",
+                ...getCardStyle(i),
+              }}>
+                <TestimonialCard t={t} />
+              </div>
+            ))}
+          </div>
+        )}
 
       </div>
     </section>

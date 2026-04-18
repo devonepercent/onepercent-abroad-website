@@ -36,9 +36,6 @@ const Achievers = () => (
     </div>
 
     <div style={{ position:"relative" }}>
-      {/* Fade edges */}
-      <div style={{ position:"absolute",top:0,left:0,width:100,height:"100%",background:"linear-gradient(90deg,#0a1628,transparent)",zIndex:2,pointerEvents:"none" }} />
-      <div style={{ position:"absolute",top:0,right:0,width:100,height:"100%",background:"linear-gradient(-90deg,#0a1628,transparent)",zIndex:2,pointerEvents:"none" }} />
 
       <style dangerouslySetInnerHTML={{ __html:`@keyframes achiever-marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}` }} />
 
