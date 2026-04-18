@@ -6,6 +6,8 @@ import Achievers from "@/components/Achievers";
 import Services from "@/components/Services";
 import FAQ from "@/components/FAQ";
 import Footer from "@/components/Footer";
+import NewsletterSection from "@/components/NewsletterSection";
+import NewsletterPopup from "@/components/NewsletterPopup";
 
 const milestones = [
   { step: "Step 01", title: "Onboarding",          desc: "We understand your dreams, strengths, and aspirations. A deep-dive session maps your academic profile and sets the trajectory.",                side: 1  },
@@ -481,8 +483,10 @@ const Index = () => {
         <Achievers />
         <Services />
         <FAQ />
+        <NewsletterSection />
         <Footer />
       </div>
+      <NewsletterPopup />
     </div>
   );
 };
