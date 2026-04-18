@@ -2,125 +2,119 @@ import { useEffect, useState } from "react";
 
 const testimonials = [
   {
-    text: "I never thought that i could achieve this. I have approached many agencies, and I finally came to 1%abroad. They helped me with my confidence and cleared my self-doubts in all stages, it has been very helpful.",
+    text: "I never thought that I could achieve this. I have approached many agencies, and I finally came to 1%abroad. They helped me with my confidence and cleared my self-doubts in all stages, it has been very helpful.",
     name: "Sisa Maria Sunny",
-    background: "From music teacher to world-class journalist.",
-    program: "Masters in Journalism, Media and Globalization, Erasmus Mundus",
+    program: "Masters in Journalism, Media and Globalization · Erasmus Mundus",
     initials: "SS",
     image: "/images/testimonials/SISA MARIA SUNNY.png",
   },
   {
-    text: "Thanks to team 1%abroad for helping me throughout this journey.. Only after the profile analysis through 1%abroad did I realize that i can aim for the very best universities in the world. Team 1% has always been supportive of the choices I made instead of them putting their choices on me. I recommend 1%abroad to anybody who wants to get into top 1% of the people when it comes to studying abroad.",
+    text: "Only after the profile analysis through 1%abroad did I realise that I can aim for the very best universities in the world. Team 1% has always been supportive of the choices I made instead of putting their choices on me.",
     name: "Ananthakrishnan",
-    background: "Online BCA Graduate to AI Pioneer.",
-    program: "AI in Medicine, University of Bern, Switzerland",
+    program: "AI in Medicine · University of Bern, Switzerland",
     initials: "AK",
     image: "/images/testimonials/ANANTHAKRISHNAN.png",
   },
   {
-    text: "Mentorship has helped me in shortlisting courses, to understand what is realistically possible for me to achieve. They also helped in practical ways to achieve these results and kept me clocked in with the deadlines.",
+    text: "Mentorship helped me in shortlisting courses, to understand what is realistically possible for me to achieve. They also helped in practical ways and kept me clocked in with the deadlines.",
     name: "Amaresh",
-    background: "60 Lakhs Awarded: The Power of Strategy.",
-    program: "EMINENT, Erasmus Mundus",
+    program: "EMINENT · Erasmus Mundus (60 Lakhs Awarded)",
     initials: "AM",
     image: "/images/testimonials/AMARESH.png",
   },
 ];
 
+const n = testimonials.length;
+
+const TestimonialCard = ({ t }: { t: typeof testimonials[0] }) => (
+  <div style={{ background:"#142444",border:"1px solid rgba(97,162,254,0.09)",borderRadius:16,padding:"36px 32px",display:"flex",flexDirection:"column",height:"100%",boxSizing:"border-box" }}>
+    <div style={{ color:"#d4a843",fontSize:13,letterSpacing:3,marginBottom:22 }}>★★★★★</div>
+    <p style={{ fontSize:15,lineHeight:1.8,color:"rgba(255,255,255,0.6)",marginBottom:32,flex:1 }}>"{t.text}"</p>
+    <div style={{ display:"flex",alignItems:"center",gap:14 }}>
+      <div style={{ width:46,height:46,borderRadius:"50%",background:"rgba(97,162,254,0.1)",border:"1px solid rgba(97,162,254,0.18)",overflow:"hidden",flexShrink:0 }}>
+        <img src={t.image} alt={t.name} style={{ width:"100%",height:"100%",objectFit:"cover",objectPosition:"top" }}
+          onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; (e.currentTarget.parentElement as HTMLElement).textContent = t.initials; }}
+        />
+      </div>
+      <div>
+        <div style={{ fontWeight:600,fontSize:14,marginBottom:3 }}>{t.name}</div>
+        <div style={{ fontSize:12,color:"rgba(255,255,255,0.3)" }}>{t.program}</div>
+      </div>
+    </div>
+  </div>
+);
+
 const Testimonials = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [active, setActive] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % testimonials.length);
-    }, 4000);
-    return () => clearInterval(interval);
+    const id = setInterval(() => setActive(p => (p + 1) % n), 3000);
+    return () => clearInterval(id);
   }, []);
 
+  const getCardStyle = (i: number): React.CSSProperties => {
+    const diff = (i - active + n) % n;
+    if (diff === 0) return {
+      transform: "translateX(0) scale(1)",
+      opacity: 1,
+      filter: "none",
+      zIndex: 3,
+      pointerEvents: "auto",
+    };
+    if (diff === 1) return {
+      transform: "translateX(340px) scale(0.82)",
+      opacity: 0.45,
+      filter: "blur(3px)",
+      zIndex: 1,
+      pointerEvents: "none",
+    };
+    return {
+      transform: "translateX(-340px) scale(0.82)",
+      opacity: 0.45,
+      filter: "blur(3px)",
+      zIndex: 1,
+      pointerEvents: "none",
+    };
+  };
+
   return (
-    <section id="testimonials" className="w-full px-4 py-24 sm:px-10 lg:px-20 sm:py-32 bg-primary text-white relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-radial from-secondary/20 via-transparent to-transparent opacity-50"></div>
-      <div className="max-w-7xl mx-auto z-10 relative">
-
-        {/* Mobile View - Slideshow */}
-        <div className="md:hidden w-full max-w-sm mx-auto relative min-h-[320px]">
-          {testimonials.map((testimonial, idx) => (
-            <div
-              key={idx}
-              className={`absolute inset-0 transition-all duration-700 ${
-                idx === activeIndex
-                  ? "opacity-100 translate-y-0 pointer-events-auto"
-                  : "opacity-0 translate-y-4 pointer-events-none"
-              }`}
-            >
-              <div className="flex flex-col gap-5 p-6 rounded-xl border border-white/10 bg-secondary/20 backdrop-blur-sm h-full">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-full bg-accent/20 flex items-center justify-center text-accent text-lg font-bold overflow-hidden shrink-0">
-                    <img
-                      src={testimonial.image}
-                      alt={testimonial.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).style.display = "none";
-                        (e.currentTarget.parentElement as HTMLElement).innerText = testimonial.initials;
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <p className="font-bold text-white">{testimonial.name}</p>
-                    <p className="text-xs text-accent italic">{testimonial.background}</p>
-                  </div>
-                </div>
-                <p className="text-gray-200 leading-relaxed text-sm flex-1">"{testimonial.text}"</p>
-                <p className="text-xs text-accent/80 border-t border-white/10 pt-3">{testimonial.program}</p>
-              </div>
-            </div>
-          ))}
-
-          {/* Dots */}
-          <div className="absolute -bottom-8 left-0 right-0 flex justify-center gap-2">
-            {testimonials.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setActiveIndex(idx)}
-                className={`h-2 rounded-full transition-all ${
-                  idx === activeIndex ? "bg-accent w-8" : "bg-white/30 w-2"
-                }`}
-              />
-            ))}
-          </div>
+    <section id="testimonials" style={{ background:"#0a1628",padding:"120px 60px 100px",borderTop:"1px solid rgba(97,162,254,0.06)",fontFamily:"'DM Sans',sans-serif",color:"#fff" }}>
+      <div style={{ maxWidth:1160,margin:"0 auto" }}>
+        {/* Heading */}
+        <div style={{ textAlign:"center",marginBottom:72 }}>
+          <div style={{ fontSize:11,fontWeight:500,letterSpacing:4,textTransform:"uppercase",color:"#d4a843",marginBottom:16 }}>Student Stories</div>
+          <h2 style={{ fontFamily:"'Playfair Display',serif",fontSize:"clamp(30px,4vw,50px)",fontWeight:600,lineHeight:1.15,marginBottom:16 }}>
+            Lives changed, <em style={{ fontStyle:"italic",color:"#61A2FE" }}>dreams realised</em>
+          </h2>
+          <p style={{ color:"rgba(255,255,255,0.6)",fontSize:16,maxWidth:480,margin:"0 auto" }}>
+            From aspiration to acceptance — hear directly from students who made the climb.
+          </p>
         </div>
 
-        {/* Desktop View - 3 columns */}
-        <div className="hidden md:grid grid-cols-3 gap-8">
-          {testimonials.map((testimonial, idx) => (
-            <div
-              key={idx}
-              className="flex flex-col gap-5 p-7 rounded-xl border border-white/10 bg-secondary/20 backdrop-blur-sm"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-full bg-accent/20 flex items-center justify-center text-accent text-lg font-bold overflow-hidden shrink-0">
-                  <img
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).style.display = "none";
-                      (e.currentTarget.parentElement as HTMLElement).innerText = testimonial.initials;
-                    }}
-                  />
-                </div>
-                <div>
-                  <p className="font-bold text-white">{testimonial.name}</p>
-                  <p className="text-xs text-accent italic">{testimonial.background}</p>
-                </div>
-              </div>
-              <p className="text-gray-200 leading-relaxed flex-1">"{testimonial.text}"</p>
-              <p className="text-sm text-accent/80 border-t border-white/10 pt-4">{testimonial.program}</p>
+        {/* 3D Carousel */}
+        <div style={{ position:"relative",height:320,overflow:"hidden" }}>
+          {testimonials.map((t, i) => (
+            <div key={i} style={{
+              position: "absolute",
+              top: 0,
+              left: "50%",
+              width: 520,
+              marginLeft: -260,
+              transition: "transform 0.7s cubic-bezier(0.4,0,0.2,1), opacity 0.7s ease, filter 0.7s ease",
+              transformOrigin: "center center",
+              ...getCardStyle(i),
+            }}>
+              <TestimonialCard t={t} />
             </div>
           ))}
         </div>
 
+        {/* Dots */}
+        <div style={{ display:"flex",justifyContent:"center",gap:8,marginTop:32 }}>
+          {testimonials.map((_, i) => (
+            <button key={i} onClick={() => setActive(i)} style={{ height:8,borderRadius:4,border:"none",cursor:"pointer",transition:"all 0.3s",background: i === active ? "#61A2FE" : "rgba(97,162,254,0.2)",width: i === active ? 32 : 8,padding:0 }} />
+          ))}
+        </div>
       </div>
     </section>
   );

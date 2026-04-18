@@ -1,0 +1,23 @@
+<svg width="1256" height="1256" viewBox="0 0 1256 1256" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g filter="url(#filter0_i_3971_2250)">
+<circle cx="628" cy="628" r="628" fill="url(#paint0_radial_3971_2250)"/>
+</g>
+<path d="M314 319.075H380.1V867.496H477.833V935.531H314V319.075ZM774.296 319.075H941V386.303H840.002V584.275H934.433V656.003H840.002V867.496H941V935.531H774.296V319.075ZM535.321 935.531V867.908H555.847C582.958 867.908 628.944 849.044 635.924 806.419C642.491 765.031 637.557 735.102 584.178 644.114L583.765 642.877C546.822 582.625 511.511 529.761 524.645 446.968C528.852 410.92 546.464 377.771 573.987 354.097C601.528 330.406 636.962 317.908 673.28 319.075H693.806V386.303H673.28C646.187 386.303 598.962 405.15 591.983 447.774C585.416 488.768 589.937 515.827 641.666 605.578L643.316 607.64C681.911 669.524 716.396 724.451 703.262 806.831C699.543 842.961 682.281 876.345 654.943 900.276C627.59 924.223 592.196 936.962 555.847 935.943H535.321" fill="white"/>
+<defs>
+<filter id="filter0_i_3971_2250" x="0" y="-16" width="1256" height="1272" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feMorphology radius="16" operator="erode" in="SourceAlpha" result="effect1_innerShadow_3971_2250"/>
+<feOffset dy="-16"/>
+<feGaussianBlur stdDeviation="25.2"/>
+<feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.18 0"/>
+<feBlend mode="normal" in2="shape" result="effect1_innerShadow_3971_2250"/>
+</filter>
+<radialGradient id="paint0_radial_3971_2250" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(645.5 459.5) rotate(91.2587) scale(796.692)">
+<stop stop-color="#FF2642"/>
+<stop offset="1" stop-color="#CE0F27"/>
+</radialGradient>
+</defs>
+</svg>

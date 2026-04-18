@@ -1,81 +1,52 @@
-import stanfordLogo from "@/assets/stanford.png";
-import mitLogo from "@/assets/mit.png";
-import erasmusLogo from "@/assets/erasmus.png";
-import harvardLogo from "@/assets/harvard.png";
-import nusLogo from "@/assets/nus.jpg";
+import stanfordLogo    from "@/assets/stanford.png";
+import mitLogo        from "@/assets/mit.png";
+import erasmusLogo    from "@/assets/erasmus.png";
+import harvardLogo    from "@/assets/harvard.png";
+import nusLogo        from "@/assets/nus.jpg";
 import georgiaTechLogo from "@/assets/georgia-tech.png";
-import oxfordLogo from "@/assets/oxford.png";
+import oxfordLogo     from "@/assets/oxford.png";
 
-const UniversityLogos = () => {
-  const logos = [
-    {
-      name: "Harvard University",
-      url: harvardLogo,
-      height: "h-8 md:h-10",
-    },
-    {
-      name: "Stanford University",
-      url: stanfordLogo,
-      height: "h-7 md:h-9",
-    },
-    {
-      name: "MIT",
-      url: mitLogo,
-      height: "h-8 md:h-10",
-    },
-    {
-      name: "Oxford University",
-      url: oxfordLogo,
-      height: "h-8 md:h-10",
-    },
-    {
-      name: "NUS",
-      url: nusLogo,
-      height: "h-8 md:h-10",
-    },
-    {
-      name: "Georgia Tech",
-      url: georgiaTechLogo,
-      height: "h-8 md:h-10",
-    },
-    {
-      name: "Erasmus+",
-      url: erasmusLogo,
-      height: "h-6 md:h-8",
-    },
-  ];
+const logos = [
+  { name: "Harvard",      url: harvardLogo },
+  { name: "Stanford",     url: stanfordLogo },
+  { name: "MIT",          url: mitLogo },
+  { name: "Oxford",       url: oxfordLogo },
+  { name: "NUS",          url: nusLogo },
+  { name: "Georgia Tech", url: georgiaTechLogo },
+  { name: "Erasmus+",     url: erasmusLogo },
+];
 
-  return (
-    <section className="w-full py-24 sm:py-32 bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-20">
-        <h4 className="text-xs sm:text-sm font-semibold tracking-widest uppercase text-center mb-10 text-muted-foreground">
-          MENTORING STUDENTS FOR TOP UNIVERSITIES
-        </h4>
-        <div className="relative flex overflow-hidden before:content-[''] before:absolute before:left-0 before:top-0 before:w-16 before:h-full before:bg-gradient-to-r before:from-background before:to-transparent before:z-10 after:content-[''] after:absolute after:right-0 after:top-0 after:w-16 after:h-full after:bg-gradient-to-l after:from-background after:to-transparent after:z-10">
-          <div className="flex animate-marquee whitespace-nowrap items-center">
-            {logos.map((logo, idx) => (
-              <img
-                key={`${logo.name}-1-${idx}`}
-                className={`${logo.height} mx-24 transition-all`}
-                alt={`${logo.name} Logo`}
-                src={logo.url}
-              />
-            ))}
-          </div>
-          <div className="absolute top-0 flex animate-marquee2 whitespace-nowrap items-center">
-            {logos.map((logo, idx) => (
-              <img
-                key={`${logo.name}-2-${idx}`}
-                className={`${logo.height} mx-24 transition-all`}
-                alt={`${logo.name} Logo`}
-                src={logo.url}
-              />
-            ))}
-          </div>
-        </div>
+const UniversityLogos = () => (
+  <section style={{ background:"#142444",padding:"72px 0",borderTop:"1px solid rgba(97,162,254,0.06)",overflow:"hidden",fontFamily:"'DM Sans',sans-serif" }}>
+
+    <div style={{ position:"relative",display:"flex",overflow:"hidden" }}>
+      {/* Fade edges */}
+      <div style={{ position:"absolute",top:0,left:0,width:80,height:"100%",background:"linear-gradient(90deg,#142444,transparent)",zIndex:2,pointerEvents:"none" }} />
+      <div style={{ position:"absolute",top:0,right:0,width:80,height:"100%",background:"linear-gradient(-90deg,#142444,transparent)",zIndex:2,pointerEvents:"none" }} />
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes marquee1 { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+        @keyframes marquee2 { 0%{transform:translateX(50%)} 100%{transform:translateX(0%)} }
+      ` }} />
+
+      <div style={{ display:"flex",alignItems:"center",animation:"marquee1 28s linear infinite",whiteSpace:"nowrap" }}>
+        {[...logos, ...logos].map((logo, i) => (
+          <img key={i} src={logo.url} alt={logo.name} style={{ height:36,width:"auto",margin:"0 56px",opacity:0.75,filter:"brightness(0) invert(1)",transition:"opacity 0.2s" }}
+            onMouseOver={e => (e.currentTarget.style.opacity = "1")}
+            onMouseOut={e  => (e.currentTarget.style.opacity = "0.75")}
+          />
+        ))}
       </div>
-    </section>
-  );
-};
+      <div style={{ display:"flex",alignItems:"center",animation:"marquee2 28s linear infinite",whiteSpace:"nowrap",position:"absolute",top:0 }}>
+        {[...logos, ...logos].map((logo, i) => (
+          <img key={i} src={logo.url} alt={logo.name} style={{ height:36,width:"auto",margin:"0 56px",opacity:0.75,filter:"brightness(0) invert(1)",transition:"opacity 0.2s" }}
+            onMouseOver={e => (e.currentTarget.style.opacity = "1")}
+            onMouseOut={e  => (e.currentTarget.style.opacity = "0.75")}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+);
 
 export default UniversityLogos;
