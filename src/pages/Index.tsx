@@ -493,10 +493,10 @@ const Index = () => {
 };
 
 const WhatsAppButton = () => {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setVisible(false), 10000);
+    const t = setTimeout(() => setVisible(true), 15000);
     return () => clearTimeout(t);
   }, []);
 
@@ -513,13 +513,12 @@ const WhatsAppButton = () => {
         zIndex: 9998,
         width: 56,
         height: 56,
-        borderRadius: "50%",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         opacity: visible ? 1 : 0,
         pointerEvents: visible ? "auto" : "none",
-        transition: "opacity 0.6s ease",
+        transition: "opacity 0.8s ease",
         filter: "drop-shadow(0 4px 12px rgba(37,211,102,0.45))",
       }}
     >
