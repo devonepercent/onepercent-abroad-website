@@ -13,7 +13,7 @@ const NewsletterPopup = () => {
     const timer = setTimeout(() => {
       setVisible(true);
       sessionStorage.setItem(SESSION_KEY, "1");
-    }, 10000);
+    }, 20000);
 
     return () => clearTimeout(timer);
   }, []);
