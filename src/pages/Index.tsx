@@ -487,7 +487,44 @@ const Index = () => {
         <Footer />
       </div>
       <NewsletterPopup />
+      <WhatsAppButton />
     </div>
+  );
+};
+
+const WhatsAppButton = () => {
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(false), 10000);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <a
+      href="https://wa.me/919567200157"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Chat on WhatsApp"
+      style={{
+        position: "fixed",
+        bottom: 28,
+        right: 28,
+        zIndex: 9998,
+        width: 56,
+        height: 56,
+        borderRadius: "50%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        opacity: visible ? 1 : 0,
+        pointerEvents: visible ? "auto" : "none",
+        transition: "opacity 0.6s ease",
+        filter: "drop-shadow(0 4px 12px rgba(37,211,102,0.45))",
+      }}
+    >
+      <img src="/WhatsApp.svg" alt="WhatsApp" style={{ width: 56, height: 56 }} />
+    </a>
   );
 };
 
