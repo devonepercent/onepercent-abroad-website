@@ -109,12 +109,6 @@ const Testimonials = () => {
           ))}
         </div>
 
-        {/* Dots */}
-        <div style={{ display:"flex",justifyContent:"center",gap:8,marginTop:32 }}>
-          {testimonials.map((_, i) => (
-            <button key={i} onClick={() => setActive(i)} style={{ height:8,borderRadius:4,border:"none",cursor:"pointer",transition:"all 0.3s",background: i === active ? "#61A2FE" : "rgba(97,162,254,0.2)",width: i === active ? 32 : 8,padding:0 }} />
-          ))}
-        </div>
       </div>
     </section>
   );

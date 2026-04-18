@@ -64,6 +64,14 @@ interface Lead {
   created_at: string;
 }
 
+interface NewsletterSubscriber {
+  id: string;
+  name: string;
+  email: string;
+  source: string;
+  created_at: string;
+}
+
 interface SalesEvaluationAdmin {
   id: string;
   candidate_name: string | null;
@@ -95,6 +103,8 @@ interface Expense {
 
 type UserEmailMap = Record<string, string>;
 
+const PAGE_SIZE = 10;
+
 const EXPENSE_CATEGORIES = [
   "Travel",
   "Food & Meals",
@@ -111,19 +121,32 @@ const AdminDashboard = () => {
   const [hiring, setHiring] = useState<HiringApplication[]>([]);
   const [salesEvaluations, setSalesEvaluations] = useState<SalesEvaluationAdmin[]>([]);
   const [billingCycles, setBillingCycles] = useState<BillingCycle[]>([]);
+  const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
   const [recentExpenses, setRecentExpenses] = useState<Expense[]>([]);
   const [expenseEmailMap, setExpenseEmailMap] = useState<UserEmailMap>({});
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [webinarPage, setWebinarPage] = useState(1);
+  const [leadsFrom, setLeadsFrom] = useState("");
+  const [leadsTo, setLeadsTo] = useState("");
+  const [leadsPage, setLeadsPage] = useState(1);
+  const [hiringFrom, setHiringFrom] = useState("");
+  const [hiringTo, setHiringTo] = useState("");
+  const [hiringPage, setHiringPage] = useState(1);
+  const [subsFrom, setSubsFrom] = useState("");
+  const [subsTo, setSubsTo] = useState("");
+  const [subsPage, setSubsPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [adminEmail, setAdminEmail] = useState<string | null>(null);
   const [adminUserId, setAdminUserId] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    checkAuthAndFetchData();
-  }, []);
+  useEffect(() => { checkAuthAndFetchData(); }, []);
+  useEffect(() => { setWebinarPage(1); }, [fromDate, toDate]);
+  useEffect(() => { setLeadsPage(1); }, [leadsFrom, leadsTo]);
+  useEffect(() => { setHiringPage(1); }, [hiringFrom, hiringTo]);
+  useEffect(() => { setSubsPage(1); }, [subsFrom, subsTo]);
 
   const checkAuthAndFetchData = async () => {
     try {
@@ -165,6 +188,7 @@ const AdminDashboard = () => {
         { data: salesData, error: salesError },
         { data: billingData, error: billingError },
         { data: expenseData, error: expenseError },
+        { data: subscriberData, error: subscriberError },
       ] = await Promise.all([
         supabase
           .from("webinar_registrations" as any)
@@ -191,6 +215,10 @@ const AdminDashboard = () => {
           .select("*")
           .order("date", { ascending: false })
           .limit(10),
+        supabase
+          .from("newsletter_subscribers" as any)
+          .select("*")
+          .order("created_at", { ascending: false }),
       ]);
 
       if (webinarError) {
@@ -221,6 +249,12 @@ const AdminDashboard = () => {
         console.error("Error loading billing cycles:", billingError);
       } else {
         setBillingCycles((billingData as unknown as BillingCycle[]) || []);
+      }
+
+      if (subscriberError) {
+        console.error("Error loading newsletter subscribers:", subscriberError);
+      } else {
+        setSubscribers((subscriberData as unknown as NewsletterSubscriber[]) || []);
       }
 
       if (expenseError) {
@@ -276,6 +310,54 @@ const AdminDashboard = () => {
       return true;
     });
   }, [registrations, fromDate, toDate]);
+
+  const pagedWebinar = filteredRegistrations.slice((webinarPage - 1) * PAGE_SIZE, webinarPage * PAGE_SIZE);
+  const webinarPageCount = Math.max(1, Math.ceil(filteredRegistrations.length / PAGE_SIZE));
+
+  const filteredLeads = useMemo(() => {
+    const f = leadsFrom ? new Date(leadsFrom) : null;
+    const t = leadsTo ? new Date(leadsTo) : null;
+    if (t) t.setHours(23, 59, 59, 999);
+    if (!f && !t) return leads;
+    return leads.filter(l => {
+      const ts = new Date(l.created_at);
+      if (f && ts < f) return false;
+      if (t && ts > t) return false;
+      return true;
+    });
+  }, [leads, leadsFrom, leadsTo]);
+  const pagedLeads = filteredLeads.slice((leadsPage - 1) * PAGE_SIZE, leadsPage * PAGE_SIZE);
+  const leadsPageCount = Math.max(1, Math.ceil(filteredLeads.length / PAGE_SIZE));
+
+  const filteredHiring = useMemo(() => {
+    const f = hiringFrom ? new Date(hiringFrom) : null;
+    const t = hiringTo ? new Date(hiringTo) : null;
+    if (t) t.setHours(23, 59, 59, 999);
+    if (!f && !t) return hiring;
+    return hiring.filter(h => {
+      const ts = new Date(h.created_at);
+      if (f && ts < f) return false;
+      if (t && ts > t) return false;
+      return true;
+    });
+  }, [hiring, hiringFrom, hiringTo]);
+  const pagedHiring = filteredHiring.slice((hiringPage - 1) * PAGE_SIZE, hiringPage * PAGE_SIZE);
+  const hiringPageCount = Math.max(1, Math.ceil(filteredHiring.length / PAGE_SIZE));
+
+  const filteredSubs = useMemo(() => {
+    const f = subsFrom ? new Date(subsFrom) : null;
+    const t = subsTo ? new Date(subsTo) : null;
+    if (t) t.setHours(23, 59, 59, 999);
+    if (!f && !t) return subscribers;
+    return subscribers.filter(s => {
+      const ts = new Date(s.created_at);
+      if (f && ts < f) return false;
+      if (t && ts > t) return false;
+      return true;
+    });
+  }, [subscribers, subsFrom, subsTo]);
+  const pagedSubs = filteredSubs.slice((subsPage - 1) * PAGE_SIZE, subsPage * PAGE_SIZE);
+  const subsPageCount = Math.max(1, Math.ceil(filteredSubs.length / PAGE_SIZE));
 
   const exportToCSV = () => {
     if (filteredRegistrations.length === 0) {
@@ -348,6 +430,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="sales-evaluations">Sales evaluation reports</TabsTrigger>
             <TabsTrigger value="billing">Billing cycles</TabsTrigger>
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
+            <TabsTrigger value="newsletter">Newsletter subscribers</TabsTrigger>
             <TabsTrigger value="internal-tools">Internal tools</TabsTrigger>
           </TabsList>
 
@@ -357,49 +440,33 @@ const AdminDashboard = () => {
               <div className="space-y-2">
                 <h2 className="text-xl font-semibold">Get started leads</h2>
                 <p className="text-sm text-muted-foreground">
-                  All submissions from the /get-started form. {leads.length} total.
+                  {filteredLeads.length} of {leads.length} total · page {leadsPage} of {leadsPageCount}
                 </p>
               </div>
-              <Button
-                onClick={() => {
-                  if (leads.length === 0) return;
-                  const headers = [
-                    "Timestamp", "Name", "Email", "Phone", "Degree",
-                    "Destinations", "Start Year", "Courses", "Academic Score",
-                    "Investment Budget", "UTM Source", "UTM Campaign", "UTM Medium",
-                  ];
-                  const rows = leads.map((l) =>
-                    [
-                      new Date(l.created_at).toLocaleString(),
-                      `"${l.full_name}"`,
-                      l.email,
-                      `"${l.country_code} ${l.phone}"`,
-                      l.degree,
-                      `"${(l.destinations || []).join(", ")}"`,
-                      l.start_year,
-                      `"${(l.course_interests || []).join(", ")}"`,
-                      `"${l.academic_score}"`,
-                      `"${l.investment_budget}"`,
-                      l.utm_source || "",
-                      l.utm_campaign || "",
-                      l.utm_medium || "",
-                    ].join(",")
-                  );
-                  const blob = new Blob([[headers.join(","), ...rows].join("\n")], { type: "text/csv" });
-                  const url = window.URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `leads-${new Date().toISOString().split("T")[0]}.csv`;
-                  a.click();
-                  window.URL.revokeObjectURL(url);
-                }}
-                size="sm"
-                variant="outline"
-                disabled={leads.length === 0}
-              >
-                <Download className="mr-2 h-4 w-4" />
-                Export CSV
-              </Button>
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">From</Label>
+                  <Input type="date" value={leadsFrom} onChange={e => setLeadsFrom(e.target.value)} className="h-9 w-40" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">To</Label>
+                  <Input type="date" value={leadsTo} onChange={e => setLeadsTo(e.target.value)} className="h-9 w-40" />
+                </div>
+                <Button variant="outline" size="sm" onClick={() => { setLeadsFrom(""); setLeadsTo(""); }}>Clear dates</Button>
+                <Button
+                  onClick={() => {
+                    if (filteredLeads.length === 0) return;
+                    const headers = ["Timestamp","Name","Email","Phone","Degree","Destinations","Start Year","Courses","Academic Score","Investment Budget","UTM Source","UTM Campaign","UTM Medium"];
+                    const rows = filteredLeads.map(l => [new Date(l.created_at).toLocaleString(),`"${l.full_name}"`,l.email,`"${l.country_code} ${l.phone}"`,l.degree,`"${(l.destinations||[]).join(", ")}"`,l.start_year,`"${(l.course_interests||[]).join(", ")}"`,`"${l.academic_score}"`,`"${l.investment_budget}"`,l.utm_source||"",l.utm_campaign||"",l.utm_medium||""].join(","));
+                    const blob = new Blob([[headers.join(","),...rows].join("\n")],{type:"text/csv"});
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a"); a.href=url; a.download=`leads-${new Date().toISOString().split("T")[0]}.csv`; a.click(); window.URL.revokeObjectURL(url);
+                  }}
+                  size="sm" variant="outline" disabled={filteredLeads.length === 0}
+                >
+                  <Download className="mr-2 h-4 w-4" />Export CSV
+                </Button>
+              </div>
             </div>
 
             <div className="bg-card rounded-lg shadow border overflow-x-auto">
@@ -420,14 +487,14 @@ const AdminDashboard = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {leads.length === 0 ? (
+                  {pagedLeads.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
-                        No leads yet
+                        No leads found
                       </TableCell>
                     </TableRow>
                   ) : (
-                    leads.map((l) => (
+                    pagedLeads.map((l) => (
                       <TableRow key={l.id}>
                         <TableCell className="whitespace-nowrap">{new Date(l.created_at).toLocaleString()}</TableCell>
                         <TableCell className="whitespace-nowrap">{l.full_name}</TableCell>
@@ -445,6 +512,7 @@ const AdminDashboard = () => {
                   )}
                 </TableBody>
               </Table>
+              <PaginationBar page={leadsPage} pageCount={leadsPageCount} onPage={setLeadsPage} />
             </div>
           </TabsContent>
 
@@ -454,7 +522,7 @@ const AdminDashboard = () => {
               <div className="space-y-2">
                 <h2 className="text-xl font-semibold">Webinar registrations</h2>
                 <p className="text-sm text-muted-foreground">
-                  Filter by date range and export registrations as CSV.
+                  {filteredRegistrations.length} of {registrations.length} total · page {webinarPage} of {webinarPageCount}.
                 </p>
               </div>
               <div className="flex flex-wrap items-end gap-3">
@@ -497,14 +565,14 @@ const AdminDashboard = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredRegistrations.length === 0 ? (
+                  {pagedWebinar.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                         No registrations for the selected period
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredRegistrations.map((reg) => (
+                    pagedWebinar.map((reg) => (
                       <TableRow key={reg.id}>
                         <TableCell>{new Date(reg.created_at).toLocaleString()}</TableCell>
                         <TableCell>{reg.name}</TableCell>
@@ -517,16 +585,43 @@ const AdminDashboard = () => {
                   )}
                 </TableBody>
               </Table>
+              <PaginationBar page={webinarPage} pageCount={webinarPageCount} onPage={setWebinarPage} />
             </div>
           </TabsContent>
 
           {/* Hiring submissions tab */}
           <TabsContent value="hiring">
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold mb-1">Hiring submissions</h2>
-              <p className="text-sm text-muted-foreground">
-                View recent hiring leads from all roles captured via the website.
-              </p>
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-4">
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold">Hiring submissions</h2>
+                <p className="text-sm text-muted-foreground">
+                  {filteredHiring.length} of {hiring.length} total · page {hiringPage} of {hiringPageCount}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">From</Label>
+                  <Input type="date" value={hiringFrom} onChange={e => setHiringFrom(e.target.value)} className="h-9 w-40" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">To</Label>
+                  <Input type="date" value={hiringTo} onChange={e => setHiringTo(e.target.value)} className="h-9 w-40" />
+                </div>
+                <Button variant="outline" size="sm" onClick={() => { setHiringFrom(""); setHiringTo(""); }}>Clear dates</Button>
+                <Button
+                  onClick={() => {
+                    if (filteredHiring.length === 0) return;
+                    const headers = ["Timestamp","Role","Name","Email","Phone","City","Source"];
+                    const rows = filteredHiring.map(h => [new Date(h.created_at).toLocaleString(),h.role,`"${h.full_name}"`,h.email,h.phone,h.current_city,h.source||""].join(","));
+                    const blob = new Blob([[headers.join(","),...rows].join("\n")],{type:"text/csv"});
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a"); a.href=url; a.download=`hiring-${new Date().toISOString().split("T")[0]}.csv`; a.click(); window.URL.revokeObjectURL(url);
+                  }}
+                  size="sm" variant="outline" disabled={filteredHiring.length === 0}
+                >
+                  <Download className="mr-2 h-4 w-4" />Export CSV
+                </Button>
+              </div>
             </div>
             <div className="bg-card rounded-lg shadow border overflow-hidden">
               <Table>
@@ -543,14 +638,14 @@ const AdminDashboard = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {hiring.length === 0 ? (
+                  {pagedHiring.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                        No hiring submissions yet
+                        No hiring submissions found
                       </TableCell>
                     </TableRow>
                   ) : (
-                    hiring.map((h) => (
+                    pagedHiring.map((h) => (
                       <TableRow key={h.id}>
                         <TableCell>{new Date(h.created_at).toLocaleString()}</TableCell>
                         <TableCell>{h.role}</TableCell>
@@ -561,23 +656,17 @@ const AdminDashboard = () => {
                         <TableCell>{h.source || "-"}</TableCell>
                         <TableCell>
                           {h.cv_url ? (
-                            <a
-                              href={h.cv_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-primary hover:underline"
-                            >
+                            <a href={h.cv_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                               View CV
                             </a>
-                          ) : (
-                            "-"
-                          )}
+                          ) : "-"}
                         </TableCell>
                       </TableRow>
                     ))
                   )}
                 </TableBody>
               </Table>
+              <PaginationBar page={hiringPage} pageCount={hiringPageCount} onPage={setHiringPage} />
             </div>
           </TabsContent>
 
@@ -759,6 +848,73 @@ const AdminDashboard = () => {
             </div>
           </TabsContent>
 
+          {/* Newsletter subscribers tab */}
+          <TabsContent value="newsletter">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-4">
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold">Newsletter subscribers</h2>
+                <p className="text-sm text-muted-foreground">
+                  {filteredSubs.length} of {subscribers.length} total · page {subsPage} of {subsPageCount}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">From</Label>
+                  <Input type="date" value={subsFrom} onChange={e => setSubsFrom(e.target.value)} className="h-9 w-40" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">To</Label>
+                  <Input type="date" value={subsTo} onChange={e => setSubsTo(e.target.value)} className="h-9 w-40" />
+                </div>
+                <Button variant="outline" size="sm" onClick={() => { setSubsFrom(""); setSubsTo(""); }}>Clear dates</Button>
+                <Button
+                  onClick={() => {
+                    if (filteredSubs.length === 0) return;
+                    const headers = ["Timestamp","Name","Email","Source"];
+                    const rows = filteredSubs.map(s => [new Date(s.created_at).toLocaleString(),`"${s.name}"`,s.email,s.source].join(","));
+                    const blob = new Blob([[headers.join(","),...rows].join("\n")],{type:"text/csv"});
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a"); a.href=url; a.download=`newsletter-subscribers-${new Date().toISOString().split("T")[0]}.csv`; a.click(); window.URL.revokeObjectURL(url);
+                  }}
+                  size="sm" variant="outline" disabled={filteredSubs.length === 0}
+                >
+                  <Download className="mr-2 h-4 w-4" />Export CSV
+                </Button>
+              </div>
+            </div>
+            <div className="bg-card rounded-lg shadow border overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Source</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pagedSubs.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                        No subscribers found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    pagedSubs.map((s) => (
+                      <TableRow key={s.id}>
+                        <TableCell className="whitespace-nowrap">{new Date(s.created_at).toLocaleString()}</TableCell>
+                        <TableCell>{s.name}</TableCell>
+                        <TableCell>{s.email}</TableCell>
+                        <TableCell className="capitalize">{s.source}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+              <PaginationBar page={subsPage} pageCount={subsPageCount} onPage={setSubsPage} />
+            </div>
+          </TabsContent>
+
           {/* Internal tools tab */}
           <TabsContent value="internal-tools">
             <div className="space-y-4">
@@ -807,6 +963,19 @@ const AdminDashboard = () => {
             </div>
           </TabsContent>
         </Tabs>
+      </div>
+    </div>
+  );
+};
+
+const PaginationBar = ({ page, pageCount, onPage }: { page: number; pageCount: number; onPage: (p: number) => void }) => {
+  if (pageCount <= 1) return null;
+  return (
+    <div className="flex items-center justify-between px-4 py-3 border-t text-sm">
+      <span className="text-muted-foreground">Page {page} of {pageCount}</span>
+      <div className="flex gap-2">
+        <Button size="sm" variant="outline" disabled={page === 1} onClick={() => onPage(page - 1)}>Previous</Button>
+        <Button size="sm" variant="outline" disabled={page === pageCount} onClick={() => onPage(page + 1)}>Next</Button>
       </div>
     </div>
   );
