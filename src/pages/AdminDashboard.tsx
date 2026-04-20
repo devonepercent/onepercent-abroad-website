@@ -22,7 +22,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Download, LogOut, Upload } from "lucide-react";
+import { Download, LogOut, Search, Trash2, Upload } from "lucide-react";
 
 interface Registration {
   id: string;
@@ -136,6 +136,12 @@ const AdminDashboard = () => {
   const [subsFrom, setSubsFrom] = useState("");
   const [subsTo, setSubsTo] = useState("");
   const [subsPage, setSubsPage] = useState(1);
+  const [leadsSearch, setLeadsSearch] = useState("");
+  const [webinarSearch, setWebinarSearch] = useState("");
+  const [hiringSearch, setHiringSearch] = useState("");
+  const [subsSearch, setSubsSearch] = useState("");
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; table: "leads" | "webinar_registrations" | "hiring_applications" | "newsletter_subscribers"; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [adminEmail, setAdminEmail] = useState<string | null>(null);
   const [adminUserId, setAdminUserId] = useState<string | null>(null);
@@ -143,10 +149,10 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => { checkAuthAndFetchData(); }, []);
-  useEffect(() => { setWebinarPage(1); }, [fromDate, toDate]);
-  useEffect(() => { setLeadsPage(1); }, [leadsFrom, leadsTo]);
-  useEffect(() => { setHiringPage(1); }, [hiringFrom, hiringTo]);
-  useEffect(() => { setSubsPage(1); }, [subsFrom, subsTo]);
+  useEffect(() => { setWebinarPage(1); }, [fromDate, toDate, webinarSearch]);
+  useEffect(() => { setLeadsPage(1); }, [leadsFrom, leadsTo, leadsSearch]);
+  useEffect(() => { setHiringPage(1); }, [hiringFrom, hiringTo, hiringSearch]);
+  useEffect(() => { setSubsPage(1); }, [subsFrom, subsTo, subsSearch]);
 
   const checkAuthAndFetchData = async () => {
     try {
@@ -294,22 +300,36 @@ const AdminDashboard = () => {
     navigate("/admin/login");
   };
 
-  const filteredRegistrations = useMemo(() => {
-    if (!fromDate && !toDate) return registrations;
+  const handleDelete = async () => {
+    if (!pendingDelete) return;
+    setIsDeleting(true);
+    const { error } = await (supabase.from(pendingDelete.table as any).delete() as any).eq("id", pendingDelete.id);
+    if (error) {
+      toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+    } else {
+      if (pendingDelete.table === "leads") setLeads(prev => prev.filter(l => l.id !== pendingDelete.id));
+      else if (pendingDelete.table === "webinar_registrations") setRegistrations(prev => prev.filter(r => r.id !== pendingDelete.id));
+      else if (pendingDelete.table === "hiring_applications") setHiring(prev => prev.filter(h => h.id !== pendingDelete.id));
+      else if (pendingDelete.table === "newsletter_subscribers") setSubscribers(prev => prev.filter(s => s.id !== pendingDelete.id));
+      toast({ title: "Deleted", description: `"${pendingDelete.name}" has been permanently deleted.` });
+      setPendingDelete(null);
+    }
+    setIsDeleting(false);
+  };
 
+  const filteredRegistrations = useMemo(() => {
     const from = fromDate ? new Date(fromDate) : null;
     const to = toDate ? new Date(toDate) : null;
-    if (to) {
-      to.setHours(23, 59, 59, 999);
-    }
-
+    if (to) to.setHours(23, 59, 59, 999);
+    const q = webinarSearch.trim().toLowerCase();
     return registrations.filter((reg) => {
       const ts = new Date(reg.created_at);
       if (from && ts < from) return false;
       if (to && ts > to) return false;
+      if (q && !reg.name.toLowerCase().includes(q) && !reg.email.toLowerCase().includes(q) && !reg.phone_number.includes(q)) return false;
       return true;
     });
-  }, [registrations, fromDate, toDate]);
+  }, [registrations, fromDate, toDate, webinarSearch]);
 
   const pagedWebinar = filteredRegistrations.slice((webinarPage - 1) * PAGE_SIZE, webinarPage * PAGE_SIZE);
   const webinarPageCount = Math.max(1, Math.ceil(filteredRegistrations.length / PAGE_SIZE));
@@ -318,14 +338,15 @@ const AdminDashboard = () => {
     const f = leadsFrom ? new Date(leadsFrom) : null;
     const t = leadsTo ? new Date(leadsTo) : null;
     if (t) t.setHours(23, 59, 59, 999);
-    if (!f && !t) return leads;
+    const q = leadsSearch.trim().toLowerCase();
     return leads.filter(l => {
       const ts = new Date(l.created_at);
       if (f && ts < f) return false;
       if (t && ts > t) return false;
+      if (q && !l.full_name.toLowerCase().includes(q) && !l.email.toLowerCase().includes(q) && !l.phone.includes(q)) return false;
       return true;
     });
-  }, [leads, leadsFrom, leadsTo]);
+  }, [leads, leadsFrom, leadsTo, leadsSearch]);
   const pagedLeads = filteredLeads.slice((leadsPage - 1) * PAGE_SIZE, leadsPage * PAGE_SIZE);
   const leadsPageCount = Math.max(1, Math.ceil(filteredLeads.length / PAGE_SIZE));
 
@@ -333,14 +354,15 @@ const AdminDashboard = () => {
     const f = hiringFrom ? new Date(hiringFrom) : null;
     const t = hiringTo ? new Date(hiringTo) : null;
     if (t) t.setHours(23, 59, 59, 999);
-    if (!f && !t) return hiring;
+    const q = hiringSearch.trim().toLowerCase();
     return hiring.filter(h => {
       const ts = new Date(h.created_at);
       if (f && ts < f) return false;
       if (t && ts > t) return false;
+      if (q && !h.full_name.toLowerCase().includes(q) && !h.email.toLowerCase().includes(q) && !h.phone.includes(q)) return false;
       return true;
     });
-  }, [hiring, hiringFrom, hiringTo]);
+  }, [hiring, hiringFrom, hiringTo, hiringSearch]);
   const pagedHiring = filteredHiring.slice((hiringPage - 1) * PAGE_SIZE, hiringPage * PAGE_SIZE);
   const hiringPageCount = Math.max(1, Math.ceil(filteredHiring.length / PAGE_SIZE));
 
@@ -348,14 +370,15 @@ const AdminDashboard = () => {
     const f = subsFrom ? new Date(subsFrom) : null;
     const t = subsTo ? new Date(subsTo) : null;
     if (t) t.setHours(23, 59, 59, 999);
-    if (!f && !t) return subscribers;
+    const q = subsSearch.trim().toLowerCase();
     return subscribers.filter(s => {
       const ts = new Date(s.created_at);
       if (f && ts < f) return false;
       if (t && ts > t) return false;
+      if (q && !s.name.toLowerCase().includes(q) && !s.email.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [subscribers, subsFrom, subsTo]);
+  }, [subscribers, subsFrom, subsTo, subsSearch]);
   const pagedSubs = filteredSubs.slice((subsPage - 1) * PAGE_SIZE, subsPage * PAGE_SIZE);
   const subsPageCount = Math.max(1, Math.ceil(filteredSubs.length / PAGE_SIZE));
 
@@ -444,6 +467,10 @@ const AdminDashboard = () => {
                 </p>
               </div>
               <div className="flex flex-wrap items-end gap-3">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Input placeholder="Search name, email, phone…" value={leadsSearch} onChange={e => setLeadsSearch(e.target.value)} className="h-9 pl-8 w-56" />
+                </div>
                 <div className="space-y-1">
                   <Label className="text-xs">From</Label>
                   <Input type="date" value={leadsFrom} onChange={e => setLeadsFrom(e.target.value)} className="h-9 w-40" />
@@ -452,7 +479,7 @@ const AdminDashboard = () => {
                   <Label className="text-xs">To</Label>
                   <Input type="date" value={leadsTo} onChange={e => setLeadsTo(e.target.value)} className="h-9 w-40" />
                 </div>
-                <Button variant="outline" size="sm" onClick={() => { setLeadsFrom(""); setLeadsTo(""); }}>Clear dates</Button>
+                <Button variant="outline" size="sm" onClick={() => { setLeadsFrom(""); setLeadsTo(""); setLeadsSearch(""); }}>Clear</Button>
                 <Button
                   onClick={() => {
                     if (filteredLeads.length === 0) return;
@@ -484,12 +511,13 @@ const AdminDashboard = () => {
                     <TableHead>Academic Score</TableHead>
                     <TableHead>Budget</TableHead>
                     <TableHead>UTM Source</TableHead>
+                    <TableHead className="w-12"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {pagedLeads.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={12} className="text-center py-8 text-muted-foreground">
                         No leads found
                       </TableCell>
                     </TableRow>
@@ -507,6 +535,11 @@ const AdminDashboard = () => {
                         <TableCell className="whitespace-nowrap">{l.academic_score}</TableCell>
                         <TableCell className="whitespace-nowrap">{l.investment_budget}</TableCell>
                         <TableCell>{l.utm_source || "-"}</TableCell>
+                        <TableCell>
+                          <button onClick={() => setPendingDelete({ id: l.id, table: "leads", name: l.full_name })} className="text-muted-foreground hover:text-destructive transition-colors p-1 rounded" title="Delete lead">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </TableCell>
                       </TableRow>
                     ))
                   )}
@@ -526,6 +559,10 @@ const AdminDashboard = () => {
                 </p>
               </div>
               <div className="flex flex-wrap items-end gap-3">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Input placeholder="Search name, email, phone…" value={webinarSearch} onChange={e => setWebinarSearch(e.target.value)} className="h-9 pl-8 w-56" />
+                </div>
                 <div className="space-y-1">
                   <Label className="text-xs">From</Label>
                   <Input
@@ -544,8 +581,8 @@ const AdminDashboard = () => {
                     className="h-9 w-40"
                   />
                 </div>
-                <Button variant="outline" size="sm" onClick={() => { setFromDate(""); setToDate(""); }}>
-                  Clear dates
+                <Button variant="outline" size="sm" onClick={() => { setFromDate(""); setToDate(""); setWebinarSearch(""); }}>
+                  Clear
                 </Button>
                 <Button onClick={exportToCSV} size="sm" variant="outline">
                   <Download className="mr-2 h-4 w-4" />
@@ -562,12 +599,13 @@ const AdminDashboard = () => {
                     <TableHead>Name</TableHead>
                     <TableHead>Phone Number</TableHead>
                     <TableHead>Email</TableHead>
+                    <TableHead className="w-12"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {pagedWebinar.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                         No registrations for the selected period
                       </TableCell>
                     </TableRow>
@@ -580,6 +618,11 @@ const AdminDashboard = () => {
                           {reg.country_code} {reg.phone_number}
                         </TableCell>
                         <TableCell>{reg.email}</TableCell>
+                        <TableCell>
+                          <button onClick={() => setPendingDelete({ id: reg.id, table: "webinar_registrations", name: reg.name })} className="text-muted-foreground hover:text-destructive transition-colors p-1 rounded" title="Delete registration">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </TableCell>
                       </TableRow>
                     ))
                   )}
@@ -599,6 +642,10 @@ const AdminDashboard = () => {
                 </p>
               </div>
               <div className="flex flex-wrap items-end gap-3">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Input placeholder="Search name, email, phone…" value={hiringSearch} onChange={e => setHiringSearch(e.target.value)} className="h-9 pl-8 w-56" />
+                </div>
                 <div className="space-y-1">
                   <Label className="text-xs">From</Label>
                   <Input type="date" value={hiringFrom} onChange={e => setHiringFrom(e.target.value)} className="h-9 w-40" />
@@ -607,7 +654,7 @@ const AdminDashboard = () => {
                   <Label className="text-xs">To</Label>
                   <Input type="date" value={hiringTo} onChange={e => setHiringTo(e.target.value)} className="h-9 w-40" />
                 </div>
-                <Button variant="outline" size="sm" onClick={() => { setHiringFrom(""); setHiringTo(""); }}>Clear dates</Button>
+                <Button variant="outline" size="sm" onClick={() => { setHiringFrom(""); setHiringTo(""); setHiringSearch(""); }}>Clear</Button>
                 <Button
                   onClick={() => {
                     if (filteredHiring.length === 0) return;
@@ -635,12 +682,13 @@ const AdminDashboard = () => {
                     <TableHead>City</TableHead>
                     <TableHead>Source</TableHead>
                     <TableHead>CV</TableHead>
+                    <TableHead className="w-12"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {pagedHiring.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                         No hiring submissions found
                       </TableCell>
                     </TableRow>
@@ -660,6 +708,11 @@ const AdminDashboard = () => {
                               View CV
                             </a>
                           ) : "-"}
+                        </TableCell>
+                        <TableCell>
+                          <button onClick={() => setPendingDelete({ id: h.id, table: "hiring_applications", name: h.full_name })} className="text-muted-foreground hover:text-destructive transition-colors p-1 rounded" title="Delete submission">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </TableCell>
                       </TableRow>
                     ))
@@ -858,6 +911,10 @@ const AdminDashboard = () => {
                 </p>
               </div>
               <div className="flex flex-wrap items-end gap-3">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Input placeholder="Search name or email…" value={subsSearch} onChange={e => setSubsSearch(e.target.value)} className="h-9 pl-8 w-56" />
+                </div>
                 <div className="space-y-1">
                   <Label className="text-xs">From</Label>
                   <Input type="date" value={subsFrom} onChange={e => setSubsFrom(e.target.value)} className="h-9 w-40" />
@@ -866,7 +923,7 @@ const AdminDashboard = () => {
                   <Label className="text-xs">To</Label>
                   <Input type="date" value={subsTo} onChange={e => setSubsTo(e.target.value)} className="h-9 w-40" />
                 </div>
-                <Button variant="outline" size="sm" onClick={() => { setSubsFrom(""); setSubsTo(""); }}>Clear dates</Button>
+                <Button variant="outline" size="sm" onClick={() => { setSubsFrom(""); setSubsTo(""); setSubsSearch(""); }}>Clear</Button>
                 <Button
                   onClick={() => {
                     if (filteredSubs.length === 0) return;
@@ -890,12 +947,13 @@ const AdminDashboard = () => {
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Source</TableHead>
+                    <TableHead className="w-12"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {pagedSubs.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                         No subscribers found
                       </TableCell>
                     </TableRow>
@@ -906,6 +964,11 @@ const AdminDashboard = () => {
                         <TableCell>{s.name}</TableCell>
                         <TableCell>{s.email}</TableCell>
                         <TableCell className="capitalize">{s.source}</TableCell>
+                        <TableCell>
+                          <button onClick={() => setPendingDelete({ id: s.id, table: "newsletter_subscribers", name: s.name })} className="text-muted-foreground hover:text-destructive transition-colors p-1 rounded" title="Delete subscriber">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </TableCell>
                       </TableRow>
                     ))
                   )}
@@ -964,6 +1027,28 @@ const AdminDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Delete confirmation dialog */}
+      {pendingDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-background border rounded-xl shadow-xl p-6 w-full max-w-sm mx-4 space-y-4">
+            <div className="space-y-1">
+              <h3 className="text-base font-semibold">Permanently delete?</h3>
+              <p className="text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">"{pendingDelete.name}"</span> will be permanently removed and cannot be recovered.
+              </p>
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" size="sm" onClick={() => setPendingDelete(null)} disabled={isDeleting}>
+                Cancel
+              </Button>
+              <Button variant="destructive" size="sm" onClick={handleDelete} disabled={isDeleting}>
+                {isDeleting ? "Deleting…" : "Delete"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
