@@ -23,7 +23,6 @@ import BlogManager from "./pages/BlogManager";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import LeadForm from "./pages/LeadForm";
-import LeadThankYou from "./pages/LeadThankYou";
 import MuhasinTask from "./pages/MuhasinTask";
 import OfferCardTool from "./pages/OfferCardTool";
 import Newsletter from "./pages/Newsletter";
@@ -63,7 +62,6 @@ const AppRoutes = () => {
       <Route path="/blog" element={<Blog />} />
       <Route path="/blog/:slug" element={<BlogPost />} />
       <Route path="/get-started" element={<LeadForm />} />
-      <Route path="/get-started/thank-you" element={<LeadThankYou />} />
       <Route path="/muhasinatask" element={<MuhasinTask />} />
       <Route path="/internal/offer-desk" element={<OfferCardTool />} />
       <Route path="/newsletter" element={<Newsletter />} />

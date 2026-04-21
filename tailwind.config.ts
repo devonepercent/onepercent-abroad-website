@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Lexend", "sans-serif"],
-        serif: ["Playfair Display", "serif"],
+        display: ["Outfit", "sans-serif"],
+        serif: ["Cormorant Garamond", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",

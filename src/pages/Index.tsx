@@ -46,9 +46,6 @@ const Index = () => {
   const uniNodeRefs  = useRef<(HTMLDivElement | null)[]>([]);
   const cardRefs     = useRef<(HTMLDivElement | null)[]>([]);
   const dotRefs      = useRef<(HTMLDivElement | null)[]>([]);
-  const wave1Ref     = useRef<HTMLDivElement>(null);
-  const wave2Ref     = useRef<HTMLDivElement>(null);
-  const wave3Ref     = useRef<HTMLDivElement>(null);
   const animFrameRef = useRef(0);
 
   // Lock body scroll
@@ -64,7 +61,7 @@ const Index = () => {
   useEffect(() => {
     const link = document.createElement("link");
     link.rel  = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap";
+    link.href = "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap";
     document.head.appendChild(link);
     return () => { document.head.removeChild(link); };
   }, []);
@@ -153,9 +150,9 @@ const Index = () => {
       }
 
       const sg = jx.createLinearGradient(center[0].x, center[0].y, center[center.length - 1].x, center[center.length - 1].y);
-      sg.addColorStop(0,    "rgba(97,162,254,0.55)");
-      sg.addColorStop(0.98, "rgba(97,162,254,0.55)");
-      sg.addColorStop(1,    "rgba(97,162,254,0)");
+      sg.addColorStop(0,    "rgba(77,135,255,0.55)");
+      sg.addColorStop(0.98, "rgba(77,135,255,0.55)");
+      sg.addColorStop(1,    "rgba(77,135,255,0)");
 
       jx.beginPath(); smoothCurve(left, true);
       jx.strokeStyle = sg; jx.lineWidth = 2; jx.lineJoin = "round"; jx.stroke();
@@ -168,7 +165,7 @@ const Index = () => {
         const drift = (Math.random() - 0.5) * 20 / Math.max(1, c.z * 0.01);
         jx.beginPath();
         jx.arc(c.x + drift, c.y + drift * 0.5, 1.5 / Math.max(1, c.z * 0.003), 0, Math.PI * 2);
-        jx.fillStyle = `rgba(97,162,254,${0.3 / Math.max(1, c.z * 0.002)})`; jx.fill();
+        jx.fillStyle = `rgba(77,135,255,${0.3 / Math.max(1, c.z * 0.002)})`; jx.fill();
       }
 
       MILESTONE_T.forEach(t => {
@@ -180,9 +177,9 @@ const Index = () => {
         if (!pr) return;
         const alpha = Math.max(0, Math.min(1, 1 - rz / 3000));
         jx.beginPath(); jx.arc(pr.x, pr.y, 20 * pr.scale, 0, Math.PI * 2);
-        jx.fillStyle = `rgba(59,130,246,${0.15 * alpha})`; jx.fill();
+        jx.fillStyle = `rgba(26,92,255,${0.15 * alpha})`; jx.fill();
         jx.beginPath(); jx.arc(pr.x, pr.y, 6 * pr.scale, 0, Math.PI * 2);
-        jx.fillStyle = `rgba(97,162,254,${0.8 * alpha})`; jx.fill();
+        jx.fillStyle = `rgba(77,135,255,${0.8 * alpha})`; jx.fill();
         jx.beginPath(); jx.arc(pr.x, pr.y, 3 * pr.scale, 0, Math.PI * 2);
         jx.fillStyle = `rgba(255,255,255,${0.9 * alpha})`; jx.fill();
       });
@@ -288,14 +285,10 @@ const Index = () => {
       const ai = Math.min(Math.round(progress * 9), 9);
       dotRefs.current.forEach((d, i) => {
         if (!d) return;
-        if (i < ai)       { d.style.background = "#3b82f6"; d.style.borderColor = "#3b82f6"; d.style.boxShadow = ""; }
-        else if (i === ai){ d.style.background = "#61A2FE"; d.style.borderColor = "#61A2FE"; d.style.boxShadow = "0 0 8px rgba(97,162,254,0.5)"; }
-        else              { d.style.background = "rgba(97,162,254,0.1)"; d.style.borderColor = "rgba(97,162,254,0.12)"; d.style.boxShadow = ""; }
+        if (i < ai)       { d.style.background = "#1a5cff"; d.style.borderColor = "#1a5cff"; d.style.boxShadow = ""; }
+        else if (i === ai){ d.style.background = "#4d87ff"; d.style.borderColor = "#4d87ff"; d.style.boxShadow = "0 0 8px rgba(77,135,255,0.5)"; }
+        else              { d.style.background = "rgba(77,135,255,0.1)"; d.style.borderColor = "rgba(77,135,255,0.12)"; d.style.boxShadow = ""; }
       });
-
-      // Waves fade
-      const wf = (1 - progress * 0.4) * 0.06;
-      [wave1Ref, wave2Ref, wave3Ref].forEach(r => { if (r.current) r.current.style.opacity = wf.toFixed(4); });
 
       // Uni logos
       const logoRaw = st - (maxST - 500);
@@ -339,21 +332,18 @@ const Index = () => {
   };
 
   const navLinkStyle: React.CSSProperties = {
-    fontSize: 13, fontWeight: 400, color: "rgba(255,255,255,0.6)",
+    fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.6)",
     background: "none", border: "none", cursor: "pointer",
-    letterSpacing: "0.4px", fontFamily: "inherit", padding: 0,
+    letterSpacing: "0.6px", fontFamily: "'Outfit', sans-serif", padding: 0,
   };
 
   return (
-    <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", background: "#0a1628", fontFamily: "'DM Sans', sans-serif", color: "#fff", overflow: "hidden" }}>
+    <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", background: "#05091a", fontFamily: "'Outfit', sans-serif", color: "#fff", overflow: "hidden" }}>
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes bob  { 0%,100%{transform:translate(-50%,-50%) translateY(0)} 50%{transform:translate(-50%,-50%) translateY(-14px)} }
         @keyframes ms   { 0%{opacity:1;transform:translateX(-50%) translateY(0)} 100%{opacity:0;transform:translateX(-50%) translateY(10px)} }
-        @keyframes wa   { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
-        @keyframes wb   { 0%{transform:translateX(-50%)} 100%{transform:translateX(0)} }
-        @keyframes wc   { 0%{transform:translateX(-25%)} 100%{transform:translateX(-75%)} }
-        .nav-link-hover:hover { color:#fff !important; }
-        .cta-btn-hover:hover  { transform:scale(1.05); box-shadow:0 4px 24px rgba(59,130,246,0.3); }
+.nav-link-hover:hover { color:#fff !important; }
+        .cta-btn-hover:hover  { transform:scale(1.05); box-shadow:0 4px 24px rgba(26,92,255,0.5); }
         .scroll-dot { animation:ms 1.8s infinite; }
       ` }} />
 
@@ -361,16 +351,6 @@ const Index = () => {
       <canvas ref={particleRef} style={{ position:"fixed",top:0,left:0,width:"100%",height:"100%",zIndex:2,pointerEvents:"none" }} />
       <canvas ref={pathRef}     style={{ position:"fixed",top:0,left:0,width:"100%",height:"100%",zIndex:4,pointerEvents:"none" }} />
 
-      {/* ── Waves ── */}
-      <div ref={wave1Ref} style={{ position:"fixed",bottom:0,left:0,width:"200%",zIndex:2,pointerEvents:"none",animation:"wa 18s linear infinite",opacity:0.06,height:200 }}>
-        <svg viewBox="0 0 2400 200" preserveAspectRatio="none" style={{width:"100%",display:"block"}}><path d="M0,100 C200,50 400,150 600,100 C800,50 1000,150 1200,100 C1400,50 1600,150 1800,100 C2000,50 2200,150 2400,100 L2400,200 L0,200Z" fill="rgba(59,130,246,0.45)"/></svg>
-      </div>
-      <div ref={wave2Ref} style={{ position:"fixed",bottom:30,left:0,width:"200%",zIndex:2,pointerEvents:"none",animation:"wb 24s linear infinite",opacity:0.04,height:160 }}>
-        <svg viewBox="0 0 2400 160" preserveAspectRatio="none" style={{width:"100%",display:"block"}}><path d="M0,80 C300,30 500,130 800,80 C1100,30 1300,130 1600,80 C1900,30 2100,130 2400,80 L2400,160 L0,160Z" fill="rgba(97,162,254,0.35)"/></svg>
-      </div>
-      <div ref={wave3Ref} style={{ position:"fixed",bottom:15,left:0,width:"200%",zIndex:2,pointerEvents:"none",animation:"wc 14s linear infinite",opacity:0.05,height:130 }}>
-        <svg viewBox="0 0 2400 130" preserveAspectRatio="none" style={{width:"100%",display:"block"}}><path d="M0,65 C250,100 450,30 700,65 C950,100 1150,30 1400,65 C1650,100 1850,30 2100,65 L2400,65 L2400,130 L0,130Z" fill="rgba(59,130,246,0.3)"/></svg>
-      </div>
 
       {/* ── Navbar ── */}
       <nav style={{ position:"fixed",top:0,left:0,width:"100%",zIndex:100,padding:"24px 48px",display:"flex",justifyContent:"space-between",alignItems:"center" }}>
@@ -388,7 +368,7 @@ const Index = () => {
           ))}
           <Link to="/blog"   className="nav-link-hover" style={{ ...navLinkStyle, textDecoration:"none" }}>Updates</Link>
           <Link to="/hiring" className="nav-link-hover" style={{ ...navLinkStyle, textDecoration:"none" }}>Careers</Link>
-          <Link to="/get-started" className="cta-btn-hover" style={{ background:"#fff",color:"#0a1628",padding:"10px 28px",borderRadius:50,fontSize:13,fontWeight:600,textDecoration:"none",transition:"transform 0.2s,box-shadow 0.3s",display:"inline-block" }}>
+          <Link to="/get-started" className="cta-btn-hover" style={{ background:"#1a5cff",color:"#fff",padding:"10px 28px",borderRadius:50,fontSize:13,fontWeight:600,textDecoration:"none",transition:"transform 0.2s,box-shadow 0.3s",display:"inline-block" }}>
             Start Your Journey
           </Link>
         </div>
@@ -401,7 +381,7 @@ const Index = () => {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div style={{ position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(10,22,40,0.97)",zIndex:99,display:"flex",flexDirection:"column",padding:"100px 32px 32px",gap:28 }}>
+        <div style={{ position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(3,8,20,0.97)",zIndex:99,display:"flex",flexDirection:"column",padding:"100px 32px 32px",gap:28 }}>
           {[
             { label:"Services",     action: () => scrollToSection("services") },
             { label:"How it Works", action: () => { scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }); setMobileOpen(false); } },
@@ -412,7 +392,7 @@ const Index = () => {
           ))}
           <Link to="/blog"   onClick={() => setMobileOpen(false)} style={{ fontSize:18,color:"#fff",textDecoration:"none" }}>Updates</Link>
           <Link to="/hiring" onClick={() => setMobileOpen(false)} style={{ fontSize:18,color:"#fff",textDecoration:"none" }}>Careers</Link>
-          <Link to="/get-started" onClick={() => setMobileOpen(false)} style={{ background:"#fff",color:"#0a1628",padding:"14px 32px",borderRadius:50,fontSize:15,fontWeight:600,textDecoration:"none",display:"inline-block",textAlign:"center",marginTop:8 }}>
+          <Link to="/get-started" onClick={() => setMobileOpen(false)} style={{ background:"#1a5cff",color:"#fff",padding:"14px 32px",borderRadius:50,fontSize:15,fontWeight:600,textDecoration:"none",display:"inline-block",textAlign:"center",marginTop:8 }}>
             Start Your Journey
           </Link>
         </div>
@@ -421,15 +401,15 @@ const Index = () => {
       {/* ── Progress dots ── */}
       <div className="hidden md:flex" style={{ position:"fixed",right:24,top:"50%",transform:"translateY(-50%)",zIndex:100,flexDirection:"column",gap:8 }}>
         {Array.from({ length: 10 }).map((_, i) => (
-          <div key={i} ref={el => { dotRefs.current[i] = el; }} style={{ width:7,height:7,borderRadius:"50%",background:"rgba(97,162,254,0.1)",border:"1px solid rgba(97,162,254,0.12)",transition:"all 0.4s" }} />
+          <div key={i} ref={el => { dotRefs.current[i] = el; }} style={{ width:7,height:7,borderRadius:"50%",background:"rgba(77,135,255,0.1)",border:"1px solid rgba(77,135,255,0.12)",transition:"all 0.4s" }} />
         ))}
       </div>
 
       {/* ── Hero ── */}
       <div ref={heroRef} style={{ position:"fixed",top:0,left:0,width:"100vw",height:"100vh",zIndex:10,transition:"opacity 0.5s",pointerEvents:"none" }}>
         <div style={{ position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center",width:"min(720px, calc(100vw - 48px))",padding:"0 24px" }}>
-          <h1 style={{ fontFamily:"'Playfair Display',serif",fontSize:"clamp(40px,7vw,80px)",fontWeight:600,lineHeight:1.08,margin:"0 0 20px" }}>
-            Your path to top <em style={{ fontStyle:"italic",color:"#61A2FE" }}>1%</em> universities abroad
+          <h1 style={{ fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(44px,7.5vw,88px)",fontWeight:600,lineHeight:1.05,margin:"0 0 20px",letterSpacing:"-0.5px" }}>
+            Your path to top <em style={{ fontStyle:"italic",fontWeight:700,color:"#4d87ff",fontSize:"1.08em" }}>1%</em> universities abroad
           </h1>
           <p style={{ fontSize:"clamp(14px,1.8vw,17px)",color:"rgba(255,255,255,0.6)",lineHeight:1.7,maxWidth:480,margin:"0 auto 48px" }}>
             Personalized mentorship guiding ambitious students from aspiration to acceptance at the world's most prestigious universities.
@@ -437,7 +417,7 @@ const Index = () => {
           <div style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:10 }}>
             <span style={{ fontSize:10,letterSpacing:3,textTransform:"uppercase",color:"rgba(255,255,255,0.3)" }}>Scroll to explore</span>
             <div style={{ width:22,height:34,border:"1.5px solid rgba(255,255,255,0.3)",borderRadius:11,position:"relative" }}>
-              <div className="scroll-dot" style={{ width:3,height:7,background:"#61A2FE",borderRadius:2,position:"absolute",top:7,left:"50%",transform:"translateX(-50%)" }} />
+              <div className="scroll-dot" style={{ width:3,height:7,background:"#4d87ff",borderRadius:2,position:"absolute",top:7,left:"50%",transform:"translateX(-50%)" }} />
             </div>
           </div>
         </div>
@@ -446,10 +426,10 @@ const Index = () => {
       {/* ── Milestone cards ── */}
       {milestones.map((m, i) => (
         <div key={i} ref={el => { cardRefs.current[i] = el; }} style={{ position:"fixed",zIndex:8,opacity:0,pointerEvents:"none",willChange:"transform,opacity",width:"min(480px, 90vw)" }}>
-          <div style={{ background:"rgba(10,22,40,0.75)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",border:"1px solid rgba(97,162,254,0.12)",borderRadius:20,padding:"clamp(24px, 5vw, 36px) clamp(20px, 5vw, 44px)",width:"100%",boxSizing:"border-box",boxShadow:"0 8px 40px rgba(0,0,0,0.3)" }}>
-            <div style={{ display:"inline-flex",padding:"8px 20px",background:"rgba(59,130,246,0.12)",border:"1px solid rgba(59,130,246,0.2)",borderRadius:50,fontSize:14,fontWeight:600,letterSpacing:2,textTransform:"uppercase",color:"#3b82f6",marginBottom:20 }}>{m.step}</div>
-            <div style={{ width:68,height:2,background:"linear-gradient(90deg,#3b82f6,#61A2FE)",marginBottom:20,borderRadius:1 }} />
-            <h3 style={{ fontFamily:"'Playfair Display',serif",fontSize:"clamp(24px, 5vw, 32px)",fontWeight:600,lineHeight:1.2,marginBottom:14 }}>{m.title}</h3>
+          <div style={{ background:"rgba(4,8,20,0.85)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",border:"1px solid rgba(77,135,255,0.12)",borderRadius:20,padding:"clamp(24px, 5vw, 36px) clamp(20px, 5vw, 44px)",width:"100%",boxSizing:"border-box",boxShadow:"0 8px 40px rgba(0,0,0,0.5)" }}>
+            <div style={{ display:"inline-flex",padding:"8px 20px",background:"rgba(26,92,255,0.12)",border:"1px solid rgba(26,92,255,0.2)",borderRadius:50,fontSize:14,fontWeight:600,letterSpacing:2,textTransform:"uppercase",color:"#4d87ff",marginBottom:20 }}>{m.step}</div>
+            <div style={{ width:68,height:2,background:"linear-gradient(90deg,#1a5cff,#4d87ff)",marginBottom:20,borderRadius:1 }} />
+            <h3 style={{ fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(24px, 5vw, 32px)",fontWeight:600,lineHeight:1.2,marginBottom:14 }}>{m.title}</h3>
             <p style={{ fontSize:"clamp(14px, 3vw, 16px)",color:"rgba(255,255,255,0.6)",lineHeight:1.7,margin:0 }}>{m.desc}</p>
           </div>
         </div>
@@ -458,17 +438,17 @@ const Index = () => {
       {/* ── University logos overlay ── */}
       <div ref={uniLogosRef} style={{ position:"fixed",top:0,left:0,width:"100vw",height:"100vh",zIndex:9,pointerEvents:"none" }}>
         <div ref={uniLabelRef} style={{ position:"absolute",top:"70%",left:"50%",transform:"translate(-50%,-180%)",textAlign:"center",opacity:0 }}>
-          <h2 style={{ fontFamily:"'Playfair Display',serif",fontSize:"clamp(28px,3.5vw,46px)",fontWeight:600,marginTop:0,lineHeight:1.2 }}>
-            Get accepted into the world's finest <em style={{ fontStyle:"italic",color:"#61A2FE" }}>institutions</em>
+          <h2 style={{ fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(28px,3.5vw,46px)",fontWeight:600,marginTop:0,lineHeight:1.2 }}>
+            Get accepted into the world's finest <em style={{ fontStyle:"italic",color:"#4d87ff" }}>institutions</em>
           </h2>
         </div>
         {uniNodes.map((node, i) => (
           <div key={i} ref={el => { uniNodeRefs.current[i] = el; }}
             style={{ position:"absolute",display:"flex",flexDirection:"column",alignItems:"center",gap:10,left:node.left,top:node.top,transform:"translate(-50%,-50%)",opacity:0,animation:`bob ${node.dur} ease-in-out infinite ${node.delay}` }}>
             <div style={{ width:node.size,height:node.size,display:"flex",alignItems:"center",justifyContent:"center",borderRadius:node.flag?"50%":undefined,overflow:node.flag?"hidden":undefined }}>
-              <img src={node.src} alt={node.name} style={{ width:"100%",height:"100%",objectFit:node.flag?"cover":"contain",filter:"drop-shadow(0 0 10px rgba(97,162,254,0.55))" }} />
+              <img src={node.src} alt={node.name} style={{ width:"100%",height:"100%",objectFit:node.flag?"cover":"contain",filter:"drop-shadow(0 0 10px rgba(77,135,255,0.55))" }} />
             </div>
-            <div style={{ fontSize:10,fontWeight:500,letterSpacing:"1.5px",textTransform:"uppercase",color:"rgba(97,162,254,0.45)",whiteSpace:"nowrap" }}>{node.name}</div>
+            <div style={{ fontSize:10,fontWeight:500,letterSpacing:"1.5px",textTransform:"uppercase",color:"rgba(77,135,255,0.45)",whiteSpace:"nowrap" }}>{node.name}</div>
           </div>
         ))}
       </div>

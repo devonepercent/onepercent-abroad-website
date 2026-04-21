@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { initMetaPixel, trackMetaEvent } from "@/lib/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -246,7 +247,10 @@ const LeadForm = () => {
         });
       }
 
-      window.location.href = "/get-started/thank-you";
+      initMetaPixel();
+      trackMetaEvent("Lead");
+
+      window.location.href = "https://chat.whatsapp.com/GzkeVrL9N1S749BhMkdXN9";
     } catch (error) {
       console.error("Submission error:", error);
       toast({
