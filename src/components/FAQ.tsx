@@ -14,21 +14,21 @@ const FAQ = () => {
   const isMobile = useIsMobile();
 
   return (
-    <section id="faq" style={{ background:"#0a1628",padding:isMobile?"56px 20px":"100px 60px",borderTop:"1px solid rgba(97,162,254,0.06)",fontFamily:"'DM Sans',sans-serif",color:"#fff" }}>
+    <section id="faq" style={{ background:"#0d1630",padding:isMobile?"56px 20px":"100px 60px",borderTop:"1px solid rgba(77,135,255,0.06)",fontFamily:"'DM Sans',sans-serif",color:"#fff" }}>
       <div style={{ maxWidth:800,margin:"0 auto" }}>
         <h2 style={{ fontFamily:"'Playfair Display',serif",fontSize:"clamp(24px,4vw,46px)",fontWeight:600,textAlign:"center",marginBottom:isMobile?28:56 }}>
-          Frequently Asked <em style={{ fontStyle:"italic",color:"#61A2FE" }}>Questions</em>
+          Frequently Asked <em style={{ fontStyle:"italic",color:"#4d87ff" }}>Questions</em>
         </h2>
 
         <div style={{ display:"flex",flexDirection:"column",gap:isMobile?8:12 }}>
           {faqs.map((faq, i) => (
-            <div key={i} style={{ background:"rgba(97,162,254,0.04)",border:"1px solid rgba(97,162,254,0.1)",borderRadius:14,overflow:"hidden" }}>
+            <div key={i} style={{ background:"rgba(26,92,255,0.05)",border:"1px solid rgba(77,135,255,0.1)",borderRadius:14,overflow:"hidden" }}>
               <button
                 onClick={() => setOpen(open === i ? null : i)}
                 style={{ width:"100%",textAlign:"left",background:"none",border:"none",color:"#fff",padding:isMobile?"14px 18px":"22px 28px",fontSize:isMobile?14:16,fontWeight:600,cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,fontFamily:"'DM Sans',sans-serif",lineHeight:1.4 }}
               >
                 <span>{faq.q}</span>
-                <span style={{ flexShrink:0,fontSize:20,color:"#61A2FE",transition:"transform 0.3s",transform: open === i ? "rotate(45deg)" : "rotate(0)" }}>+</span>
+                <span style={{ flexShrink:0,fontSize:20,color:"#4d87ff",transition:"transform 0.3s",transform: open === i ? "rotate(45deg)" : "rotate(0)" }}>+</span>
               </button>
               <div style={{ maxHeight: open === i ? 400 : 0, overflow:"hidden", transition:"max-height 0.4s ease" }}>
                 <div style={{ padding:isMobile?"0 18px 16px":"0 28px 22px",fontSize:13,color:"rgba(255,255,255,0.6)",lineHeight:1.8 }}>{faq.a}</div>

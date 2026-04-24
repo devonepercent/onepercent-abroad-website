@@ -28,11 +28,11 @@ const testimonials = [
 const n = testimonials.length;
 
 const TestimonialCard = ({ t }: { t: typeof testimonials[0] }) => (
-  <div style={{ background:"#142444",border:"1px solid rgba(97,162,254,0.09)",borderRadius:16,padding:"36px 32px",display:"flex",flexDirection:"column",height:"100%",boxSizing:"border-box" }}>
+  <div style={{ background:"#0d1630",border:"1px solid rgba(77,135,255,0.1)",borderRadius:16,padding:"36px 32px",display:"flex",flexDirection:"column",height:"100%",boxSizing:"border-box" }}>
     <div style={{ color:"#d4a843",fontSize:13,letterSpacing:3,marginBottom:22 }}>★★★★★</div>
     <p style={{ fontSize:15,lineHeight:1.8,color:"rgba(255,255,255,0.6)",marginBottom:32,flex:1 }}>"{t.text}"</p>
     <div style={{ display:"flex",alignItems:"center",gap:14 }}>
-      <div style={{ width:46,height:46,borderRadius:"50%",background:"rgba(97,162,254,0.1)",border:"1px solid rgba(97,162,254,0.18)",overflow:"hidden",flexShrink:0 }}>
+      <div style={{ width:46,height:46,borderRadius:"50%",background:"rgba(77,135,255,0.1)",border:"1px solid rgba(77,135,255,0.18)",overflow:"hidden",flexShrink:0 }}>
         <img src={t.image} alt={t.name} style={{ width:"100%",height:"100%",objectFit:"cover",objectPosition:"top" }}
           onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; (e.currentTarget.parentElement as HTMLElement).textContent = t.initials; }}
         />
@@ -80,13 +80,13 @@ const Testimonials = () => {
   };
 
   return (
-    <section id="testimonials" style={{ background:"#0a1628",padding:isMobile?"72px 20px 60px":"120px 60px 100px",borderTop:"1px solid rgba(97,162,254,0.06)",fontFamily:"'DM Sans',sans-serif",color:"#fff" }}>
+    <section id="testimonials" style={{ background:"#05091a",padding:isMobile?"72px 20px 60px":"120px 60px 100px",borderTop:"1px solid rgba(77,135,255,0.06)",fontFamily:"'DM Sans',sans-serif",color:"#fff" }}>
       <div style={{ maxWidth:1160,margin:"0 auto" }}>
         {/* Heading */}
         <div style={{ textAlign:"center",marginBottom:isMobile?40:72 }}>
           <div style={{ fontSize:11,fontWeight:500,letterSpacing:4,textTransform:"uppercase",color:"#d4a843",marginBottom:16 }}>Student Stories</div>
           <h2 style={{ fontFamily:"'Playfair Display',serif",fontSize:"clamp(28px,4vw,50px)",fontWeight:600,lineHeight:1.15,marginBottom:16 }}>
-            Lives changed, <em style={{ fontStyle:"italic",color:"#61A2FE" }}>dreams realised</em>
+            Lives changed, <em style={{ fontStyle:"italic",color:"#4d87ff" }}>dreams realised</em>
           </h2>
           <p style={{ color:"rgba(255,255,255,0.6)",fontSize:isMobile?14:16,maxWidth:480,margin:"0 auto" }}>
             From aspiration to acceptance — hear directly from students who made the climb.

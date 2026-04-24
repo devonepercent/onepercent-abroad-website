@@ -26,6 +26,8 @@ import LeadForm from "./pages/LeadForm";
 import MuhasinTask from "./pages/MuhasinTask";
 import OfferCardTool from "./pages/OfferCardTool";
 import Newsletter from "./pages/Newsletter";
+import SopVault from "./pages/SopVault";
+import SopVaultSuccess from "./pages/SopVaultSuccess";
 import { initMetaPixel, trackMetaEvent } from "./lib/metaPixel";
 
 const queryClient = new QueryClient();
@@ -65,6 +67,8 @@ const AppRoutes = () => {
       <Route path="/muhasinatask" element={<MuhasinTask />} />
       <Route path="/internal/offer-desk" element={<OfferCardTool />} />
       <Route path="/newsletter" element={<Newsletter />} />
+      <Route path="/product/sop-vault" element={<SopVault />} />
+      <Route path="/product/sop-vault/success" element={<SopVaultSuccess />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

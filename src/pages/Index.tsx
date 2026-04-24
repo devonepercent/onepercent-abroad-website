@@ -10,12 +10,12 @@ import NewsletterSection from "@/components/NewsletterSection";
 import NewsletterPopup from "@/components/NewsletterPopup";
 
 const milestones = [
-  { step: "Step 01", title: "Onboarding",          desc: "We understand your dreams, strengths, and aspirations. A deep-dive session maps your academic profile and sets the trajectory.",                side: 1  },
-  { step: "Step 02", title: "School listing",       desc: "Our golden database of 1,000+ programs meets your profile. A strategic mix of ambitious, target, and safe universities.",                        side: -1 },
-  { step: "Step 03", title: "Profile development",  desc: "Building a compelling narrative. We identify gaps, strengthen weak points, and position you as the unmissable candidate.",                        side: 1  },
-  { step: "Step 04", title: "SOP writing strategy", desc: "Your Statement of Purpose becomes your strongest weapon — a narrative admissions committees remember.",                                           side: -1 },
-  { step: "Step 05", title: "CV finalizing",        desc: "Every line refined to academic standards. Achievements, research, and experiences presented with maximum impact.",                               side: 1  },
-  { step: "Step 06", title: "Application strategy", desc: "Deadline management, interview prep, and a submission strategy maximising your odds at every dream university.",                                  side: -1 },
+  { step: "Step 01", title: "Onboarding",          desc: "We understand your dreams, strengths, and aspirations. A deep-dive session maps your academic profile and sets the trajectory.",                side: 2.8},
+  { step: "Step 02", title: "School listing",       desc: "Our golden database of 1,000+ programs meets your profile. A strategic mix of ambitious, target, and safe universities.",                        side: -2.8},
+  { step: "Step 03", title: "Profile development",  desc: "Building a compelling narrative. We identify gaps, strengthen weak points, and position you as the unmissable candidate.",                        side: 2.8 },
+  { step: "Step 04", title: "SOP writing strategy", desc: "Your Statement of Purpose becomes your strongest weapon — a narrative admissions committees remember.",                                           side: -2.8},
+  { step: "Step 05", title: "CV finalizing",        desc: "Every line refined to academic standards. Achievements, research, and experiences presented with maximum impact.",                               side: 2.8 },
+  { step: "Step 06", title: "Application strategy", desc: "Deadline management, interview prep, and a submission strategy maximising your odds at every dream university.",                                  side: -2.8},
 ];
 
 const MILESTONE_T = [0.08, 0.23, 0.38, 0.54, 0.70, 0.88];
@@ -425,12 +425,12 @@ const Index = () => {
 
       {/* ── Milestone cards ── */}
       {milestones.map((m, i) => (
-        <div key={i} ref={el => { cardRefs.current[i] = el; }} style={{ position:"fixed",zIndex:8,opacity:0,pointerEvents:"none",willChange:"transform,opacity",width:"min(480px, 90vw)" }}>
-          <div style={{ background:"rgba(4,8,20,0.85)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",border:"1px solid rgba(77,135,255,0.12)",borderRadius:20,padding:"clamp(24px, 5vw, 36px) clamp(20px, 5vw, 44px)",width:"100%",boxSizing:"border-box",boxShadow:"0 8px 40px rgba(0,0,0,0.5)" }}>
-            <div style={{ display:"inline-flex",padding:"8px 20px",background:"rgba(26,92,255,0.12)",border:"1px solid rgba(26,92,255,0.2)",borderRadius:50,fontSize:14,fontWeight:600,letterSpacing:2,textTransform:"uppercase",color:"#4d87ff",marginBottom:20 }}>{m.step}</div>
-            <div style={{ width:68,height:2,background:"linear-gradient(90deg,#1a5cff,#4d87ff)",marginBottom:20,borderRadius:1 }} />
-            <h3 style={{ fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(24px, 5vw, 32px)",fontWeight:600,lineHeight:1.2,marginBottom:14 }}>{m.title}</h3>
-            <p style={{ fontSize:"clamp(14px, 3vw, 16px)",color:"rgba(255,255,255,0.6)",lineHeight:1.7,margin:0 }}>{m.desc}</p>
+        <div key={i} ref={el => { cardRefs.current[i] = el; }} style={{ position:"fixed",zIndex:8,opacity:0,pointerEvents:"none",willChange:"transform,opacity",width:"min(580px, 90vw)" }}>
+          <div style={{ padding:"0 8px", textAlign: m.side < 0 ? "right" : "left" }}>
+            <div style={{ fontSize:11,fontWeight:700,letterSpacing:"3px",textTransform:"uppercase",color:"#4d87ff",marginBottom:14,opacity:0.8 }}>{m.step}</div>
+            <div style={{ width:48,height:2,background:"linear-gradient(90deg,#1a5cff,#4d87ff)",marginBottom:18,borderRadius:1,marginLeft: m.side < 0 ? "auto" : 0 }} />
+            <h3 style={{ fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(52px,7.5vw,100px)",fontWeight:700,lineHeight:1.0,marginBottom:18,textShadow:"0 0 60px rgba(77,135,255,0.25),0 2px 24px rgba(0,0,0,0.8)" }}>{m.title}</h3>
+            <p style={{ fontSize:"clamp(14px,1.5vw,17px)",color:"rgba(255,255,255,0.5)",lineHeight:1.75,margin:0,maxWidth:400,marginLeft: m.side < 0 ? "auto" : 0,textShadow:"0 1px 12px rgba(0,0,0,0.9)" }}>{m.desc}</p>
           </div>
         </div>
       ))}

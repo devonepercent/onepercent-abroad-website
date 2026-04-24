@@ -32,7 +32,7 @@ serve(async (req) => {
       to: e164Phone,
       type: "template",
       template: {
-        name: "greeting_new_lead",
+        name: "new_lead_greeting",
         language: {
           code: "en",
           policy: "deterministic",

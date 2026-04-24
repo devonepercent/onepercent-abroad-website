@@ -1,7 +1,7 @@
 import logoWhite from "@/assets/logo-white.png";
 
 const Footer = () => (
-  <footer style={{ background:"#050e1a",borderTop:"1px solid rgba(97,162,254,0.07)",padding:"64px 60px 36px",fontFamily:"'DM Sans',sans-serif",color:"#fff" }}>
+  <footer style={{ background:"#030810",borderTop:"1px solid rgba(77,135,255,0.07)",padding:"64px 60px 36px",fontFamily:"'DM Sans',sans-serif",color:"#fff" }}>
     <div style={{ maxWidth:1160,margin:"0 auto" }}>
       <div style={{ display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:48,marginBottom:56,flexWrap:"wrap" }}>
         {/* Brand */}

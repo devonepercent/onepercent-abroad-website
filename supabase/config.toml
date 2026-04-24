@@ -2,3 +2,9 @@ project_id = "vfymnjhixlwlbyqwxsbh"
 
 [functions.leadsquared-create-lead]
 verify_jwt = false
+
+[functions.generate-payu-hash]
+verify_jwt = false
+
+[functions.handle-payu-callback]
+verify_jwt = false

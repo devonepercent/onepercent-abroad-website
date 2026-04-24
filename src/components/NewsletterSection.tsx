@@ -2,8 +2,8 @@ import NewsletterForm from "./NewsletterForm";
 
 const NewsletterSection = () => (
   <section style={{
-    background: "#050e1a",
-    borderTop: "1px solid rgba(97,162,254,0.07)",
+    background: "#030810",
+    borderTop: "1px solid rgba(77,135,255,0.07)",
     padding: "80px 32px",
     fontFamily: "'DM Sans', sans-serif",
     color: "#fff",
@@ -15,7 +15,7 @@ const NewsletterSection = () => (
         fontWeight: 600,
         letterSpacing: 3,
         textTransform: "uppercase",
-        color: "#61A2FE",
+        color: "#4d87ff",
         marginBottom: 16,
       }}>
         Newsletter
