@@ -69,6 +69,12 @@ const Header = () => {
             Updates
           </Link>
           <Link
+            to="/product/sop-vault"
+            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+          >
+            Admit Vault
+          </Link>
+          <Link
             to="/hiring"
             className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
           >
@@ -130,6 +136,13 @@ const Header = () => {
               className="text-left text-lg font-medium text-foreground hover:text-primary transition-colors"
             >
               Updates
+            </Link>
+            <Link
+              to="/product/sop-vault"
+              onClick={() => setIsOpen(false)}
+              className="text-left text-lg font-medium text-foreground hover:text-primary transition-colors"
+            >
+              Admit Vault
             </Link>
             <Link
               to="/hiring"
