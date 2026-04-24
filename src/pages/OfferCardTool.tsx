@@ -10,7 +10,7 @@ import { ArrowLeft } from "lucide-react";
 
 type Role = "admin" | "user" | "sales";
 type CardType = "standard" | "closer";
-type ProgramKey = "ug" | "masters" | "doctorate";
+type ProgramKey = "ug" | "masters" | "doctorate" | "custom";
 type TabType = "preview" | "history";
 
 interface ProgramInfo {
@@ -37,6 +37,7 @@ const PROGRAMS: Record<ProgramKey, ProgramInfo> = {
   ug: { name: "UG Program", price: 150000, discount: 0.20 },
   masters: { name: "Masters of Your Dreams", price: 100000, discount: 0.15 },
   doctorate: { name: "Doctorate of Your Dreams", price: 200000, discount: 0.10 },
+  custom: { name: "", price: 0, discount: 0 },
 };
 
 const INR = (n: number) => "₹" + n.toLocaleString("en-IN");
@@ -75,6 +76,9 @@ const OfferCardTool = () => {
   const [generatedRef, setGeneratedRef] = useState<string | null>(null);
   const [notif, setNotif] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const [customProgramName, setCustomProgramName] = useState("");
+  const [customOriginalPrice, setCustomOriginalPrice] = useState<number | "">("");
+  const [customDiscountAmt, setCustomDiscountAmt] = useState<number | "">("");
 
   // Load offers from Supabase
   const fetchOffers = useCallback(async () => {
@@ -146,10 +150,13 @@ const OfferCardTool = () => {
   }, [navigate]);
 
   // Computed values
-  const prog = PROGRAMS[program];
-  const stdDiscount = prog.price * prog.discount;
+  const isCustom = program === "custom";
+  const prog = isCustom
+    ? { name: customProgramName || "Custom Program", price: Number(customOriginalPrice) || 0, discount: 0 }
+    : PROGRAMS[program];
+  const stdDiscount = isCustom ? (Number(customDiscountAmt) || 0) : prog.price * prog.discount;
   const stdFinal = prog.price - stdDiscount;
-  const closerAmt = prog.price * 0.05;
+  const closerAmt = isCustom ? (Number(customDiscountAmt) || 0) : prog.price * 0.05;
   const closerFinal = prog.price - closerAmt;
   const stdExpiry = calcExpiry(3);
   const closerExpiry = calcExpiry(2);
@@ -160,6 +167,12 @@ const OfferCardTool = () => {
   const generateCard = () => {
     if (!prospectName.trim()) { showNotif("Enter the prospect name"); return; }
     if (!bdaName.trim()) { showNotif("Enter the BDA name"); return; }
+    if (isCustom) {
+      if (!customProgramName.trim()) { showNotif("Enter the program name"); return; }
+      if (!customOriginalPrice || Number(customOriginalPrice) <= 0) { showNotif("Enter a valid original price"); return; }
+      if (!customDiscountAmt || Number(customDiscountAmt) <= 0) { showNotif("Enter a valid discount amount"); return; }
+      if (Number(customDiscountAmt) >= Number(customOriginalPrice)) { showNotif("Discount must be less than original price"); return; }
+    }
     setGeneratedRef(genRef(isCloser ? "CPT" : "OFR"));
     showNotif("Card generated! Review then save →");
     setActiveTab("preview");
@@ -167,8 +180,9 @@ const OfferCardTool = () => {
 
   const saveOffer = async () => {
     if (!prospectName.trim() || !bdaName.trim()) { showNotif("Complete the form first"); return; }
+    if (isCustom && (!customProgramName.trim() || !customOriginalPrice || !customDiscountAmt)) { showNotif("Complete the custom program fields"); return; }
     const expiry = calcExpiry(isCloser ? 2 : 3);
-    const discountAmt = prog.price * (isCloser ? 0.05 : prog.discount);
+    const discountAmt = isCustom ? (Number(customDiscountAmt) || 0) : prog.price * (isCloser ? 0.05 : prog.discount);
     const finalPrice = prog.price - discountAmt;
     const ref = genRef(isCloser ? "CPT" : "OFR");
     const { error } = await supabase.from("offer_cards" as any).insert({
@@ -194,11 +208,12 @@ const OfferCardTool = () => {
 
   const copyOfferText = () => {
     const expiry = calcExpiry(isCloser ? 2 : 3);
-    const discountAmt = prog.price * (isCloser ? 0.05 : prog.discount);
+    const discountAmt = isCustom ? (Number(customDiscountAmt) || 0) : prog.price * (isCloser ? 0.05 : prog.discount);
     const finalPrice = prog.price - discountAmt;
+    const discountLabel = isCustom ? "Special Discount" : isCloser ? "Coupon Savings (5%)" : `Discount (${prog.discount * 100}%)`;
     const text = isCloser
-      ? `Dear ${prospect},\n\nWe have a special Closer's Edge coupon reserved exclusively for you.\n\nProgram: ${prog.name}\nProgram Price: ${INR(prog.price)}\nCoupon Savings (5%): − ${INR(discountAmt)}\nYour Price with Coupon: ${INR(finalPrice)}\n\nThis coupon expires on ${fmt(expiry)} and cannot be combined with any other offer.\n\nWarm regards,\n${bda}`
-      : `Dear ${prospect},\n\nWe're pleased to offer you an exclusive fee concession.\n\nProgram: ${prog.name}\nOriginal Fee: ${INR(prog.price)}\nDiscount (${prog.discount * 100}%): − ${INR(discountAmt)}\nYour Special Price: ${INR(finalPrice)}\n\nThis offer is valid only until ${fmt(expiry)}.\n\nWarm regards,\n${bda}`;
+      ? `Dear ${prospect},\n\nWe have a special Closer's Edge coupon reserved exclusively for you.\n\nProgram: ${prog.name}\nProgram Price: ${INR(prog.price)}\n${discountLabel}: − ${INR(discountAmt)}\nYour Price with Coupon: ${INR(finalPrice)}\n\nThis coupon expires on ${fmt(expiry)} and cannot be combined with any other offer.\n\nWarm regards,\n${bda}`
+      : `Dear ${prospect},\n\nWe're pleased to offer you an exclusive fee concession.\n\nProgram: ${prog.name}\nOriginal Fee: ${INR(prog.price)}\n${discountLabel}: − ${INR(discountAmt)}\nYour Special Price: ${INR(finalPrice)}\n\nThis offer is valid only until ${fmt(expiry)}.\n\nWarm regards,\n${bda}`;
     navigator.clipboard.writeText(text).then(() => showNotif("Copied to clipboard!")).catch(() => showNotif("Copy failed"));
   };
 
@@ -209,6 +224,11 @@ const OfferCardTool = () => {
     setBdaName(o.bda);
     setProgram(o.program);
     setCardType(o.type);
+    if (o.program === "custom") {
+      setCustomProgramName(o.programName);
+      setCustomOriginalPrice(o.original);
+      setCustomDiscountAmt(o.discountAmt);
+    }
     setActiveTab("preview");
   };
 
@@ -338,7 +358,57 @@ const OfferCardTool = () => {
                   </div>
                 );
               })}
+              <div
+                className={`od-program-card ${program === "custom" ? "od-selected" : ""}`}
+                onClick={() => setProgram("custom")}
+              >
+                <div className="od-prog-name">Custom</div>
+                <div className="od-prog-price" style={{ color: "#7a7268", fontSize: 12 }}>Set manually</div>
+                <div className="od-prog-discount" style={{ color: "#7a7268" }}>Custom ₹ off</div>
+                <div className="od-prog-final">→ Enter below</div>
+              </div>
             </div>
+            {program === "custom" && (
+              <div className="od-custom-fields">
+                <div>
+                  <label className="od-label">Program Name</label>
+                  <input
+                    type="text"
+                    className="od-input"
+                    placeholder="e.g. Premium Mentorship"
+                    value={customProgramName}
+                    onChange={(e) => setCustomProgramName(e.target.value)}
+                  />
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <div>
+                    <label className="od-label">Original Price (₹)</label>
+                    <input
+                      type="number"
+                      className="od-input"
+                      placeholder="e.g. 120000"
+                      value={customOriginalPrice}
+                      onChange={(e) => setCustomOriginalPrice(e.target.value === "" ? "" : Number(e.target.value))}
+                    />
+                  </div>
+                  <div>
+                    <label className="od-label">Discount Amount (₹)</label>
+                    <input
+                      type="number"
+                      className="od-input"
+                      placeholder="e.g. 15000"
+                      value={customDiscountAmt}
+                      onChange={(e) => setCustomDiscountAmt(e.target.value === "" ? "" : Number(e.target.value))}
+                    />
+                  </div>
+                </div>
+                {customOriginalPrice !== "" && customDiscountAmt !== "" && Number(customDiscountAmt) > 0 && Number(customDiscountAmt) < Number(customOriginalPrice) && (
+                  <div style={{ padding: "8px 12px", background: "#f0f3f9", borderRadius: 8, fontSize: 12, color: "#0f1f3d" }}>
+                    Final price: <strong>{INR(Number(customOriginalPrice) - Number(customDiscountAmt))}</strong>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Standard mode fields */}
@@ -424,7 +494,7 @@ const OfferCardTool = () => {
                           <span className="od-pricing-val">{INR(prog.price)}</span>
                         </div>
                         <div className="od-pricing-row od-discount-row">
-                          <span className="od-pricing-label">Standard Discount ({prog.discount * 100}%)</span>
+                          <span className="od-pricing-label">{isCustom ? "Special Discount" : `Standard Discount (${prog.discount * 100}%)`}</span>
                           <span className="od-pricing-val">− {INR(stdDiscount)}</span>
                         </div>
                         <hr className="od-pricing-divider" />
@@ -457,7 +527,7 @@ const OfferCardTool = () => {
                     <div className="od-coupon-header">
                       <img src={logoWhite} alt="1%abroad" className="od-card-logo-img od-coupon-logo" />
                       <div className="od-coupon-tag">Closer's Edge · Exclusive Discount Coupon</div>
-                      <div className="od-coupon-title">5% Extra Off</div>
+                      <div className="od-coupon-title">{isCustom ? (closerAmt > 0 ? `${INR(closerAmt)} Off` : "Custom Off") : "5% Extra Off"}</div>
                       <div className="od-coupon-subtitle">Exclusively issued for you — valid for 48 hours only</div>
                     </div>
                     <div className="od-coupon-holes">
@@ -478,7 +548,7 @@ const OfferCardTool = () => {
                           <span className="od-cd-val">{INR(prog.price)}</span>
                         </div>
                         <div className="od-coupon-detail-row">
-                          <span className="od-cd-label">Coupon Savings (5%)</span>
+                          <span className="od-cd-label">{isCustom ? "Special Discount" : "Coupon Savings (5%)"}</span>
                           <span className="od-cd-val" style={{ color: "#1a7a4a" }}>− {INR(closerAmt)}</span>
                         </div>
                         <div style={{ borderTop: "1px dashed #e8c87a", margin: "8px 0" }}></div>
@@ -670,7 +740,8 @@ const offerCardStyles = `
     box-sizing: border-box;
   }
   .od-input:focus { border-color: #2a4a8a; }
-  .od-program-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .od-program-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .od-custom-fields { margin-top: 12px; padding: 14px; background: #f4f2ee; border-radius: 8px; display: flex; flex-direction: column; gap: 10px; }
   .od-program-card {
     border: 1.5px solid #e8e4dc;
     border-radius: 8px;
