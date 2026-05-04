@@ -237,12 +237,7 @@ a{text-decoration:none;color:inherit}
 .modal-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(6,93,199,0.09);color:var(--orange);font-family:'Outfit',sans-serif;font-size:0.7rem;font-weight:700;padding:5px 12px;border-radius:50px;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em}
 .modal-title{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:600;color:var(--navy);margin-bottom:4px;letter-spacing:-0.01em}
 .modal-prog{font-family:'Outfit',sans-serif;font-size:0.85rem;color:var(--muted)}
-.modal-body{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px}
-.vid-wrap{border-radius:var(--radius);overflow:hidden;background:var(--navy);aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;position:relative}
-.vid-lbl{position:absolute;top:14px;left:14px;background:var(--orange);color:white;font-family:'Outfit',sans-serif;font-size:0.62rem;font-weight:700;padding:4px 10px;border-radius:50px;text-transform:uppercase;letter-spacing:0.06em}
-.play-btn{width:62px;height:62px;background:rgba(255,255,255,0.14);border:2px solid rgba(255,255,255,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;cursor:pointer;transition:background 0.2s}
-.play-btn:hover{background:rgba(255,255,255,0.24)}
-.vid-cap{font-family:'Outfit',sans-serif;color:rgba(255,255,255,0.55);font-size:0.78rem;text-align:center;padding:0 22px;line-height:1.55}
+.modal-body{margin-bottom:28px}
 .analytics{background:var(--cream-warm);border-radius:var(--radius);padding:24px;border:1px solid var(--border)}
 .a-head{font-family:'Outfit',sans-serif;font-weight:700;font-size:0.82rem;color:var(--navy);margin-bottom:18px}
 .a-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
@@ -818,11 +813,6 @@ const SopVault = () => {
             <div className="modal-prog">{mProg}</div>
           </div>
           <div className="modal-body">
-            <div className="vid-wrap">
-              <div className="vid-lbl">🎥 Mentor Walkthrough</div>
-              <div className="play-btn">▶</div>
-              <div className="vid-cap">How to use this SOP effectively — what to adapt, what to keep, and how to make it authentically yours.</div>
-            </div>
             <div className="analytics">
               <div className="a-head">📊 SOP Analytics</div>
               <div className="a-grid">
