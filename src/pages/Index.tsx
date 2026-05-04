@@ -21,12 +21,12 @@ const milestones = [
 const MILESTONE_T = [0.08, 0.23, 0.38, 0.54, 0.70, 0.88];
 
 const uniNodes = [
-  { src: "/uni-logos/harvard.svg",         name: "Harvard",      left: "6%",  top: "50%", size: 136, dur: "3.4s", delay: "0s",   flag: false },
-  { src: "/uni-logos/mit.svg",             name: "MIT",           left: "24%", top: "30%", size: 96,  dur: "3.8s", delay: "0.3s", flag: false },
-  { src: "/uni-logos/oxford.svg",          name: "Oxford",        left: "50%", top: "27%", size: 117, dur: "3.1s", delay: "0.7s", flag: false },
-  { src: "/uni-logos/erasmus.svg",         name: "Erasmus+",      left: "74%", top: "31%", size: 96,  dur: "4.0s", delay: "0.2s", flag: false },
-  { src: "/uni-logos/lse.svg",             name: "LSE",           left: "91%", top: "52%", size: 136, dur: "3.6s", delay: "0.9s", flag: false },
-  { src: "/uni-logos/nus.svg",             name: "NUS",           left: "80%", top: "76%", size: 96,  dur: "2.9s", delay: "0.5s", flag: false },
+  { src: "/uni-logos/harvard.svg",         name: "Harvard",      left: "6%",  top: "50%", size: 136, dur: "3.4s", delay: "0s",   flag: false, mobileLeft: "18%",  mobileTop: "80%" },
+  { src: "/uni-logos/mit.svg",             name: "MIT",           left: "24%", top: "30%", size: 96,  dur: "3.8s", delay: "0.3s", flag: false, mobileLeft: "7%",  mobileTop: "30%" },
+  { src: "/uni-logos/oxford.svg",          name: "Oxford",        left: "50%", top: "27%", size: 117, dur: "3.1s", delay: "0.7s", flag: false, mobileLeft: "50%", mobileTop: "22%" },
+  { src: "/uni-logos/erasmus.svg",         name: "Erasmus+",      left: "74%", top: "31%", size: 96,  dur: "4.0s", delay: "0.2s", flag: false, mobileLeft: "86%", mobileTop: "32%" },
+  { src: "/uni-logos/lse.svg",             name: "LSE",           left: "91%", top: "52%", size: 136, dur: "3.6s", delay: "0.9s", flag: false, mobileLeft: "82%", mobileTop: "80%" },
+  { src: "/uni-logos/nus.svg",             name: "NUS",           left: "80%", top: "76%", size: 96,  dur: "2.9s", delay: "0.5s", flag: false, mobileLeft: "26%", mobileTop: "38%" },
   { src: "/uni-logos/gt.svg",              name: "Georgia Tech",  left: "34%", top: "90%", size: 96,  dur: "3.5s", delay: "1.1s", flag: false },
   { src: "https://flagcdn.com/w80/us.png", name: "USA",           left: "20%", top: "94%", size: 96,  dur: "3.3s", delay: "0.4s", flag: true  },
   { src: "https://flagcdn.com/w80/gb.png", name: "UK",            left: "7%",  top: "80%", size: 117, dur: "3.7s", delay: "1.0s", flag: true  },
@@ -36,6 +36,13 @@ const uniNodes = [
 
 const Index = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
+
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
 
   const scrollRef    = useRef<HTMLDivElement>(null);
   const particleRef  = useRef<HTMLCanvasElement>(null);
@@ -208,7 +215,8 @@ const Index = () => {
         const z  = t * PATH_LENGTH, rz = z - camZ;
         const pi = Math.floor(t * PATH_POINTS);
         const pp = pathPts[Math.min(pi, pathPts.length - 1)];
-        const pr = project(pp.x + m.side * 100, pp.y - 30, pp.z, camZ, W, H);
+        const sideScale = W < 640 ? 0.12 : 1;
+        const pr = project(pp.x + m.side * 100 * sideScale, pp.y - 30, pp.z, camZ, W, H);
 
         if (!pr || rz < -300 || rz > 5000) { el.style.opacity = "0"; el.style.pointerEvents = "none"; return; }
 
@@ -225,8 +233,11 @@ const Index = () => {
         // Y: 40% projected + 60% screen-center keeps card readable while feeling 3D
         const cardY = pr.y * 0.4 + H * 0.5 * 0.6;
 
+        const cardW = Math.min(580, W * 0.9);
+        const clampedX = Math.max(cardW / 2 + 8, Math.min(W - cardW / 2 - 8, pr.x));
+
         el.style.opacity       = alpha.toFixed(3);
-        el.style.left          = pr.x + "px";
+        el.style.left          = clampedX + "px";
         el.style.top           = cardY + "px";
         el.style.transform     = `translate(-50%,-50%) scale(${depthScale.toFixed(3)})`;
         el.style.pointerEvents = alpha > 0.5 ? "auto" : "none";
@@ -353,7 +364,7 @@ const Index = () => {
 
 
       {/* ── Navbar ── */}
-      <nav style={{ position:"fixed",top:0,left:0,width:"100%",zIndex:100,padding:"24px 48px",display:"flex",justifyContent:"space-between",alignItems:"center" }}>
+      <nav style={{ position:"fixed",top:0,left:0,width:"100%",zIndex:100,padding:"24px 48px",display:"flex",justifyContent:"space-between",alignItems:"center",background:"rgba(3,8,20,0.72)",backdropFilter:"blur(16px)",WebkitBackdropFilter:"blur(16px)",borderBottom:"1px solid rgba(77,135,255,0.08)" }}>
         <Link to="/" style={{ display:"flex",alignItems:"center" }}>
           <img src={logoWhite} alt="OnePercent Abroad" style={{ height:36,width:"auto" }} />
         </Link>
@@ -442,15 +453,18 @@ const Index = () => {
             Get accepted into the world's finest <em style={{ fontStyle:"italic",color:"#4d87ff" }}>institutions</em>
           </h2>
         </div>
-        {uniNodes.map((node, i) => (
+        {uniNodes.map((node, i) =>
+          (isMobile && node.flag) ? (
+            <div key={i} ref={el => { uniNodeRefs.current[i] = el; }} style={{ display:"none" }} />
+          ) : (
           <div key={i} ref={el => { uniNodeRefs.current[i] = el; }}
-            style={{ position:"absolute",display:"flex",flexDirection:"column",alignItems:"center",gap:10,left:node.left,top:node.top,transform:"translate(-50%,-50%)",opacity:0,animation:`bob ${node.dur} ease-in-out infinite ${node.delay}` }}>
-            <div style={{ width:node.size,height:node.size,display:"flex",alignItems:"center",justifyContent:"center",borderRadius:node.flag?"50%":undefined,overflow:node.flag?"hidden":undefined }}>
+            style={{ position:"absolute",display:"flex",flexDirection:"column",alignItems:"center",gap:isMobile?6:10,left:isMobile&&node.mobileLeft?node.mobileLeft:node.left,top:isMobile&&node.mobileTop?node.mobileTop:node.top,transform:"translate(-50%,-50%)",opacity:0,animation:`bob ${node.dur} ease-in-out infinite ${node.delay}` }}>
+            <div style={{ width:isMobile?node.size*0.7:node.size,height:isMobile?node.size*0.7:node.size,display:"flex",alignItems:"center",justifyContent:"center",borderRadius:node.flag?"50%":undefined,overflow:node.flag?"hidden":undefined }}>
               <img src={node.src} alt={node.name} style={{ width:"100%",height:"100%",objectFit:node.flag?"cover":"contain",filter:"drop-shadow(0 0 10px rgba(77,135,255,0.55))" }} />
             </div>
-            <div style={{ fontSize:10,fontWeight:500,letterSpacing:"1.5px",textTransform:"uppercase",color:"rgba(77,135,255,0.45)",whiteSpace:"nowrap" }}>{node.name}</div>
           </div>
-        ))}
+          )
+        )}
       </div>
 
       {/* ── Main scroll container ── */}
@@ -458,7 +472,7 @@ const Index = () => {
         ref={scrollRef}
         style={{ position:"fixed",top:0,left:0,width:"100vw",height:"100vh",overflowY:"scroll",overflowX:"hidden",zIndex:50,WebkitOverflowScrolling:"touch" as never }}
       >
-        <div style={{ height: 6700 }} />
+        <div style={{ height: 6000 }} />
         <Testimonials />
         <Achievers />
         <Services />

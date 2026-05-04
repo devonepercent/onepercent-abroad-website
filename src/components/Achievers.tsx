@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 const achievers = [
   { name: "Anjima Divakar",    program: "EMMIR, Erasmus Mundus",                                                              image: "/images/achievers/Anjima Divakar.png",    initials: "AD" },
   { name: "Ahmed Shoeb",       program: "MPH Scholarship, Johns Hopkins Bloomberg School of Public Health, USA",               image: "/images/achievers/Ahmed Shoeb.png",       initials: "AS" },
@@ -27,7 +29,15 @@ const AchieverCard = ({ a }: { a: typeof achievers[0] }) => (
   </div>
 );
 
-const Achievers = () => (
+const Achievers = () => {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
+  useEffect(() => {
+    const h = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener("resize", h);
+    return () => window.removeEventListener("resize", h);
+  }, []);
+  const duration = (CARD_W + CARD_GAP) * achievers.length / 280 * (isMobile ? 2 : 1);
+  return (
   <section id="achievers" style={{ background:"#05091a",padding:"100px 0",fontFamily:"'DM Sans',sans-serif",color:"#fff",overflow:"hidden" }}>
     <div style={{ maxWidth:1160,margin:"0 auto",paddingBottom:56,paddingLeft:60,paddingRight:60 }}>
       <h2 style={{ fontFamily:"'Playfair Display',serif",fontSize:"clamp(28px,4vw,46px)",fontWeight:600,textAlign:"center",margin:0 }}>
@@ -35,17 +45,18 @@ const Achievers = () => (
       </h2>
     </div>
 
-    <div style={{ position:"relative" }}>
+    <div style={{ position:"relative", overflow:"hidden" }}>
 
       <style dangerouslySetInnerHTML={{ __html:`@keyframes achiever-marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}` }} />
 
-      <div style={{ display:"flex",gap:CARD_GAP,animation:`achiever-marquee ${(CARD_W + CARD_GAP) * achievers.length / 28}s linear infinite`,willChange:"transform" }}>
+      <div style={{ display:"flex",gap:CARD_GAP,width:"max-content",animation:`achiever-marquee ${duration}s linear infinite`,willChange:"transform" }}>
         {[...achievers, ...achievers].map((a, i) => (
           <AchieverCard key={i} a={a} />
         ))}
       </div>
     </div>
   </section>
-);
+  );
+};
 
 export default Achievers;
