@@ -43,7 +43,7 @@ const NewsletterPopup = () => {
       }}
     >
       <div style={{
-        background: "#0a1628",
+        background: "#000000",
         border: "1px solid rgba(97,162,254,0.15)",
         borderRadius: 20,
         padding: "48px 40px 40px",

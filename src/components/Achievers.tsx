@@ -15,7 +15,7 @@ const CARD_W = 300;
 const CARD_GAP = 16;
 
 const AchieverCard = ({ a }: { a: typeof achievers[0] }) => (
-  <div style={{ width: CARD_W, flexShrink: 0, display:"flex",alignItems:"stretch",borderRadius:14,overflow:"hidden",background:"rgba(26,92,255,0.06)",border:"1px solid rgba(77,135,255,0.12)",minHeight:130 }}>
+  <div style={{ width: CARD_W, flexShrink: 0, display:"flex",alignItems:"stretch",borderRadius:14,overflow:"hidden",background:"rgba(6,93,199,0.06)",border:"1px solid rgba(97,162,254,0.12)",minHeight:130 }}>
     <div style={{ position:"relative",width:"40%",flexShrink:0 }}>
       <img src={a.image} alt={a.name} style={{ position:"absolute",top:0,left:0,right:0,bottom:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:"top" }}
         onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
@@ -36,12 +36,12 @@ const Achievers = () => {
     window.addEventListener("resize", h);
     return () => window.removeEventListener("resize", h);
   }, []);
-  const duration = (CARD_W + CARD_GAP) * achievers.length / 280 * (isMobile ? 2 : 1);
+  const duration = (CARD_W + CARD_GAP) * achievers.length / 280 * (isMobile ? 2 : 2);
   return (
-  <section id="achievers" style={{ background:"#05091a",padding:"100px 0",fontFamily:"'DM Sans',sans-serif",color:"#fff",overflow:"hidden" }}>
+  <section id="achievers" style={{ background:"#010F70",padding:"100px 0",fontFamily:"'DM Sans',sans-serif",color:"#fff",overflow:"hidden" }}>
     <div style={{ maxWidth:1160,margin:"0 auto",paddingBottom:56,paddingLeft:60,paddingRight:60 }}>
       <h2 style={{ fontFamily:"'Playfair Display',serif",fontSize:"clamp(28px,4vw,46px)",fontWeight:600,textAlign:"center",margin:0 }}>
-        Our <em style={{ fontStyle:"italic",color:"#4d87ff" }}>Achievers</em>
+        Our <em style={{ fontStyle:"italic",color:"#61A2FE" }}>Achievers</em>
       </h2>
     </div>
 

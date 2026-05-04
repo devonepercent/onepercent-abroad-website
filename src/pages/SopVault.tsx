@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
+import logoWhite from "@/assets/logo-white.png";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
@@ -520,6 +522,9 @@ const SopVault = () => {
 
       {/* ── HERO ── */}
       <section className="hero">
+        <Link to="/" style={{ display:"inline-block",marginBottom:28 }}>
+          <img src={logoWhite} alt="OnePercent Abroad" style={{ height:36,width:"auto" }} />
+        </Link>
         <div className="hero-left">
           <div className="hero-eyebrow">⚡ Real Admits · Zero Templates</div>
           <h1>Winning SOPs from<br /><em>Top-Ranked</em> Universities</h1>
