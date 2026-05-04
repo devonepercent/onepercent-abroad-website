@@ -143,10 +143,73 @@ serve(async (req) => {
         method: "POST",
         headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          from: "noreply@onepercentabroad.com",
+          from: "1% Admit Vault <noreply@notify.onepercentabroad.com>",
           to: purchase.email,
           subject: `Your ${planLabel} is ready — 1% Admit Vault`,
           html: emailHtml,
+        }),
+      });
+
+      // Admin notification (success only, no download links)
+      const sopsList =
+        purchase.plan === "full"
+          ? "All 15 (Full Vault)"
+          : (purchase.selected_sop_ids as number[])
+              .map((id) => {
+                const info = SOP_NAMES[id];
+                return info ? `${info.univ} — ${info.prog}` : `SOP ${id}`;
+              })
+              .join("<br>");
+
+      const istTime = new Date().toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+
+      const adminHtml = `<!DOCTYPE html>
+<html><body style="margin:0;padding:24px;background:#f0ede8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <div style="max-width:560px;margin:0 auto;">
+    <div style="background:#0D1B2A;padding:24px 32px;border-radius:16px 16px 0 0;">
+      <div style="font-size:11px;color:#E8541A;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:6px;">✓ New Purchase</div>
+      <div style="font-size:22px;font-weight:700;color:white;">1% Admit Vault — Sale Notification</div>
+    </div>
+    <div style="background:#FAFAF7;padding:32px;border-radius:0 0 16px 16px;">
+      <div style="font-size:32px;font-weight:700;color:#0D1B2A;margin-bottom:4px;">₹${amount}</div>
+      <div style="font-size:13px;color:#7a8694;margin-bottom:24px;">${planLabel}</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <tr><td style="padding:8px 0;color:#7a8694;width:40%;vertical-align:top;">Buyer name</td><td style="padding:8px 0;color:#0D1B2A;font-weight:600;">${firstname || "—"}</td></tr>
+        <tr><td style="padding:8px 0;color:#7a8694;vertical-align:top;">Buyer email</td><td style="padding:8px 0;color:#0D1B2A;font-weight:600;">${purchase.email}</td></tr>
+        <tr><td style="padding:8px 0;color:#7a8694;vertical-align:top;">Plan</td><td style="padding:8px 0;color:#0D1B2A;font-weight:600;">${planLabel}</td></tr>
+        <tr><td style="padding:8px 0;color:#7a8694;vertical-align:top;">SOPs purchased</td><td style="padding:8px 0;color:#0D1B2A;font-weight:600;line-height:1.6;">${sopsList}</td></tr>
+        <tr><td style="padding:8px 0;color:#7a8694;vertical-align:top;">Amount</td><td style="padding:8px 0;color:#0D1B2A;font-weight:600;">₹${amount}</td></tr>
+        <tr><td style="padding:8px 0;color:#7a8694;vertical-align:top;">PayU txn ID</td><td style="padding:8px 0;color:#0D1B2A;font-family:monospace;font-size:12px;">${txnid}</td></tr>
+        <tr><td style="padding:8px 0;color:#7a8694;vertical-align:top;">PayU mihpayid</td><td style="padding:8px 0;color:#0D1B2A;font-family:monospace;font-size:12px;">${mihpayid}</td></tr>
+        <tr><td style="padding:8px 0;color:#7a8694;vertical-align:top;">Time (IST)</td><td style="padding:8px 0;color:#0D1B2A;font-weight:600;">${istTime}</td></tr>
+      </table>
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid #e6ebf0;font-size:11px;color:#7a8694;">
+        Sent by 1% Admit Vault · noreply@notify.onepercentabroad.com
+      </div>
+    </div>
+  </div>
+</body></html>`;
+
+      await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: "1% Admit Vault <noreply@notify.onepercentabroad.com>",
+          to: [
+            "sreejith@onepercentabroad.com",
+            "muhasina@onepercentabroad.com",
+            "irshad@onepercentabroad.com",
+          ],
+          subject: `New SOP Vault purchase — ₹${amount} · ${planLabel}`,
+          html: adminHtml,
         }),
       });
     }

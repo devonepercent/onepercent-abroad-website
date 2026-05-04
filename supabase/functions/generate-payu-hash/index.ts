@@ -76,8 +76,12 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : "Unknown error";
-    console.error("generate-payu-hash:", msg);
+    const msg = error instanceof Error
+      ? error.message
+      : (error !== null && typeof error === "object" && "message" in error)
+        ? String((error as Record<string, unknown>).message)
+        : JSON.stringify(error);
+    console.error("generate-payu-hash:", msg, JSON.stringify(error));
     return new Response(
       JSON.stringify({ success: false, error: msg }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
