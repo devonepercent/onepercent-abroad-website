@@ -132,6 +132,10 @@ serve(async (req) => {
         <div style="font-size:13px;font-weight:700;color:#0D1B2A;margin-bottom:6px;">⚖️ Usage Reminder</div>
         <div style="font-size:12px;color:#7a8694;line-height:1.65;">Personal study only. No sharing, redistribution, or AI uploading. Every document is watermarked and tracked under IP law.</div>
       </div>
+      <div style="margin-top:16px;background:#E7F8EF;border:1px solid #A8E2C2;border-radius:12px;padding:16px 20px;text-align:center;">
+        <div style="font-size:13px;font-weight:700;color:#0D1B2A;margin-bottom:10px;">Need help? We're one message away.</div>
+        <a href="https://wa.me/919745789659" style="display:inline-block;background:#25D366;color:white;padding:10px 22px;border-radius:50px;font-size:12px;font-weight:700;text-decoration:none;letter-spacing:0.04em;font-family:-apple-system,sans-serif;">Chat on WhatsApp →</a>
+      </div>
       <div style="margin-top:24px;padding-top:20px;border-top:1px solid #e6ebf0;text-align:center;font-size:12px;color:#7a8694;">
         © 2025 1% Admit Vault · <a href="https://onepercentabroad.com" style="color:#E8541A;text-decoration:none;">onepercentabroad.com</a>
       </div>
