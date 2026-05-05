@@ -374,7 +374,7 @@ const SopVault = () => {
 
   // Derived
   const modalSop = sops.find((s) => s.id === modalSopId) ?? null;
-  const currentAmount = 1; // TEST MODE — revert to: modalMode === "full" ? 799 : modalMode === "bundle" ? 499 : 299
+  const currentAmount = modalMode === "full" ? 799 : modalMode === "bundle" ? 499 : 299;
 
   // Lock body scroll when modals are open
   useEffect(() => {
