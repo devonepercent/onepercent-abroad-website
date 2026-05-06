@@ -23,6 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Download, LogOut, Search, Trash2, Upload } from "lucide-react";
+import { ProjectView } from "@/components/tracker/ProjectView";
 
 interface Registration {
   id: string;
@@ -145,6 +146,7 @@ const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [adminEmail, setAdminEmail] = useState<string | null>(null);
   const [adminUserId, setAdminUserId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("leads");
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -427,8 +429,14 @@ const AdminDashboard = () => {
     );
   }
 
+  const isTracker = activeTab === "tracker";
+
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div
+      className={`min-h-screen bg-background p-6 transition-colors duration-700 ease-out [&_*]:transition-colors [&_*]:duration-700 [&_*]:ease-out ${
+        isTracker ? "dark" : ""
+      }`}
+    >
       <div className="container mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -445,8 +453,8 @@ const AdminDashboard = () => {
           </Button>
         </div>
 
-        <Tabs defaultValue="leads" className="space-y-6">
-          <TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="flex-wrap h-auto">
             <TabsTrigger value="leads">Get started leads</TabsTrigger>
             <TabsTrigger value="webinar">Webinar registrations</TabsTrigger>
             <TabsTrigger value="hiring">Hiring submissions</TabsTrigger>
@@ -455,6 +463,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
             <TabsTrigger value="newsletter">Newsletter subscribers</TabsTrigger>
             <TabsTrigger value="internal-tools">Internal tools</TabsTrigger>
+            <TabsTrigger value="tracker">Tracker</TabsTrigger>
           </TabsList>
 
           {/* Get started leads tab */}
@@ -1024,6 +1033,11 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
+          </TabsContent>
+
+          {/* Project tracker tab */}
+          <TabsContent value="tracker">
+            <ProjectView />
           </TabsContent>
         </Tabs>
       </div>
