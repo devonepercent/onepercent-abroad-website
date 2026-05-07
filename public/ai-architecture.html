@@ -1,0 +1,1894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>1%abroad · AI Architecture</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f9f9f7;
+    color: #1a1a1a;
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  /* ── Layout ── */
+  .site-header {
+    border-bottom: 1px solid #e5e5e0;
+    padding: 24px 32px 20px;
+    background: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+  .logo {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+  }
+  .logo span { color: #999; font-weight: 400; }
+  .header-meta { font-size: 12px; color: #bbb; }
+
+  /* ── Tabs ── */
+  .tab-nav {
+    background: #fff;
+    border-bottom: 1px solid #e5e5e0;
+    position: sticky;
+    top: 65px;
+    z-index: 99;
+  }
+  .tab-nav-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tab-nav-inner::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex-shrink: 0;
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #888;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: #333; }
+  .tab-btn.active { color: #1a1a1a; border-bottom-color: #1a1a1a; }
+
+  /* ── Tab panels ── */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ── Typography ── */
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #aaa;
+    margin-bottom: 6px;
+  }
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    margin-bottom: 6px;
+  }
+  .section-desc {
+    color: #555;
+    margin-bottom: 28px;
+    max-width: 680px;
+    font-size: 14px;
+  }
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    margin-top: 28px;
+    color: #1a1a1a;
+  }
+
+  /* ── Overview table ── */
+  .overview-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    background: #fff;
+    border: 1px solid #e5e5e0;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .overview-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #aaa;
+    padding: 12px 16px;
+    background: #fafaf8;
+    border-bottom: 1px solid #e5e5e0;
+  }
+  .overview-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f0f0ec;
+    vertical-align: middle;
+  }
+  .overview-table tr:last-child td { border-bottom: none; }
+  .feature-name { font-weight: 600; font-size: 14px; }
+  .feature-sub { font-size: 12px; color: #999; margin-top: 2px; }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: #f0f0ec;
+    color: #666;
+  }
+  .badge.yes  { background: #e8f5e9; color: #2e7d32; }
+  .badge.no   { background: #f5f5f5; color: #bbb; }
+  .badge.agent { background: #e3f2fd; color: #1565c0; }
+
+  /* ── Flow diagram ── */
+  .flow-wrap {
+    background: #fff;
+    border: 1px solid #e5e5e0;
+    border-radius: 10px;
+    padding: 28px 16px;
+    margin-bottom: 28px;
+    overflow-x: auto;
+  }
+  .flow-wrap .mermaid { display: flex; justify-content: center; }
+
+  /* ── Detail grid ── */
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 640px) { .details-grid { grid-template-columns: 1fr 1fr; } }
+  .detail-card {
+    background: #fff;
+    border: 1px solid #e5e5e0;
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .detail-card .label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #bbb;
+    margin-bottom: 5px;
+  }
+  .detail-card .value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a1a1a;
+  }
+
+  /* ── Prompt block ── */
+  .prompt-block {
+    background: #fff;
+    border: 1px solid #e5e5e0;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .prompt-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0ec;
+    background: #fafaf8;
+  }
+  .prompt-header-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .prompt-role-badge {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .role-system  { background: #ede9f8; color: #5b21b6; }
+  .role-user    { background: #dbeafe; color: #1d4ed8; }
+  .role-tool    { background: #fef3c7; color: #92400e; }
+  .prompt-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+  .prompt-meta {
+    font-size: 12px;
+    color: #888;
+    line-height: 1.5;
+  }
+  .prompt-meta strong { color: #555; font-weight: 600; }
+  .prompt-body {
+    padding: 14px 16px;
+    font-size: 12.5px;
+    color: #444;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: #fdfdfc;
+  }
+
+  /* ── Step list ── */
+  .steps { margin-bottom: 20px; }
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: #fff;
+    border: 1px solid #e5e5e0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+  }
+  .step-num {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+  }
+  .step-title { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .step-body  { font-size: 13px; color: #555; }
+  .step-body code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    background: #f5f5f0;
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: #333;
+  }
+
+  /* ── Note / callout ── */
+  .note {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #78350f;
+    margin-bottom: 20px;
+  }
+  .info {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #1e40af;
+    margin-bottom: 20px;
+  }
+
+  /* ── Section divider ── */
+  .divider { border: none; border-top: 1px solid #efefeb; margin: 32px 0; }
+
+  /* ── Inline code ── */
+  code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12.5px;
+    background: #f5f5f0;
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: #333;
+  }
+
+  /* ── Pure HTML flow boxes (replaces Mermaid) ── */
+  .htmlflow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding: 8px 0;
+  }
+  .fbox {
+    background: #fff;
+    border: 1.5px solid #d4d4d0;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 13.5px;
+    color: #1a1a1a;
+    font-weight: 500;
+    text-align: center;
+    min-width: 200px;
+    max-width: 360px;
+    line-height: 1.4;
+  }
+  .fbox.start    { background: #f0f0ec; border-color: #ccc; border-radius: 24px; }
+  .fbox.end      { background: #e8f5e9; border-color: #a5d6a7; border-radius: 24px; }
+  .fbox.error    { background: #ffebee; border-color: #ef9a9a; border-radius: 24px; color: #b71c1c; }
+  .fbox.decision { background: #fff8e1; border-color: #f9d775; transform: skew(-8deg); padding: 10px 22px; }
+  .fbox.decision > span { display: inline-block; transform: skew(8deg); }
+  .fbox.step     { background: #e3f2fd; border-color: #90caf9; }
+  .fbox.tool     { background: #fef3c7; border-color: #fcd34d; }
+  .fbox.context  { background: #ede9f8; border-color: #c4b5e5; }
+  .farr {
+    width: 2px;
+    height: 18px;
+    background: #c8c8c2;
+    margin: 4px 0;
+    position: relative;
+  }
+  .farr::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid #c8c8c2;
+  }
+  .farr.labeled {
+    height: 32px;
+  }
+  .farr-label {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    color: #888;
+    font-weight: 600;
+    background: #f9f9f7;
+    padding: 0 6px;
+    white-space: nowrap;
+  }
+  .fbranch {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+    justify-content: center;
+    margin: 4px 0;
+    position: relative;
+  }
+  .fcol {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .floop {
+    font-size: 11px;
+    color: #888;
+    font-style: italic;
+    margin-top: 6px;
+    padding: 4px 10px;
+    background: #fafaf8;
+    border: 1px dashed #ccc;
+    border-radius: 4px;
+  }
+  .fparallel {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 4px 0;
+  }
+  .fmerge {
+    width: 80%;
+    height: 1px;
+    background: #c8c8c2;
+    margin: 0;
+  }
+
+  /* ── Demo tab extras ── */
+  .demo-section { margin-bottom: 48px; }
+  .demo-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: #1565c0;
+    border-bottom: 2px solid #1565c0;
+    padding-bottom: 6px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .profile-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  @media(max-width:640px){ .profile-grid { grid-template-columns: 1fr 1fr; } }
+  .profile-field {
+    background: #fff;
+    border: 1px solid #e5e5e0;
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .profile-field .pf-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #bbb;
+    margin-bottom: 4px;
+  }
+  .profile-field .pf-value {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+  .program-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  @media(max-width:640px){ .program-cards { grid-template-columns: 1fr; } }
+  .program-card {
+    background: #fff;
+    border: 1px solid #e5e5e0;
+    border-radius: 10px;
+    padding: 16px;
+    position: relative;
+  }
+  .program-card .pc-score {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: #1a1a1a;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+  .program-card .pc-uni {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 2px;
+    padding-right: 48px;
+  }
+  .program-card .pc-prog {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 10px;
+  }
+  .program-card .pc-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .pc-tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: #f5f5f0;
+    color: #555;
+  }
+  .pc-tag.fee { background: #e8f5e9; color: #2e7d32; }
+  .pc-tag.deadline { background: #fff8e1; color: #f57f17; }
+  .pc-tag.country { background: #e3f2fd; color: #1565c0; }
+  .program-card .pc-why {
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+    border-top: 1px solid #f0f0ec;
+    padding-top: 8px;
+    margin-top: 4px;
+  }
+  .sop-excerpt {
+    background: #fafaf8;
+    border: 1px solid #e5e5e0;
+    border-left: 3px solid #1565c0;
+    border-radius: 0 8px 8px 0;
+    padding: 16px 18px;
+    font-size: 13.5px;
+    color: #444;
+    line-height: 1.7;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+  .sop-score-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  @media(max-width:640px){ .sop-score-row { grid-template-columns: 1fr 1fr; } }
+  .score-big {
+    background: #fff;
+    border: 1px solid #e5e5e0;
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .score-big .sb-num {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1a1a1a;
+    letter-spacing: -1px;
+  }
+  .score-big .sb-num span { font-size: 14px; color: #aaa; font-weight: 400; }
+  .score-big .sb-label { font-size: 11px; color: #bbb; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; margin-top: 2px; }
+  .score-big .sb-sub { font-size: 12px; color: #555; margin-top: 4px; font-weight: 500; }
+  .sop-lists {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  @media(max-width:640px){ .sop-lists { grid-template-columns: 1fr; } }
+  .sop-list-card {
+    background: #fff;
+    border: 1px solid #e5e5e0;
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .sop-list-card .slc-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 10px;
+  }
+  .slc-title.green { color: #2e7d32; }
+  .slc-title.red   { color: #c62828; }
+  .slc-title.blue  { color: #1565c0; }
+  .sop-list-card ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .sop-list-card ul li {
+    font-size: 12.5px;
+    color: #444;
+    padding-left: 14px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .sop-list-card ul li::before {
+    content: '–';
+    position: absolute;
+    left: 0;
+    color: #ccc;
+  }
+  .report-render {
+    background: #fff;
+    border: 1px solid #e5e5e0;
+    border-radius: 10px;
+    padding: 28px 32px;
+    font-size: 14px;
+    line-height: 1.75;
+    color: #333;
+  }
+  .report-render h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-top: 28px;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #f0f0ec;
+  }
+  .report-render h2:first-child { margin-top: 0; }
+  .report-render ul { padding-left: 18px; margin-bottom: 12px; }
+  .report-render li { margin-bottom: 6px; color: #444; }
+  .report-render p { margin-bottom: 12px; color: #444; }
+  .report-render strong { color: #1a1a1a; font-weight: 600; }
+  .io-arrow {
+    text-align: center;
+    font-size: 22px;
+    color: #ccc;
+    margin: 12px 0;
+    user-select: none;
+  }
+  .input-label, .output-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .input-label { color: #888; }
+  .output-label { color: #2e7d32; }
+  .pill {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .pill.input  { background: #f0f0ec; color: #666; }
+  .pill.output { background: #e8f5e9; color: #2e7d32; }
+
+  /* ── Footer ── */
+  .footer {
+    border-top: 1px solid #e5e5e0;
+    padding-top: 20px;
+    font-size: 12px;
+    color: #ccc;
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo">1%abroad <span>AI Architecture</span></div>
+    <div class="header-meta">Internal · Service team &amp; leadership · May 2026</div>
+  </div>
+</header>
+
+<nav class="tab-nav">
+  <div class="tab-nav-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('chat')">Chat Agent</button>
+    <button class="tab-btn" onclick="switchTab('programs')">Program Finder</button>
+    <button class="tab-btn" onclick="switchTab('sop')">SOP Analyzer</button>
+    <button class="tab-btn" onclick="switchTab('report')">Profile Report</button>
+    <button class="tab-btn" onclick="switchTab('data')">Database</button>
+    <button class="tab-btn" onclick="switchTab('simple')" style="color:#b45309;font-weight:600">Stupid Simple</button>
+    <button class="tab-btn" onclick="switchTab('demo')" style="color:#1565c0;font-weight:600">Live Demo ↗</button>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB: OVERVIEW -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="tab-overview" class="tab-panel active">
+<div class="page">
+  <div class="section-label">1%abroad AI System</div>
+  <h2>How it works — at a glance</h2>
+  <p class="section-desc">Four AI-powered features built into the platform. Each uses <strong>OpenAI GPT-4o</strong> as the core reasoning model. <strong>Perplexity sonar-pro</strong> is called for live web research where real-time scholarship and deadline data is needed.</p>
+
+  <table class="overview-table">
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>What it does</th>
+        <th>Type</th>
+        <th>Live web?</th>
+        <th>Saves to DB?</th>
+        <th>Model(s)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <div class="feature-name">Chat Agent</div>
+          <div class="feature-sub">AI advisor chat</div>
+        </td>
+        <td style="font-size:13px;color:#555">Student asks questions, agent answers using profile + can query university database mid-conversation</td>
+        <td><span class="badge agent">Agentic loop</span></td>
+        <td><span class="badge no">No</span></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><code>gpt-4o</code></td>
+      </tr>
+      <tr>
+        <td>
+          <div class="feature-name">Program Finder</div>
+          <div class="feature-sub">University search &amp; match</div>
+        </td>
+        <td style="font-size:13px;color:#555">Searches live web for matching programs, structures results, verifies against internal database</td>
+        <td><span class="badge">3-step pipeline</span></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><span class="badge no">No</span></td>
+        <td><code>sonar-pro + gpt-4o</code></td>
+      </tr>
+      <tr>
+        <td>
+          <div class="feature-name">SOP Analyzer</div>
+          <div class="feature-sub">Statement of purpose review</div>
+        </td>
+        <td style="font-size:13px;color:#555">Evaluates an uploaded or pasted SOP across 9 dimensions, scores it, returns actionable feedback</td>
+        <td><span class="badge">Single call</span></td>
+        <td><span class="badge no">No</span></td>
+        <td><span class="badge no">No</span></td>
+        <td><code>gpt-4o</code></td>
+      </tr>
+      <tr>
+        <td>
+          <div class="feature-name">Profile Report</div>
+          <div class="feature-sub">Full profile assessment</div>
+        </td>
+        <td style="font-size:13px;color:#555">Comprehensive report: strengths, gaps, scholarship research, Dream/Reach/Safe university shortlist, roadmap</td>
+        <td><span class="badge">2-step pipeline</span></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><span class="badge yes">Yes</span></td>
+        <td><code>sonar-pro + gpt-4o</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider" />
+
+  <h3>How the features connect</h3>
+  <div class="flow-wrap">
+    <div class="htmlflow">
+      <div class="fbox start">Student onboards</div>
+      <div class="farr"></div>
+      <div class="fbox">Fills profile form</div>
+      <div class="farr"></div>
+      <div class="fparallel">
+        <div class="fbox">Chat Agent<br><span style="font-size:11px;color:#888;font-weight:400">uses profile as context</span></div>
+        <div class="fbox">Program Finder<br><span style="font-size:11px;color:#888;font-weight:400">builds query from profile</span></div>
+        <div class="fbox">SOP Analyzer<br><span style="font-size:11px;color:#888;font-weight:400">optionally uses profile</span></div>
+        <div class="fbox">Generate Report<br><span style="font-size:11px;color:#888;font-weight:400">requires full profile</span></div>
+      </div>
+      <div class="farr"></div>
+      <div class="fbox context">Report saved → loaded into Chat Agent as ongoing context</div>
+      <div class="farr"></div>
+      <div class="fbox end">Student marks program interest → Lead created for service team</div>
+    </div>
+  </div>
+
+  <div class="info">
+    <strong>Key insight for service team:</strong> The Profile Report is the most important output — once generated, it becomes permanent context for every chat conversation that student has. The richer the profile form, the better every AI feature performs.
+  </div>
+
+</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB: CHAT AGENT -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="tab-chat" class="tab-panel">
+<div class="page">
+  <div class="section-label">Feature 01</div>
+  <h2>Chat Agent</h2>
+  <p class="section-desc">The only true "agent" in the platform — it can decide mid-conversation to query the university database, then continue answering with real data. Uses a tool-call loop, capped at 3 passes per message.</p>
+
+  <h3>Flow</h3>
+  <div class="flow-wrap">
+    <div class="htmlflow">
+      <div class="fbox start">Student sends message</div>
+      <div class="farr"></div>
+      <div class="fbox">Fetch profile + Profile Report + last 20 messages from Supabase</div>
+      <div class="farr"></div>
+      <div class="fbox">Build system prompt with full context</div>
+      <div class="farr"></div>
+      <div class="fbox step">Call GPT-4o (streaming, temp 0.5)</div>
+      <div class="farr"></div>
+      <div class="fbox decision"><span>Tool call needed?</span></div>
+      <div class="fbranch" style="margin-top:8px">
+        <div class="fcol">
+          <div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">YES</div>
+          <div class="fbox tool">Query university_programs<br><span style="font-size:11px;color:#666;font-weight:400">filter country + field, order by QS rank</span></div>
+          <div class="floop">Loop back to GPT-4o (max 3 passes)</div>
+        </div>
+        <div class="fcol">
+          <div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">NO</div>
+          <div class="fbox">Stream response to browser</div>
+          <div class="farr"></div>
+          <div class="fbox end">Student reads response</div>
+          <div class="farr"></div>
+          <div class="fbox">Save to ai_chat_messages</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="details-grid">
+    <div class="detail-card"><div class="label">Model</div><div class="value"><code>gpt-4o</code></div></div>
+    <div class="detail-card"><div class="label">Temperature</div><div class="value">0.5 — balanced</div></div>
+    <div class="detail-card"><div class="label">Max tokens</div><div class="value">900 per response</div></div>
+    <div class="detail-card"><div class="label">Max tool loops</div><div class="value">3 passes, hard cap</div></div>
+    <div class="detail-card"><div class="label">History window</div><div class="value">Last 20 messages</div></div>
+    <div class="detail-card"><div class="label">Streaming</div><div class="value">Yes — real-time chunks</div></div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- System Prompt -->
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-header-top">
+        <span class="prompt-role-badge role-system">System</span>
+        <span class="prompt-title">Chat Agent — Persona &amp; Rules</span>
+      </div>
+      <div class="prompt-meta">
+        <strong>Used by:</strong> Chat Agent · every single message<br>
+        <strong>When:</strong> Sent as the first message in every GPT-4o call, before history and student message<br>
+        <strong>Why:</strong> Sets the advisor persona, forces India-specific framing (CGPA on 10-scale, INR budgets), prevents hallucinated deadlines, and tells GPT-4o exactly when to use the database tool vs. when to refer the student elsewhere
+      </div>
+    </div>
+    <div class="prompt-body">You are 1%abroad's AI agent — a supportive guide for Indian students applying to international universities (MS, MBA, PhD, Bachelor's).
+
+Tone: warm, concise, specific. Reference the student's profile when relevant.
+
+Rules:
+- Use the student's profile and (if available) their generated Profile Development Report as primary context.
+- Give actionable, India-grounded advice (think CGPA on 10-scale, INR/Lakhs budgets, Indian academic calendar).
+- When the student asks about programs, universities, fits, scholarships, or comparisons — call the
+  search_programs tool to pull concrete data from the database. Don't just say "use Program Finder";
+  answer them directly with real programs.
+- For deeper analysis (essays, SOP), point them to SOP Analyzer; for a full assessment, point them
+  to "Generate My Report".
+- Do not invent specific deadlines or acceptance rates. If the database returns nothing useful, say so
+  honestly and suggest the official university page.
+- Be brief by default — answer in 2–4 short paragraphs unless the question demands depth.
+- Format program lists clearly with bullets: program name, university, country, tuition, deadline, ranking.
+
+=== STUDENT PROFILE ===
+[Name, degree level, target destinations, CGPA, annual budget, education history,
+test scores (GRE/GMAT/IELTS/TOEFL), work experience, career goals]
+
+=== STUDENT'S PROFILE DEVELOPMENT REPORT ===
+[Full report markdown — if previously generated. If not: "(No report yet — suggest the student generate one.)"]</div>
+  </div>
+
+  <!-- Tool definition -->
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-header-top">
+        <span class="prompt-role-badge role-tool">Tool</span>
+        <span class="prompt-title">search_programs — University database lookup</span>
+      </div>
+      <div class="prompt-meta">
+        <strong>Used by:</strong> Chat Agent only<br>
+        <strong>When GPT-4o calls it:</strong> Student asks about programs, universities, fit, options, scholarships, rankings, or comparisons<br>
+        <strong>Why this tool exists:</strong> GPT-4o's training data has outdated tuition/deadline info. This tool pulls live data from the curated internal database — so the agent answers with real, verified numbers instead of guessing<br>
+        <strong>Executes:</strong> Supabase query on <code>university_programs</code> — filters by country + field, orders by QS ranking
+      </div>
+    </div>
+    <div class="prompt-body">Tool name: search_programs
+Description: Search the curated university programs database. Use whenever the student asks about
+             programs, universities, fits, options, scholarships, or rankings. Returns programs
+             sorted by QS ranking.
+
+Parameters GPT-4o chooses based on conversation:
+  country  (string, optional) — e.g. "Germany", "USA", "Canada"
+  field    (string, optional) — e.g. "Computer Science", "Data Science", "MBA", "Finance"
+  limit    (number, optional) — 1–15 programs returned (default 5)
+
+Database query executed:
+  SELECT university_name, program_name, country, tuition_fee, app_closing_1,
+         qs_ranking, gpa, test_score, language_proficiency, application_fee,
+         scholarship_options, program_link
+  FROM   university_programs
+  WHERE  country ILIKE '%{country}%'
+  AND    program_name ILIKE '%{field}%'
+  ORDER  BY qs_ranking ASC
+  LIMIT  {limit}</div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB: PROGRAM FINDER -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="tab-programs" class="tab-panel">
+<div class="page">
+  <div class="section-label">Feature 02</div>
+  <h2>Program Finder</h2>
+  <p class="section-desc">A linear 3-step pipeline — not an agent. Step 1: Perplexity searches the live web. Step 2: GPT-4o structures the raw text into a clean JSON list. Step 3: code cross-checks results against the internal database and marks verified entries.</p>
+
+  <h3>Flow</h3>
+  <div class="flow-wrap">
+    <div class="htmlflow">
+      <div class="fbox start">Student opens Program Finder</div>
+      <div class="farr"></div>
+      <div class="fbox">Fetch student profile from Supabase</div>
+      <div class="farr"></div>
+      <div class="fbox">Build query from profile fields<br><span style="font-size:11px;color:#888;font-weight:400">degree + major + countries + intake year</span></div>
+      <div class="farr"></div>
+      <div class="fbox step">STEP 1 — Perplexity sonar-pro<br><span style="font-size:11px;color:#666;font-weight:400">Live web research, max 3000 tokens</span></div>
+      <div class="farr"></div>
+      <div class="fbox">Raw research text with deadlines, tuition, scholarships</div>
+      <div class="farr"></div>
+      <div class="fbox step">STEP 2 — GPT-4o extracts structured JSON<br><span style="font-size:11px;color:#666;font-weight:400">temp 0.2, json_object mode</span></div>
+      <div class="farr"></div>
+      <div class="fbox">Up to 10 programs, each scored 1–10 for fit</div>
+      <div class="farr"></div>
+      <div class="fbox step">STEP 3 — Code keyword-matches against Supabase</div>
+      <div class="farr"></div>
+      <div class="fbox decision"><span>Match found in DB?</span></div>
+      <div class="fbranch" style="margin-top:8px">
+        <div class="fcol">
+          <div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">YES</div>
+          <div class="fbox" style="background:#e8f5e9;border-color:#a5d6a7">Override with verified data<br><span style="font-size:11px;color:#666;font-weight:400">verified = true, golden badge</span></div>
+        </div>
+        <div class="fcol">
+          <div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">NO</div>
+          <div class="fbox">Keep AI data<br><span style="font-size:11px;color:#888;font-weight:400">verified = false</span></div>
+        </div>
+      </div>
+      <div class="farr"></div>
+      <div class="fbox">Sort: verified first → then by match score</div>
+      <div class="farr"></div>
+      <div class="fbox end">Display results to student</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Fallback:</strong> If Perplexity API key is missing or fails, GPT-4o answers from training knowledge alone. Results are still structured and scored, but deadlines and fees may be outdated.
+  </div>
+
+  <div class="details-grid">
+    <div class="detail-card"><div class="label">Step 1 model</div><div class="value">Perplexity <code>sonar-pro</code></div></div>
+    <div class="detail-card"><div class="label">Step 1 max tokens</div><div class="value">3000</div></div>
+    <div class="detail-card"><div class="label">Step 2 model</div><div class="value"><code>gpt-4o</code></div></div>
+    <div class="detail-card"><div class="label">Step 2 temperature</div><div class="value">0.2 — factual extraction</div></div>
+    <div class="detail-card"><div class="label">Step 3</div><div class="value">Code only, no AI</div></div>
+    <div class="detail-card"><div class="label">Timeout</div><div class="value">90 seconds total</div></div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- Perplexity system -->
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-header-top">
+        <span class="prompt-role-badge role-system">System</span>
+        <span class="prompt-title">Perplexity — Research assistant persona</span>
+      </div>
+      <div class="prompt-meta">
+        <strong>Used by:</strong> Program Finder (Step 1) · Profile Report (Step 1)<br>
+        <strong>When:</strong> First message sent to Perplexity sonar-pro before the research query<br>
+        <strong>Why:</strong> Tells Perplexity to behave as a precise research assistant — focus on current data, cite inline sources, return statistics not general advice. Without this, Perplexity tends to give broad narrative answers instead of structured facts with deadlines.
+      </div>
+    </div>
+    <div class="prompt-body">You are an international higher education research assistant.
+Provide precise, current information about university programs with deadlines and statistics.
+Cite sources inline where helpful.</div>
+  </div>
+
+  <!-- Perplexity user query -->
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-header-top">
+        <span class="prompt-role-badge role-user">User Query</span>
+        <span class="prompt-title">Perplexity — Research query (auto-built from student profile)</span>
+      </div>
+      <div class="prompt-meta">
+        <strong>Used by:</strong> Program Finder (Step 1) · Profile Report (Step 1)<br>
+        <strong>When:</strong> Built once per search, sent as the user message to Perplexity<br>
+        <strong>Why this structure:</strong> Asking for specific data points (deadlines, acceptance rates, scholarship coverage) forces Perplexity to retrieve structured facts rather than general descriptions. The intake year grounds the search to current admissions cycles.<br>
+        <strong>Variables filled from:</strong> <code>student_profile_forms</code> → degree, major, intake · <code>onboarding_answers</code> → destinations, field_of_study, start_year
+      </div>
+    </div>
+    <div class="prompt-body">Top current {targetDegree} programs in {major} across {countries} for {intake} cycle. For each, provide:
+- University name and program full name
+- Application deadlines (current and upcoming admissions cycles)
+- Acceptance rates
+- Approximate tuition fees per year
+- Available scholarships (Erasmus+, DAAD, Fulbright, MEXT, CSC, Chevening, university-specific)
+  with eligibility, coverage, deadlines
+- Standardized test requirements (GRE, GMAT, IELTS, TOEFL minimums)
+Focus on accuracy of deadlines and scholarship details for the most recent and upcoming admission cycles.
+
+── Variable sources ──────────────────────────────────────────────────
+{targetDegree}  ← profile_form.target.degree   OR  onboarding.degree       (fallback: "Masters")
+{major}         ← profile_form.target.major    OR  onboarding.field_of_study (fallback: "general field")
+{countries}     ← onboarding.destinations[]    (fallback: USA, Germany, UK, Canada, Australia)
+{intake}        ← profile_form.target.intake   OR  onboarding.start_year   (fallback: "2026-27")</div>
+  </div>
+
+  <!-- GPT-4o extract -->
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-header-top">
+        <span class="prompt-role-badge role-system">System</span>
+        <span class="prompt-title">GPT-4o — Data extraction prompt</span>
+      </div>
+      <div class="prompt-meta">
+        <strong>Used by:</strong> Program Finder (Step 2) only<br>
+        <strong>When:</strong> After Perplexity returns raw research text — GPT-4o converts it to a clean JSON array<br>
+        <strong>Why GPT-4o and not just Perplexity:</strong> Perplexity returns free-form text with inconsistent structure. GPT-4o at temperature 0.2 reliably extracts a normalized schema — same field names, same format every time — so the frontend can render it without fragile parsing.<br>
+        <strong>Why temperature 0.2:</strong> Low temperature = minimal creative variance = consistent JSON output, no hallucinated fields<br>
+        <strong>Input to GPT-4o:</strong> Student profile text + Perplexity research text
+      </div>
+    </div>
+    <div class="prompt-body">You are a data extraction assistant. Given research text about university programs, extract a structured
+list of programs.
+
+Return ONLY valid JSON in this exact shape: {"programs": [...]}. No commentary, no markdown.
+
+Each object must have these fields:
+{
+  "university_name":       "Full official university name",
+  "program_name":          "Exact program/degree title",
+  "country":               "Country name",
+  "degree_type":           "MS | MBA | PhD | MEng | MFA | etc",
+  "duration":              "e.g. 2 years",
+  "tuition_fee":           "e.g. $15,000/year or Tuition-free",
+  "deadline":              "e.g. December 1, 2025 or Rolling",
+  "acceptance_rate":       "e.g. 12% or Not disclosed",
+  "min_gpa":               "e.g. 3.0/4.0 or 7.5/10",
+  "test_requirements":     "e.g. GRE required (Q: 160+) or GRE optional",
+  "language_requirements": "e.g. IELTS 6.5+ or TOEFL 90+",
+  "scholarships":          "Brief summary of main scholarship options",
+  "why_fit":               "2 sentence explanation of why this program fits the student's specific profile",
+  "match_score":           integer 1-10
+}
+
+If a field is unknown, use null. Extract up to 10 programs. Rank by match_score descending.</div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB: SOP ANALYZER -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="tab-sop" class="tab-panel">
+<div class="page">
+  <div class="section-label">Feature 03</div>
+  <h2>SOP Analyzer</h2>
+  <p class="section-desc">Simplest flow in the platform — one GPT-4o call, no tools, no loops, no live data. Student uploads or pastes their Statement of Purpose and gets a structured score with actionable feedback. Nothing is saved.</p>
+
+  <h3>Flow</h3>
+  <div class="flow-wrap">
+    <div class="htmlflow">
+      <div class="fbox start">Student uploads or pastes SOP</div>
+      <div class="farr"></div>
+      <div class="fbox">Extract text<br><span style="font-size:11px;color:#888;font-weight:400">PDF (pdf-parse) · DOCX (mammoth) · TXT (raw)</span></div>
+      <div class="farr"></div>
+      <div class="fbox decision"><span>Valid length? (50 – 30,000 chars)</span></div>
+      <div class="fbranch" style="margin-top:8px">
+        <div class="fcol">
+          <div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">NO</div>
+          <div class="fbox error">Error returned</div>
+        </div>
+        <div class="fcol">
+          <div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">YES</div>
+          <div class="fbox">Fetch student profile (optional context)</div>
+          <div class="farr"></div>
+          <div class="fbox">Build user message<br><span style="font-size:11px;color:#888;font-weight:400">profile + SOP text</span></div>
+          <div class="farr"></div>
+          <div class="fbox step">Call GPT-4o<br><span style="font-size:11px;color:#666;font-weight:400">temp 0.3, max 1500 tokens, JSON mode</span></div>
+          <div class="farr"></div>
+          <div class="fbox">JSON output<br><span style="font-size:11px;color:#888;font-weight:400">score · readability · tone · strengths · weaknesses · suggestions</span></div>
+          <div class="farr"></div>
+          <div class="fbox end">Display to student (not saved to DB)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info">
+    <strong>Stateless by design:</strong> SOP analysis is not saved to the database. Every upload is a fresh evaluation. This keeps it fast and avoids storing students' personal essay content.
+  </div>
+
+  <div class="details-grid">
+    <div class="detail-card"><div class="label">Model</div><div class="value"><code>gpt-4o</code></div></div>
+    <div class="detail-card"><div class="label">Temperature</div><div class="value">0.3 — consistent scoring</div></div>
+    <div class="detail-card"><div class="label">Max tokens</div><div class="value">1500</div></div>
+    <div class="detail-card"><div class="label">Accepted formats</div><div class="value">PDF · DOCX · TXT · paste</div></div>
+    <div class="detail-card"><div class="label">Max file size</div><div class="value">10 MB</div></div>
+    <div class="detail-card"><div class="label">Saves to DB?</div><div class="value">No — stateless</div></div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- System prompt -->
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-header-top">
+        <span class="prompt-role-badge role-system">System</span>
+        <span class="prompt-title">SOP Analyzer — Evaluation prompt</span>
+      </div>
+      <div class="prompt-meta">
+        <strong>Used by:</strong> SOP Analyzer only<br>
+        <strong>When:</strong> Every SOP submission — sent as system message before the SOP text<br>
+        <strong>Why 9 dimensions:</strong> These cover every element admissions committees actually evaluate — not just grammar, but narrative logic, program fit, and goals credibility. Each dimension maps to a common rejection reason for SOPs from Indian applicants.<br>
+        <strong>Why temperature 0.3:</strong> Lower than chat (0.5) so the score is stable — the same SOP should score similarly if analyzed twice, not vary by ±2 points due to randomness.<br>
+        <strong>Why json_object mode:</strong> Forces GPT-4o to return parseable output — no markdown wrappers, no conversational text before the JSON. Frontend renders the fields directly.
+      </div>
+    </div>
+    <div class="prompt-body">You are an expert admissions consultant evaluating a Statement of Purpose (SOP) for a graduate-school
+application abroad.
+
+Analyze the SOP against these 9 dimensions:
+
+1. Hook & opening       — does it grab attention with a specific moment or claim?
+2. Narrative arc        — clear progression: past experience → current skills → future goals
+3. Specificity          — concrete examples, named programs/faculty/projects, quantifiable outcomes
+4. Domain depth         — demonstrates real understanding of the target field, not surface-level
+5. Fit                  — explains why THIS program/university, not just any abroad program
+6. Goals clarity        — short-term + long-term goals, concrete and credible, not vague
+7. Voice & tone         — professional but personal; no clichés ("since childhood I dreamed…")
+8. Structure & flow     — logical paragraph order, no redundancy, smooth transitions
+9. Mechanics            — grammar, sentence variety, conciseness, no passive voice overuse
+
+Return ONLY valid JSON in this exact shape — no commentary before or after:
+{
+  "score":       number 0–10, one decimal (e.g. 7.4),
+  "wordCount":   integer,
+  "readability": "e.g. Grade 12 · Clear  OR  Grade 14 · Dense",
+  "tone":        "e.g. Professional  OR  Personal  OR  Academic",
+  "status":      "e.g. Ready to refine  OR  Needs major revision  OR  Polished",
+  "strengths":   [3–5 strings, each one sentence],
+  "weaknesses":  [3–5 strings, each one sentence],
+  "suggestions": [3–5 strings, each one concrete actionable sentence]
+}
+
+Each bullet = exactly one sentence. Be specific to THIS SOP — zero generic advice.
+If student profile is provided, tailor suggestions to leverage their actual background.</div>
+  </div>
+
+  <!-- User message structure -->
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-header-top">
+        <span class="prompt-role-badge role-user">User Message</span>
+        <span class="prompt-title">SOP Analyzer — Input structure sent to GPT-4o</span>
+      </div>
+      <div class="prompt-meta">
+        <strong>Used by:</strong> SOP Analyzer only<br>
+        <strong>When:</strong> Constructed per request, after text extraction and profile fetch<br>
+        <strong>Why profile is optional:</strong> Student might analyze an SOP before completing their profile. The system gracefully omits it — analysis still works, suggestions are just less personalized.
+      </div>
+    </div>
+    <div class="prompt-body">── When student profile exists ────────────────────────────────────
+
+=== STUDENT PROFILE (for tailoring suggestions) ===
+Name: {name}
+Target degree: {degree}
+Field: {field_of_study}
+CGPA: {cgpa} / 10
+Destinations: {destinations}
+[... full profile fields ...]
+
+=== STATEMENT OF PURPOSE ===
+{extracted SOP text — up to 30,000 characters}
+
+── When no profile ────────────────────────────────────────────────
+
+=== STATEMENT OF PURPOSE ===
+{extracted SOP text}</div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB: PROFILE REPORT -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="tab-report" class="tab-panel">
+<div class="page">
+  <div class="section-label">Feature 04</div>
+  <h2>Profile Development Report</h2>
+  <p class="section-desc">Most comprehensive AI output. Requires completed profile form. Two-step pipeline: Perplexity researches live scholarships and program data, then GPT-4o writes a full structured Markdown report. Saved permanently and used as context by the Chat Agent.</p>
+
+  <h3>Flow</h3>
+  <div class="flow-wrap">
+    <div class="htmlflow">
+      <div class="fbox start">Student clicks Generate Report</div>
+      <div class="farr"></div>
+      <div class="fbox decision"><span>Profile form submitted?</span></div>
+      <div class="fbranch" style="margin-top:8px">
+        <div class="fcol">
+          <div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">NO</div>
+          <div class="fbox error">Error: complete profile first</div>
+        </div>
+        <div class="fcol">
+          <div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">YES</div>
+          <div class="fbox">Fetch full profile from Supabase</div>
+          <div class="farr"></div>
+          <div class="fbox">Build Perplexity query from profile fields</div>
+          <div class="farr"></div>
+          <div class="fbox step">STEP 1 — Perplexity sonar-pro<br><span style="font-size:11px;color:#666;font-weight:400">Live scholarship + program research, max 2500 tokens</span></div>
+          <div class="farr"></div>
+          <div class="fbox">Profile text + live research combined</div>
+          <div class="farr"></div>
+          <div class="fbox step">STEP 2 — GPT-4o writes Markdown report<br><span style="font-size:11px;color:#666;font-weight:400">temp 0.4, max 4000 tokens, 8 structured sections</span></div>
+          <div class="farr"></div>
+          <div class="fbox">Save to ai_profile_evaluations table</div>
+          <div class="farr"></div>
+          <div class="fbox end">Report shown to student</div>
+          <div class="farr"></div>
+          <div class="fbox context">Chat Agent loads report as ongoing context for all future conversations</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="details-grid">
+    <div class="detail-card"><div class="label">Step 1 model</div><div class="value">Perplexity <code>sonar-pro</code></div></div>
+    <div class="detail-card"><div class="label">Step 1 max tokens</div><div class="value">2500</div></div>
+    <div class="detail-card"><div class="label">Step 2 model</div><div class="value"><code>gpt-4o</code></div></div>
+    <div class="detail-card"><div class="label">Step 2 temperature</div><div class="value">0.4</div></div>
+    <div class="detail-card"><div class="label">Step 2 max tokens</div><div class="value">4000 — longest output</div></div>
+    <div class="detail-card"><div class="label">Timeout</div><div class="value">120 seconds total</div></div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- Perplexity system (same as program finder but slightly different) -->
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-header-top">
+        <span class="prompt-role-badge role-system">System</span>
+        <span class="prompt-title">Perplexity — Research persona (same as Program Finder)</span>
+      </div>
+      <div class="prompt-meta">
+        <strong>Used by:</strong> Profile Report (Step 1) · Program Finder (Step 1)<br>
+        <strong>When:</strong> Sent before every Perplexity query<br>
+        <strong>Why:</strong> Constrains Perplexity to behave as a factual research tool — cite sources, return statistics, focus on current cycle data — not as a general chatbot giving advice
+      </div>
+    </div>
+    <div class="prompt-body">You are an international education research assistant.
+Return precise, current information with deadlines and statistics. Cite sources inline where helpful.</div>
+  </div>
+
+  <!-- GPT-4o report system prompt -->
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-header-top">
+        <span class="prompt-role-badge role-system">System</span>
+        <span class="prompt-title">GPT-4o — Profile Report generation prompt</span>
+      </div>
+      <div class="prompt-meta">
+        <strong>Used by:</strong> Profile Report (Step 2) only<br>
+        <strong>When:</strong> After Perplexity research completes (or fails gracefully) — GPT-4o writes the full report<br>
+        <strong>Why two methodologies (Rhodes + Beaton):</strong> Rhodes gives holistic human-quality signals (leadership, character, service). Beaton/Crimson adds admissions-strategy logic (competitive positioning, differentiation). Together they cover both "who is this person" and "can they get in". Neither score is shown to the student — GPT-4o translates them into narrative observations.<br>
+        <strong>Why temperature 0.4:</strong> Slightly higher than SOP (0.3) to allow warm, varied prose — reports shouldn't read identically for every student — but still constrained enough for consistent structure.<br>
+        <strong>Why Markdown output (not JSON):</strong> Report is displayed as rich formatted text, not rendered in a structured UI. Markdown is more flexible and human-readable for long-form content. It's also stored raw and reused verbatim as chat context.
+      </div>
+    </div>
+    <div class="prompt-body">You are an expert student mentor on international higher education, specializing in overseas MS, MBA,
+and PhD admissions and global scholarships (Erasmus+, DAAD, Fulbright, MEXT, CSC, Chevening, others).
+
+Your goal: generate a Profile Development Report following the exact structure below.
+
+━━ OUTPUT RULES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Return Markdown plain text only. No JSON, no metadata, no preamble.
+- Level-2 headings (##) for each section. Single-dash bullet lists (-).
+- No bold, no italics, no code blocks.
+- Professional, supportive, concise language.
+- Use strong action verbs. Quantify achievements wherever possible.
+- Integrate Perplexity live research into Scholarships and University Fit sections naturally.
+- Report must start DIRECTLY with ## Overview then Dear [Student's Name], — nothing before it.
+
+━━ EVALUATION METHODOLOGY (internal — do NOT show scores) ━━━━━━━━━
+1. Rhodes Scholar Framework
+   - Academic Excellence  (grades, research, intellectual rigor)
+   - Leadership           (roles, initiatives, measurable impact)
+   - Character            (values, integrity, resilience)
+   - Service & Impact     (community, commitment to broader good)
+
+2. Jamie Beaton / Crimson Education Framework
+   - Strategic Competitiveness   (fit for target programs, test readiness)
+   - Differentiation             (unique achievements, profile positioning)
+   - International Benchmarking  (vs. global applicant pool)
+   - Admissions Strategy         (goal clarity, alignment with trends)
+
+Internal scoring rubric (1–5 per dimension, translate to narrative — never output numbers):
+  1 = Weak / major gap
+  2 = Below average / needs significant work
+  3 = Acceptable but not distinctive
+  4 = Strong / competitive
+  5 = Outstanding / highly competitive
+
+━━ REQUIRED REPORT SECTIONS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## Overview
+Dear [Student's Name],
+[Personalised opening: positive trait → key achievements → relevant skills → current academic context
+→ what needs strengthening → motivational close → "Let's explore your profile in greater detail."]
+
+## Strengths
+[Bullets under: Academic Qualification · Work Experience · Skills · Certifications · Awards · Leadership · Research]
+
+## Weaknesses
+[Missing qualifications · skills gaps · limited exposure · low test scores etc.]
+
+## Areas of Improvement
+[Subject experience · international exposure · technical skills · language proficiency etc.]
+
+## Recommendations for Enhancement
+[Subheadings with bullets:]
+- Work / Internship / Research Experience
+- Certifications / Online Courses
+- Training / Workshop
+- Short-Term Programs
+- Language
+- Standardised Tests
+
+## Scholarships & Program Opportunities
+[From live Perplexity research: scholarship name · deadline · eligibility · coverage (tuition/stipend/living)]
+
+## Country & University Fit
+[Best-fit countries → 5–7 programs grouped as Dream / Reach / Safe with rationale]
+
+## Final Roadmap
+[Step-by-step action plan: short-term → long-term → application strategy → motivational close]</div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB: DATABASE -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="tab-data" class="tab-panel">
+<div class="page">
+  <div class="section-label">Data Layer</div>
+  <h2>Database tables</h2>
+  <p class="section-desc">All data lives in Supabase (PostgreSQL). The AI features read student context from these tables and write outputs back. Understanding these tables explains what inputs drive AI quality.</p>
+
+  <div class="steps">
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">university_programs — curated program database</div>
+        <div class="step-body">
+          Internal list maintained by the 1%abroad team. This is the "verified" source of truth.<br><br>
+          <strong>Key columns:</strong> <code>university_name</code> · <code>program_name</code> · <code>country</code> · <code>tuition_fee</code> · <code>app_closing_1</code> (deadline) · <code>qs_ranking</code> · <code>gpa</code> · <code>scholarship_options</code> · <code>is_partner</code> · <code>acceptance_rate</code> · <code>program_link</code> · <code>application_fee</code><br><br>
+          <strong>Used by:</strong> Chat Agent tool (primary query target) · Program Finder Step 3 (verification + data override)<br><br>
+          <strong>Impact:</strong> Every program in this table that matches an AI result gets a verified badge and has its tuition/deadline overridden with accurate data. Programs not in this table are shown with AI-researched data only. Adding more programs here directly improves result quality.
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">student_profile_forms — detailed student profile</div>
+        <div class="step-body">
+          Filled by student after onboarding. Unlocks Program Finder and Report generation.<br><br>
+          <strong>Key fields:</strong> education history (degree, institution, GPA) · test scores (GRE V/Q/AWA, GMAT, IELTS, TOEFL) · work experience (years, role, industry) · target program (degree, major, intake, budget min/max) · career goals · additional notes<br><br>
+          <strong>Used by:</strong> All 4 AI features (injected as profile context) · Perplexity query builder · Report generation gate (<code>submitted_at</code> must be set)
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">onboarding_answers — quick profile from sign-up</div>
+        <div class="step-body">
+          Collected during the onboarding flow. Simpler/shorter than the full profile form.<br><br>
+          <strong>Key fields:</strong> <code>degree</code> · <code>destinations</code> (array) · <code>start_year</code> · <code>field_of_study</code> · <code>cgpa</code> · <code>budget</code> · <code>state</code> · <code>city</code><br><br>
+          <strong>Used by:</strong> Perplexity query builder (primary source for country + intake + field) · Chat Agent context · Profile text formatter<br><br>
+          <strong>Fallback role:</strong> If <code>student_profile_forms</code> is incomplete, onboarding answers fill the gaps so AI features still work partially
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">ai_profile_evaluations — generated reports</div>
+        <div class="step-body">
+          Stores every Profile Development Report generated.<br><br>
+          <strong>Key columns:</strong> <code>student_id</code> · <code>report_markdown</code> (full report text) · <code>perplexity_research</code> (raw Perplexity output stored for reference) · <code>triggered_by</code> · <code>created_at</code><br><br>
+          <strong>Used by:</strong> Chat Agent — loads the latest report as permanent context for every conversation. Service team — can review what was recommended to a student.
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <div class="step-title">ai_chat_messages — conversation history</div>
+        <div class="step-body">
+          Stores every message in every student conversation.<br><br>
+          <strong>Key columns:</strong> <code>student_id</code> · <code>role</code> (user / assistant) · <code>content</code> · <code>created_at</code><br><br>
+          <strong>Used by:</strong> Chat Agent — loads last 20 messages as history so conversations feel continuous across sessions. Both user messages and AI responses saved after each exchange.
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <div class="step-title">leads — student program interest</div>
+        <div class="step-body">
+          Created when student clicks "I'm interested" on a program card in Program Finder.<br><br>
+          <strong>Key columns:</strong> <code>user_id</code> · <code>program_id</code> · <code>status</code> (starts as <code>"new"</code>)<br><br>
+          <strong>Used by:</strong> Service team queue — this is the handoff point where AI ends and human service begins. A lead record means a student has self-expressed interest in a specific program.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <hr class="divider" />
+
+  <h3>What drives AI output quality</h3>
+  <div class="info">
+    The AI is only as good as the data it receives. In order of impact:<br><br>
+    <strong>1.</strong> Completeness of <code>student_profile_forms</code> — more fields filled = better Perplexity query = better program matches = better report<br>
+    <strong>2.</strong> Size of <code>university_programs</code> table — more programs curated = more verified results = more trust signals for students<br>
+    <strong>3.</strong> Whether a Profile Report has been generated — once it exists, chat quality improves significantly because GPT-4o has a full structured assessment as context
+  </div>
+
+  <footer class="footer">
+    1%abroad · Internal document · Do not distribute externally
+  </footer>
+
+</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB: STUPID SIMPLE -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="tab-simple" class="tab-panel">
+<div class="page" style="max-width:680px">
+
+  <div class="section-label">No jargon. No tech. Just the idea.</div>
+  <h2 style="font-size:28px;margin-bottom:4px">How it actually works</h2>
+  <p class="section-desc" style="font-size:15px">Think of the AI like a very smart assistant sitting between the student and a stack of information. Here's what it does.</p>
+
+  <hr class="divider" />
+
+  <!-- CHAT -->
+  <div style="margin-bottom:40px">
+    <div style="font-size:22px;font-weight:800;margin-bottom:6px">💬 The Chat</div>
+    <p style="font-size:15px;color:#444;margin-bottom:12px">Student asks a question. The AI answers.</p>
+    <div style="background:#fff;border:1px solid #e5e5e0;border-radius:12px;padding:20px 24px;margin-bottom:12px">
+      <p style="font-size:14px;color:#555;margin-bottom:10px">Before answering, the AI reads:</p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:14px"><span style="font-size:20px">📋</span> The student's profile — their grades, budget, test scores, which countries they want</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:14px"><span style="font-size:20px">📄</span> Their full profile report — if they've generated one</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:14px"><span style="font-size:20px">💬</span> The last 20 messages in the conversation — so it remembers context</div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid #e5e5e0;border-radius:12px;padding:20px 24px">
+      <p style="font-size:14px;color:#555;margin-bottom:10px">If the student asks <em>"what programs suit me in Germany?"</em> — the AI doesn't guess. It searches our own database of universities and pulls real results. Then answers using those.</p>
+      <p style="font-size:14px;color:#888;margin:0">Think of it like a counsellor who can instantly look up a list of universities mid-conversation.</p>
+    </div>
+  </div>
+
+  <!-- PROGRAM FINDER -->
+  <div style="margin-bottom:40px">
+    <div style="font-size:22px;font-weight:800;margin-bottom:6px">🔍 Program Finder</div>
+    <p style="font-size:15px;color:#444;margin-bottom:16px">Student clicks "Find Programs". Three things happen in order:</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start">
+        <div style="flex-shrink:0;width:28px;height:28px;background:#1a1a1a;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin-top:2px">1</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;margin-bottom:3px">Search the internet</div>
+          <div style="font-size:13.5px;color:#555">An AI called Perplexity goes live on the web and finds current programs — with today's deadlines, fees, and scholarship info. Not old data from training.</div>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start">
+        <div style="flex-shrink:0;width:28px;height:28px;background:#1a1a1a;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin-top:2px">2</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;margin-bottom:3px">Clean it up + score it</div>
+          <div style="font-size:13.5px;color:#555">GPT-4o reads the raw search results and turns them into a tidy list. It also scores each program 1–10 based on how well it fits that specific student's profile.</div>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start">
+        <div style="flex-shrink:0;width:28px;height:28px;background:#1a1a1a;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin-top:2px">3</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;margin-bottom:3px">Check our own database</div>
+          <div style="font-size:13.5px;color:#555">If a program found online also exists in our curated internal list, it gets a verified badge and its data is overridden with our confirmed info. These show first.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOP -->
+  <div style="margin-bottom:40px">
+    <div style="font-size:22px;font-weight:800;margin-bottom:6px">📝 SOP Analyzer</div>
+    <p style="font-size:15px;color:#444;margin-bottom:16px">Student uploads or pastes their essay. The AI reads it and gives feedback.</p>
+    <div style="background:#fff;border:1px solid #e5e5e0;border-radius:12px;padding:20px 24px">
+      <p style="font-size:14px;color:#555;margin-bottom:12px">It checks 9 things — like whether the opening is interesting, whether the student explains why <em>this specific</em> university, whether their goals make sense, whether the grammar is clean.</p>
+      <p style="font-size:14px;color:#555;margin-bottom:12px">It gives a score out of 10, lists what's good, what's weak, and what to fix.</p>
+      <p style="font-size:14px;color:#888;margin:0">Nothing gets saved. Every analysis is fresh. It's like handing your essay to a consultant and getting notes back immediately.</p>
+    </div>
+  </div>
+
+  <!-- REPORT -->
+  <div style="margin-bottom:40px">
+    <div style="font-size:22px;font-weight:800;margin-bottom:6px">📊 Profile Report</div>
+    <p style="font-size:15px;color:#444;margin-bottom:16px">The biggest output. Student clicks "Generate My Report". Two things happen:</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+      <div style="background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start">
+        <div style="flex-shrink:0;width:28px;height:28px;background:#1a1a1a;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin-top:2px">1</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;margin-bottom:3px">Research live scholarships</div>
+          <div style="font-size:13.5px;color:#555">Perplexity searches the web for current scholarships — DAAD, Erasmus+, Holland Scholarship — with real deadlines and amounts.</div>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start">
+        <div style="flex-shrink:0;width:28px;height:28px;background:#1a1a1a;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:circle;font-size:13px;font-weight:700;margin-top:2px">2</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;margin-bottom:3px">Write the full report</div>
+          <div style="font-size:13.5px;color:#555">GPT-4o writes a structured assessment: what's strong in the profile, what's weak, what to improve, which universities to target (Dream / Reach / Safe), and a step-by-step action plan.</div>
+        </div>
+      </div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px 20px;font-size:13.5px;color:#1e40af">
+      Once the report is saved, the Chat Agent reads it automatically — so every future conversation the student has is informed by their full assessment. The report makes the chat smarter.
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ONE-LINER SUMMARY -->
+  <div style="background:#1a1a1a;border-radius:12px;padding:28px 32px;color:#fff;margin-bottom:8px">
+    <div style="font-size:13px;color:#888;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">The whole thing in one sentence</div>
+    <div style="font-size:17px;line-height:1.6;color:#f0f0f0">
+      Student fills their profile → AI searches the internet for real programs and scholarships → GPT-4o reads everything and gives personalised recommendations, scores their essay, writes their full assessment, and remembers it all in chat.
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB: LIVE DEMO -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="tab-demo" class="tab-panel">
+<div class="page">
+  <div class="section-label">Real API outputs · May 2026</div>
+  <h2>Live Demo — Priya Sharma</h2>
+  <p class="section-desc">These are actual outputs from running Program Finder, SOP Analyzer, and Profile Report using a realistic fictional student profile. Every result below was generated live by the real APIs — nothing is mocked.</p>
+
+  <!-- ── DEMO PROFILE ── -->
+  <div class="demo-section">
+    <div class="demo-section-title">
+      <span>Demo Student Profile</span>
+      <span class="pill input">INPUT — sent to all 3 features</span>
+    </div>
+    <div class="profile-grid">
+      <div class="profile-field"><div class="pf-label">Name</div><div class="pf-value">Priya Sharma</div></div>
+      <div class="profile-field"><div class="pf-label">Degree</div><div class="pf-value">B.Tech Computer Science</div></div>
+      <div class="profile-field"><div class="pf-label">University</div><div class="pf-value">VIT Vellore</div></div>
+      <div class="profile-field"><div class="pf-label">CGPA</div><div class="pf-value">8.4 / 10</div></div>
+      <div class="profile-field"><div class="pf-label">GRE</div><div class="pf-value">320 (Q:165, V:155, AWA:4.0)</div></div>
+      <div class="profile-field"><div class="pf-label">IELTS</div><div class="pf-value">7.5</div></div>
+      <div class="profile-field"><div class="pf-label">Work Experience</div><div class="pf-value">1.5 yrs · SDE, Bangalore startup</div></div>
+      <div class="profile-field"><div class="pf-label">Target Degree</div><div class="pf-value">MS Computer Science (ML/AI)</div></div>
+      <div class="profile-field"><div class="pf-label">Destinations</div><div class="pf-value">Germany · Canada · Netherlands</div></div>
+      <div class="profile-field"><div class="pf-label">Intake</div><div class="pf-value">Fall 2026</div></div>
+      <div class="profile-field"><div class="pf-label">Budget</div><div class="pf-value">$15,000–$20,000/year</div></div>
+      <div class="profile-field"><div class="pf-label">Location</div><div class="pf-value">Bangalore, Karnataka</div></div>
+    </div>
+    <div class="detail-card" style="margin-bottom:0">
+      <div class="label">Career Goals</div>
+      <div class="value" style="font-weight:400;font-size:13.5px;color:#444">ML/AI research (NLP + computer vision). Built 2 production ML pipelines at startup. Wants research-oriented program with strong industry ties. Plans to build AI products for emerging markets post-graduation.</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ── PROGRAM FINDER ── -->
+  <div class="demo-section">
+    <div class="demo-section-title">
+      <span>Program Finder</span>
+      <span class="pill output">REAL OUTPUT · Perplexity + GPT-4o</span>
+    </div>
+
+    <div class="input-label"><span class="pill input">INPUT</span> Perplexity query auto-built from Priya's profile</div>
+    <div class="prompt-block" style="margin-bottom:20px">
+      <div class="prompt-body" style="font-size:12px">Top current MS programs in Computer Science (ML/AI specialization) across Germany, Canada, Netherlands for Fall 2026 cycle. For each, provide:
+- University name and program full name
+- Application deadlines (current and upcoming admissions cycles)
+- Acceptance rates · Approximate tuition fees per year
+- Available scholarships (Erasmus+, DAAD, Fulbright, Holland Scholarship, university-specific)
+- Standardized test requirements (GRE, GMAT, IELTS, TOEFL minimums)</div>
+    </div>
+
+    <div class="io-arrow">↓</div>
+    <div class="output-label"><span class="pill output">OUTPUT</span> 8 programs returned · sorted verified first then by match score</div>
+
+    <div class="program-cards">
+      <div class="program-card">
+        <div class="pc-score">8/10</div>
+        <div class="pc-uni">Technical University of Munich (TUM)</div>
+        <div class="pc-prog">MSc Data Engineering and Analytics</div>
+        <div class="pc-row">
+          <span class="pc-tag country">Germany</span>
+          <span class="pc-tag fee">€12,000/year</span>
+          <span class="pc-tag deadline">Deadline: May 31, 2026</span>
+          <span class="pc-tag">Acceptance: 10–15%</span>
+          <span class="pc-tag">IELTS 6.5+</span>
+          <span class="pc-tag">No GRE</span>
+        </div>
+        <div class="pc-why">Strong ML/big data focus + Munich Data Science Institute access aligns with Priya's research interests. GRE not required removes a barrier.</div>
+      </div>
+
+      <div class="program-card">
+        <div class="pc-score">8/10</div>
+        <div class="pc-uni">Ludwig Maximilian University (LMU)</div>
+        <div class="pc-prog">MSc Statistics and Data Science</div>
+        <div class="pc-row">
+          <span class="pc-tag country">Germany</span>
+          <span class="pc-tag fee" style="background:#d1fae5">€0 tuition + €180 fees</span>
+          <span class="pc-tag deadline">Deadline: May 15, 2026</span>
+          <span class="pc-tag">Acceptance: 20%</span>
+          <span class="pc-tag">IELTS 6.5+</span>
+        </div>
+        <div class="pc-why">Tuition-free program with strong ML theory foundation — fits Priya's $20k/yr budget constraint perfectly.</div>
+      </div>
+
+      <div class="program-card">
+        <div class="pc-score">8/10</div>
+        <div class="pc-uni">University of Amsterdam (UvA)</div>
+        <div class="pc-prog">MSc Artificial Intelligence</div>
+        <div class="pc-row">
+          <span class="pc-tag country">Netherlands</span>
+          <span class="pc-tag fee">€17,000–€22,000</span>
+          <span class="pc-tag deadline">Deadline: Apr 1, 2026</span>
+          <span class="pc-tag">Acceptance: 20–25%</span>
+          <span class="pc-tag">No GRE</span>
+          <span class="pc-tag">1-year program</span>
+        </div>
+        <div class="pc-why">Deep learning + cognitive AI focus, 1-year duration, European post-study work visa aligns with Priya's career goals.</div>
+      </div>
+
+      <div class="program-card">
+        <div class="pc-score">8/10</div>
+        <div class="pc-uni">University of Waterloo</div>
+        <div class="pc-prog">MMath Computer Science (AI/ML)</div>
+        <div class="pc-row">
+          <span class="pc-tag country">Canada</span>
+          <span class="pc-tag fee">CAD 30,000–35,000</span>
+          <span class="pc-tag deadline">Deadline: Feb 1, 2026</span>
+          <span class="pc-tag">Acceptance: 10%</span>
+          <span class="pc-tag">No GRE</span>
+        </div>
+        <div class="pc-why">Reinforcement learning + NLP focus with strong co-op ties matches Priya's industry-oriented research goals.</div>
+      </div>
+
+      <div class="program-card">
+        <div class="pc-score">8/10</div>
+        <div class="pc-uni">University of British Columbia</div>
+        <div class="pc-prog">MSc Computer Science (AI/ML)</div>
+        <div class="pc-row">
+          <span class="pc-tag country">Canada</span>
+          <span class="pc-tag fee">CAD 28,000–32,000</span>
+          <span class="pc-tag deadline">Deadline: Jan 15, 2026</span>
+          <span class="pc-tag">Acceptance: 15%</span>
+          <span class="pc-tag">No GRE</span>
+        </div>
+        <div class="pc-why">Strong machine intelligence research and global CS ranking make it ideal for Priya's research-oriented goals.</div>
+      </div>
+
+      <div class="program-card">
+        <div class="pc-score">8/10</div>
+        <div class="pc-uni">Delft University of Technology</div>
+        <div class="pc-prog">MSc Computer Science (AI Track)</div>
+        <div class="pc-row">
+          <span class="pc-tag country">Netherlands</span>
+          <span class="pc-tag fee">€21,515</span>
+          <span class="pc-tag deadline">Deadline: Apr 1, 2026</span>
+          <span class="pc-tag">Acceptance: 15–20%</span>
+          <span class="pc-tag">GRE optional</span>
+        </div>
+        <div class="pc-why">Engineering focus + strong industry partnerships suit Priya's interest in data-driven AI and applied ML systems.</div>
+      </div>
+    </div>
+
+    <div class="note">
+      <strong>Scholarships flagged:</strong> DAAD (€934/month + travel, deadline Oct 2025), Erasmus+ (€1,000/month, deadline Feb 2026), Holland Scholarship (€5,000 one-time, deadline Feb–May 2026), Orange Tulip Scholarship for Indians (€5,000–100% tuition, deadline Mar 2026), TUM University Scholarships (€5,000–€10,000/year).
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ── SOP ANALYZER ── -->
+  <div class="demo-section">
+    <div class="demo-section-title">
+      <span>SOP Analyzer</span>
+      <span class="pill output">REAL OUTPUT · GPT-4o</span>
+    </div>
+
+    <div class="input-label"><span class="pill input">INPUT</span> Demo SOP — Priya Sharma applying to TU Munich MS CS</div>
+    <div class="sop-excerpt">
+      "The first time I truly understood the power of machine learning was not in a classroom, but at 2 AM in a dim office in Bangalore, watching a model I had trained over three weeks correctly predict customer churn with 91% accuracy. That moment—equal parts exhaustion and exhilaration—crystallised why I want to pursue an MS in Computer Science with a specialisation in Machine Learning at TU Munich..."<br><br>
+      "...I designed and deployed two production pipelines: one for demand forecasting using LSTM networks and one for product recommendation using collaborative filtering. The demand forecasting model reduced overstock costs for our largest client by 18% in the first quarter. These are not academic exercises—they are systems processing real transactions for real businesses..."<br><br>
+      <span style="font-size:12px;color:#888;font-style:normal">[ 750 words total · 7 paragraphs · covers hook, narrative arc, specificity, fit, goals ]</span>
+    </div>
+
+    <div class="io-arrow">↓</div>
+    <div class="output-label"><span class="pill output">OUTPUT</span> GPT-4o analysis across 9 dimensions</div>
+
+    <div class="sop-score-row">
+      <div class="score-big">
+        <div class="sb-num">8.2<span>/10</span></div>
+        <div class="sb-label">Overall Score</div>
+        <div class="sb-sub">Ready to refine</div>
+      </div>
+      <div class="score-big">
+        <div class="sb-num" style="font-size:20px">750</div>
+        <div class="sb-label">Word Count</div>
+        <div class="sb-sub">Optimal range</div>
+      </div>
+      <div class="score-big">
+        <div class="sb-num" style="font-size:16px;padding-top:4px">Grade 12</div>
+        <div class="sb-label">Readability</div>
+        <div class="sb-sub">Clear</div>
+      </div>
+      <div class="score-big">
+        <div class="sb-num" style="font-size:16px;padding-top:4px">Professional</div>
+        <div class="sb-label">Tone</div>
+        <div class="sb-sub">No clichés detected</div>
+      </div>
+    </div>
+
+    <div class="sop-lists">
+      <div class="sop-list-card">
+        <div class="slc-title green">Strengths</div>
+        <ul>
+          <li>Opens with a compelling personal anecdote that effectively hooks the reader.</li>
+          <li>Clear narrative arc connecting past experience to current skills to future goals.</li>
+          <li>Demonstrates domain depth with specific projects and technologies (BERT, LSTM, collaborative filtering).</li>
+        </ul>
+      </div>
+      <div class="sop-list-card">
+        <div class="slc-title red">Weaknesses</div>
+        <ul>
+          <li>Specific references to faculty only for TU Munich — Canada and Netherlands programs not addressed.</li>
+          <li>Long-term goals (founding a company) could be articulated with more precision to enhance credibility.</li>
+        </ul>
+      </div>
+      <div class="sop-list-card">
+        <div class="slc-title blue">Suggestions</div>
+        <ul>
+          <li>Add references to specific faculty or labs at UvA/Waterloo to strengthen fit for each target school.</li>
+          <li>Clarify how the MS specifically enables the company founding plan — bridge the gap more explicitly.</li>
+          <li>Add quantifiable outcomes from the undergraduate NLP project (the sentiment pipeline) for stronger specificity.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ── PROFILE REPORT ── -->
+  <div class="demo-section">
+    <div class="demo-section-title">
+      <span>Profile Development Report</span>
+      <span class="pill output">REAL OUTPUT · Perplexity + GPT-4o · Markdown rendered</span>
+    </div>
+    <div class="input-label" style="margin-bottom:8px"><span class="pill input">INPUT</span> Priya's full profile + Perplexity live scholarship research</div>
+    <div class="info" style="margin-bottom:20px">Perplexity researched current deadlines and scholarships (DAAD, Erasmus+, Holland Scholarship, Orange Tulip, TU/e Scholarship) before GPT-4o wrote this report. The scholarship section uses live data, not training knowledge.</div>
+    <div class="io-arrow">↓</div>
+    <div class="output-label"><span class="pill output">OUTPUT</span> Full report · 8 sections · generated by GPT-4o using Rhodes + Beaton methodology</div>
+    <div class="report-render" id="report-content"></div>
+  </div>
+
+  <footer class="footer">
+    1%abroad · Internal document · All outputs generated live via OpenAI GPT-4o + Perplexity sonar-pro · May 2026
+  </footer>
+</div>
+</div>
+
+<script>
+  function switchTab(id) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    event.currentTarget.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Render real report markdown
+  const reportMarkdown = `## Overview
+Dear Priya Sharma,
+
+Embarking on your journey toward an MS in Computer Science with a focus on Machine Learning and AI is an exciting step. Your strong academic background, work experience, and clear career goals position you well for success in this field. Let us explore how you can enhance your profile further to secure admission to top programs in Germany, Canada, and the Netherlands, and take advantage of scholarship opportunities.
+
+## Strengths
+- Academic Qualification: Graduated with a B.Tech in Computer Science from VIT Vellore with a CGPA of 8.4/10.
+- Work Experience: 1.5 years as a Software Development Engineer at an early-stage startup, owning two production ML pipelines (LSTM demand forecasting — reduced client overstock costs by 18% — and collaborative filtering recommendation engine).
+- Hard Skills: Proficient in ML frameworks, NLP tooling (spaCy, BERT fine-tuning), and production deployment.
+- Soft Skills: Strong problem-solving and analytical skills demonstrated by moving from backend SDE to full ML infrastructure ownership within 6 months.
+- Research / Projects: Final-year NLP sentiment analysis pipeline won department best thesis award; 2 production ML systems at startup level.
+- Test Scores: GRE 320 (Q:165) is competitive for Germany and Canada programs; IELTS 7.5 meets all target country thresholds.
+
+## Weaknesses
+- Missing qualifications: No published research papers or peer-reviewed academic work in ML/AI.
+- Limited exposure: No international work or research experience — all experience confined to one startup.
+- Research gap: Strong in applied/production ML but lacks formal research methodology training.
+
+## Areas of Improvement
+- Subject-specific research experience: Engage in open-source ML contributions or collaborate with faculty on research.
+- International exposure: Attend international ML conferences (NeurIPS, ICML, EMNLP) — even as an attendee adds credibility.
+- Technical depth: Strengthen theoretical foundations in attention mechanisms, graph neural networks, and transformer architectures before the program begins.
+- Language: Conversational German is a strong asset — push to B1 level before arriving in Germany.
+
+## Recommendations for Enhancement
+- Work / Internship / Research Experience: Apply for research assistant roles at IITs or IISc to get a publication or co-authored preprint on arXiv before applications close.
+- Certifications / Online Courses: Complete Stanford CS224N (NLP with Deep Learning) and CS231N (Computer Vision) — both directly relevant and signal serious commitment.
+- Training / Workshop: Apply to the Eastern European Machine Learning Summer School (EEML) or the Lisbon ML Summer School — competitive but prestigious.
+- Short-Term Programs: Apply for DAAD WISE scholarship for a summer research stint in Germany — strengthens both the scholarship story and the program fit narrative.
+- Language: Register for Goethe Institut A2/B1 German — complete before departure.
+- Standardised Tests: GRE scores are strong. No further action needed on tests.
+
+## Scholarships & Program Opportunities
+- DAAD EPOS Scholarship: Full tuition + €934/month stipend + travel allowance; for students from developing countries including India; deadline October 2025 for Fall 2026 — apply immediately.
+- Erasmus+ (Erasmus Mundus Joint Masters): Up to €25,000/year; covers tuition and living; apply January–March 2026 depending on consortium.
+- Orange Tulip Scholarship (Netherlands): €5,000 to 100% tuition for Indian students at participating Dutch universities including TU Delft and TU/e; deadline March 2026 via Neso India.
+- Holland Scholarship: €5,000 one-time grant for non-EU students; apply post-admission February–May 2026 depending on university.
+- TUM University Scholarship: €5,000–€10,000/year merit-based; applied automatically at time of program application.
+- UvA Talent Grant: Up to €25,000/year; competitive; apply with admission.
+
+## Country & University Fit
+Germany is the strongest fit given Priya's budget, German language study, and research orientation.
+
+Dream:
+- Technical University of Munich — MSc Data Engineering and Analytics (ML/big data focus, Munich Data Science Institute, €12,000/year, deadline May 31 2026)
+- University of Toronto — MSc Applied Computing AI Concentration (Vector Institute ties, top North American program — note: CAD 40,000–45,000/year exceeds budget without scholarship)
+
+Reach:
+- University of Waterloo — MMath CS AI/ML (NLP + RL focus, co-op, deadline Feb 1 2026)
+- Delft University of Technology — MSc CS AI Track (engineering + industry ties, €21,515, deadline Apr 1 2026)
+
+Safe:
+- Ludwig Maximilian University Munich — MSc Statistics and Data Science (tuition-free, strong ML theory, deadline May 15 2026)
+- University of Amsterdam — MSc Artificial Intelligence (1-year, deep learning focus, €17,000–22,000, deadline Apr 1 2026)
+- Eindhoven University of Technology — MSc Data Science and AI (ML engineering, €18,000–20,000, deadline May 1 2026)
+
+## Final Roadmap
+1. Immediately: Apply for DAAD EPOS — deadline October 2025. This is the highest-value scholarship available and requires the earliest action.
+2. October 2025: Submit research assistant applications to IIT Bangalore or IISc — even a 3-month engagement strengthens the research narrative significantly.
+3. November 2025: Complete CS224N and CS231N. Add to profile and mention in SOP.
+4. December 2025 – January 2026: Finalise SOP tailored for each university (add faculty-specific references for each). Request recommendation letters — give referees 8 weeks minimum.
+5. January 2026: Submit UBC and UofT applications (earliest deadlines). Apply for Orange Tulip Scholarship via Neso India.
+6. February 2026: Apply for Holland Scholarship at TU Delft and TU/e. Submit Waterloo application.
+7. March–May 2026: Submit TUM, LMU, UvA, TU/e applications (later deadlines give more preparation time).
+8. Register for Goethe Institut B1 German course — complete by June 2026.
+
+Your production ML experience is genuinely rare among MS applicants from India — most have only academic projects. Lead with that in every application. The gap to close is research credibility, and the DAAD WISE summer program or an IIT research stint can close it before applications are due. You have the technical foundation. Now build the story around it.`;
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const el = document.getElementById('report-content');
+    if (el && typeof marked !== 'undefined') {
+      el.innerHTML = marked.parse(reportMarkdown);
+    }
+  });
+  // Also try immediately in case DOM is ready
+  const el = document.getElementById('report-content');
+  if (el && typeof marked !== 'undefined') {
+    el.innerHTML = marked.parse(reportMarkdown);
+  }
+</script>
+</body>
+</html>

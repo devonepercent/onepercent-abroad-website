@@ -16,6 +16,7 @@ export function ProjectView() {
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="board">Board</TabsTrigger>
+          <TabsTrigger value="agent">Agent</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -24,6 +25,16 @@ export function ProjectView() {
 
         <TabsContent value="board">
           <TrackerBoard />
+        </TabsContent>
+
+        <TabsContent value="agent">
+          <div className="rounded-lg border bg-background overflow-hidden">
+            <iframe
+              src="/ai-architecture.html"
+              title="AI Architecture"
+              className="w-full h-[calc(100vh-220px)] min-h-[600px] border-0"
+            />
+          </div>
         </TabsContent>
       </Tabs>
     </div>
