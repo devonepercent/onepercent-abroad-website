@@ -5,6 +5,7 @@ import type {
   TrackerComment,
   TrackerActivity,
   TrackerProject,
+  TrackerNote,
   AdminUser,
 } from "@/lib/tracker";
 
@@ -13,6 +14,7 @@ const ADMINS_KEY = ["tracker", "admins"];
 const COMMENTS_KEY = (taskId: string) => ["tracker", "comments", taskId];
 const ACTIVITY_KEY = (taskId: string) => ["tracker", "activity", taskId];
 const PROJECT_KEY = (name: string) => ["tracker", "project", name];
+const NOTES_KEY = ["tracker", "notes"];
 
 // ─── projects ─────────────────────────────────────────────────────────────
 export function useProject(name: string) {
@@ -219,5 +221,75 @@ export function useActivity(taskId: string | null) {
       return (data ?? []) as unknown as TrackerActivity[];
     },
     enabled: !!taskId,
+  });
+}
+
+// ─── notes ────────────────────────────────────────────────────────────────
+export function useNotes() {
+  return useQuery({
+    queryKey: NOTES_KEY,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("tracker_notes" as any)
+        .select("*")
+        .order("pinned", { ascending: false })
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as unknown as TrackerNote[];
+    },
+  });
+}
+
+export function useCreateNote() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { title: string; body: string }) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+      const { data, error } = await supabase
+        .from("tracker_notes" as any)
+        .insert({
+          title: input.title,
+          body: input.body,
+          created_by: user.id,
+        })
+        .select("*")
+        .single();
+      if (error) throw error;
+      return data as unknown as TrackerNote;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: NOTES_KEY }),
+  });
+}
+
+export function useUpdateNote() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      id: string;
+      patch: Partial<Pick<TrackerNote, "title" | "body" | "pinned">>;
+    }) => {
+      const { data, error } = await supabase
+        .from("tracker_notes" as any)
+        .update(input.patch)
+        .eq("id", input.id)
+        .select("*")
+        .single();
+      if (error) throw error;
+      return data as unknown as TrackerNote;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: NOTES_KEY }),
+  });
+}
+
+export function useDeleteNote() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("tracker_notes" as any).delete().eq("id", id);
+      if (error) throw error;
+      return id;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: NOTES_KEY }),
   });
 }

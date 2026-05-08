@@ -1,12 +1,13 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrackerBoard } from "./TrackerBoard";
 import { ProjectOverview } from "./ProjectOverview";
+import { NotesTab } from "./NotesTab";
 
 const PROJECT_NAME = "1%agent";
 
 export function ProjectView() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
       <div className="flex items-center gap-2">
         <h2 className="text-base font-semibold">{PROJECT_NAME}</h2>
         <span className="text-xs text-muted-foreground">· Project workspace</span>
@@ -28,13 +29,26 @@ export function ProjectView() {
         </TabsContent>
 
         <TabsContent value="agent">
-          <div className="rounded-lg border bg-background overflow-hidden">
-            <iframe
-              src="/ai-architecture.html"
-              title="AI Architecture"
-              className="w-full h-[calc(100vh-220px)] min-h-[600px] border-0"
-            />
-          </div>
+          <Tabs defaultValue="architecture" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="architecture">Architecture</TabsTrigger>
+              <TabsTrigger value="notes">Notes</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="architecture">
+              <div className="rounded-lg border bg-background overflow-hidden">
+                <iframe
+                  src="/ai-architecture.html"
+                  title="AI Architecture"
+                  className="w-full h-[calc(100vh-260px)] min-h-[600px] border-0"
+                />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="notes">
+              <NotesTab />
+            </TabsContent>
+          </Tabs>
         </TabsContent>
       </Tabs>
     </div>

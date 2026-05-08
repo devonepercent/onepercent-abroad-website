@@ -71,6 +71,16 @@ export interface TrackerActivity {
   created_at: string;
 }
 
+export interface TrackerNote {
+  id: string;
+  title: string;
+  body: string;
+  pinned: boolean;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface TrackerProject {
   id: string;
   name: string;
