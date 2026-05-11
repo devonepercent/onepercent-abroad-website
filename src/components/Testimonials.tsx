@@ -80,7 +80,7 @@ const Testimonials = () => {
   };
 
   return (
-    <section id="testimonials" style={{ background:"#000000",padding:isMobile?"72px 20px 60px":"120px 60px 100px",borderTop:"1px solid rgba(97,162,254,0.06)",fontFamily:"'DM Sans',sans-serif",color:"#fff" }}>
+    <section id="testimonials" style={{ background:"#050505",padding:isMobile?"72px 20px 60px":"120px 60px 100px",borderTop:"1px solid rgba(97,162,254,0.06)",fontFamily:"'DM Sans',sans-serif",color:"#fff" }}>
       <div style={{ maxWidth:1160,margin:"0 auto" }}>
         {/* Heading */}
         <div style={{ textAlign:"center",marginBottom:isMobile?40:72 }}>

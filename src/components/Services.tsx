@@ -64,7 +64,7 @@ const Services = () => {
   }, []);
 
   return (
-    <section id="services" style={{ background:"#010F70",padding:"100px 60px",borderTop:"1px solid rgba(97,162,254,0.06)",fontFamily:"'DM Sans',sans-serif",color:"#fff" }}>
+    <section id="services" style={{ background:"#040B2B",padding:"100px 60px",borderTop:"1px solid rgba(97,162,254,0.06)",fontFamily:"'DM Sans',sans-serif",color:"#fff" }}>
       <div style={{ maxWidth:1000,margin:"0 auto" }}>
         <div style={{ textAlign:"center",marginBottom:64 }}>
 <h2 style={{ fontFamily:"'Playfair Display',serif",fontSize:"clamp(28px,4vw,46px)",fontWeight:600,marginBottom:14 }}>

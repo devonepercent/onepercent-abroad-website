@@ -43,7 +43,7 @@ const NewsletterPopup = () => {
       }}
     >
       <div style={{
-        background: "#000000",
+        background: "#050505",
         border: "1px solid rgba(97,162,254,0.15)",
         borderRadius: 20,
         padding: "48px 40px 40px",
@@ -78,7 +78,7 @@ const NewsletterPopup = () => {
         </button>
 
         {/* Accent line */}
-        <div style={{ width: 48, height: 2, background: "linear-gradient(90deg,#3b82f6,#61A2FE)", borderRadius: 1, margin: "0 auto 24px" }} />
+        <div style={{ width: 48, height: 2, background: "linear-gradient(90deg,#065DC7,#61A2FE)", borderRadius: 1, margin: "0 auto 24px" }} />
 
         <p style={{
           fontSize: 11,

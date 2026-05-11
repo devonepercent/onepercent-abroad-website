@@ -96,7 +96,7 @@ const NewsletterForm = ({ source, onSuccess, compact = false }: Props) => {
             borderRadius: 50,
             border: "none",
             background: status === "loading" ? "rgba(97,162,254,0.5)" : "#61A2FE",
-            color: "#050e1a",
+            color: "#050505",
             fontWeight: 700,
             fontSize: compact ? 13 : 15,
             cursor: status === "loading" ? "not-allowed" : "pointer",

@@ -206,6 +206,20 @@ const LeadForm = () => {
         throw dbError;
       }
 
+      try {
+        const channel = supabase.channel("lead-alerts");
+        await new Promise<void>((resolve) => {
+          channel.subscribe((status) => {
+            if (status === "SUBSCRIBED") resolve();
+          });
+          setTimeout(resolve, 1500);
+        });
+        await channel.send({ type: "broadcast", event: "new-lead", payload: {} });
+        await supabase.removeChannel(channel);
+      } catch (e) {
+        console.error("Lead alert broadcast failed (non-blocking):", e);
+      }
+
       // Fire both integrations in parallel; neither failure blocks the redirect
       await Promise.allSettled([
         supabase.functions.invoke("leadsquared-create-lead", {

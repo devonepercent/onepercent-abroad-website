@@ -2,7 +2,7 @@ import NewsletterForm from "./NewsletterForm";
 
 const NewsletterSection = () => (
   <section style={{
-    background: "#000000",
+    background: "#050505",
     borderTop: "1px solid rgba(97,162,254,0.07)",
     padding: "80px 32px",
     fontFamily: "'DM Sans', sans-serif",

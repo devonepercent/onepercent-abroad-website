@@ -14,7 +14,7 @@ const FAQ = () => {
   const isMobile = useIsMobile();
 
   return (
-    <section id="faq" style={{ background:"#010F70",padding:isMobile?"56px 20px":"100px 60px",borderTop:"1px solid rgba(97,162,254,0.06)",fontFamily:"'DM Sans',sans-serif",color:"#fff" }}>
+    <section id="faq" style={{ background:"#040B2B",padding:isMobile?"56px 20px":"100px 60px",borderTop:"1px solid rgba(97,162,254,0.06)",fontFamily:"'DM Sans',sans-serif",color:"#fff" }}>
       <div style={{ maxWidth:800,margin:"0 auto" }}>
         <h2 style={{ fontFamily:"'Playfair Display',serif",fontSize:"clamp(24px,4vw,46px)",fontWeight:600,textAlign:"center",marginBottom:isMobile?28:56 }}>
           Frequently Asked <em style={{ fontStyle:"italic",color:"#61A2FE" }}>Questions</em>

@@ -8,6 +8,7 @@ import FAQ from "@/components/FAQ";
 import Footer from "@/components/Footer";
 import NewsletterSection from "@/components/NewsletterSection";
 import NewsletterPopup from "@/components/NewsletterPopup";
+import AmbientPlayer from "@/components/AmbientPlayer";
 
 const milestones = [
   { step: "Step 01", title: "Onboarding",          desc: "We understand your dreams, strengths, and aspirations. A deep-dive session maps your academic profile and sets the trajectory.",                side: 2.8},
@@ -349,7 +350,7 @@ const Index = () => {
   };
 
   return (
-    <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", background: "#010F70", fontFamily: "'Outfit', sans-serif", color: "#fff", overflow: "hidden" }}>
+    <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", background: "#040B2B", fontFamily: "'Outfit', sans-serif", color: "#fff", overflow: "hidden" }}>
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes bob  { 0%,100%{transform:translate(-50%,-50%) translateY(0)} 50%{transform:translate(-50%,-50%) translateY(-14px)} }
         @keyframes ms   { 0%{opacity:1;transform:translateX(-50%) translateY(0)} 100%{opacity:0;transform:translateX(-50%) translateY(10px)} }
@@ -374,7 +375,7 @@ const Index = () => {
 
 
       {/* ── Navbar ── */}
-      <nav style={{ position:"fixed",top:0,left:0,width:"100%",zIndex:100,padding:"24px 48px",display:"flex",justifyContent:"space-between",alignItems:"center",background:"rgba(1,15,112,0.82)",backdropFilter:"blur(16px)",WebkitBackdropFilter:"blur(16px)",borderBottom:"1px solid rgba(97,162,254,0.08)" }}>
+      <nav style={{ position:"fixed",top:0,left:0,width:"100%",zIndex:100,padding:"24px 48px",display:"flex",justifyContent:"space-between",alignItems:"center",background:"rgba(4,11,43,0.82)",backdropFilter:"blur(16px)",WebkitBackdropFilter:"blur(16px)",borderBottom:"1px solid rgba(97,162,254,0.08)" }}>
         <Link to="/" style={{ display:"flex",alignItems:"center" }}>
           <img src={logoWhite} alt="OnePercent Abroad" style={{ height:36,width:"auto" }} />
         </Link>
@@ -402,7 +403,7 @@ const Index = () => {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div style={{ position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(1,15,112,0.97)",zIndex:99,display:"flex",flexDirection:"column",padding:"100px 32px 32px",gap:28 }}>
+        <div style={{ position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(4,11,43,0.97)",zIndex:99,display:"flex",flexDirection:"column",padding:"100px 32px 32px",gap:28 }}>
           {[
             { label:"Services",     action: () => scrollToSection("services") },
             { label:"How it Works", action: () => { scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }); setMobileOpen(false); } },
@@ -492,6 +493,7 @@ const Index = () => {
       </div>
       <NewsletterPopup />
       <WhatsAppButton />
+      <AmbientPlayer />
     </div>
   );
 };
@@ -506,7 +508,7 @@ const WhatsAppButton = () => {
 
   return (
     <a
-      href="https://wa.me/919567200157"
+      href="https://wa.me/916282001157"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"

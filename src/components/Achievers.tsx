@@ -38,7 +38,7 @@ const Achievers = () => {
   }, []);
   const duration = (CARD_W + CARD_GAP) * achievers.length / 280 * (isMobile ? 2 : 2);
   return (
-  <section id="achievers" style={{ background:"#010F70",padding:"100px 0",fontFamily:"'DM Sans',sans-serif",color:"#fff",overflow:"hidden" }}>
+  <section id="achievers" style={{ background:"#040B2B",padding:"100px 0",fontFamily:"'DM Sans',sans-serif",color:"#fff",overflow:"hidden" }}>
     <div style={{ maxWidth:1160,margin:"0 auto",paddingBottom:56,paddingLeft:60,paddingRight:60 }}>
       <h2 style={{ fontFamily:"'Playfair Display',serif",fontSize:"clamp(28px,4vw,46px)",fontWeight:600,textAlign:"center",margin:0 }}>
         Our <em style={{ fontStyle:"italic",color:"#61A2FE" }}>Achievers</em>

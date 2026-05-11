@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 const Newsletter = () => (
   <div style={{
     minHeight: "100vh",
-    background: "#050e1a",
+    background: "#050505",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -28,7 +28,7 @@ const Newsletter = () => (
       textAlign: "center",
       boxShadow: "0 24px 80px rgba(0,0,0,0.4)",
     }}>
-      <div style={{ width: 48, height: 2, background: "linear-gradient(90deg,#3b82f6,#61A2FE)", borderRadius: 1, margin: "0 auto 28px" }} />
+      <div style={{ width: 48, height: 2, background: "linear-gradient(90deg,#065DC7,#61A2FE)", borderRadius: 1, margin: "0 auto 28px" }} />
 
       <p style={{
         fontSize: 11,
