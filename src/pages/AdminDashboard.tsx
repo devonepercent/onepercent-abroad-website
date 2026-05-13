@@ -31,6 +31,7 @@ interface Registration {
   email: string;
   country_code: string;
   phone_number: string;
+  webinar_name: string | null;
   created_at: string;
 }
 
@@ -127,6 +128,7 @@ const AdminDashboard = () => {
   const [expenseEmailMap, setExpenseEmailMap] = useState<UserEmailMap>({});
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [webinarFilter, setWebinarFilter] = useState<string>("all");
   const [webinarPage, setWebinarPage] = useState(1);
   const [leadsFrom, setLeadsFrom] = useState("");
   const [leadsTo, setLeadsTo] = useState("");
@@ -151,7 +153,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => { checkAuthAndFetchData(); }, []);
-  useEffect(() => { setWebinarPage(1); }, [fromDate, toDate, webinarSearch]);
+  useEffect(() => { setWebinarPage(1); }, [fromDate, toDate, webinarSearch, webinarFilter]);
   useEffect(() => { setLeadsPage(1); }, [leadsFrom, leadsTo, leadsSearch]);
   useEffect(() => { setHiringPage(1); }, [hiringFrom, hiringTo, hiringSearch]);
   useEffect(() => { setSubsPage(1); }, [subsFrom, subsTo, subsSearch]);
@@ -319,6 +321,12 @@ const AdminDashboard = () => {
     setIsDeleting(false);
   };
 
+  const webinarNames = useMemo(() => {
+    const set = new Set<string>();
+    registrations.forEach(r => { if (r.webinar_name) set.add(r.webinar_name); });
+    return Array.from(set).sort();
+  }, [registrations]);
+
   const filteredRegistrations = useMemo(() => {
     const from = fromDate ? new Date(fromDate) : null;
     const to = toDate ? new Date(toDate) : null;
@@ -328,10 +336,15 @@ const AdminDashboard = () => {
       const ts = new Date(reg.created_at);
       if (from && ts < from) return false;
       if (to && ts > to) return false;
-      if (q && !reg.name.toLowerCase().includes(q) && !reg.email.toLowerCase().includes(q) && !reg.phone_number.includes(q)) return false;
+      if (webinarFilter !== "all") {
+        if (webinarFilter === "__none__") {
+          if (reg.webinar_name) return false;
+        } else if (reg.webinar_name !== webinarFilter) return false;
+      }
+      if (q && !reg.name.toLowerCase().includes(q) && !reg.email.toLowerCase().includes(q) && !reg.phone_number.includes(q) && !(reg.webinar_name || "").toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [registrations, fromDate, toDate, webinarSearch]);
+  }, [registrations, fromDate, toDate, webinarSearch, webinarFilter]);
 
   const pagedWebinar = filteredRegistrations.slice((webinarPage - 1) * PAGE_SIZE, webinarPage * PAGE_SIZE);
   const webinarPageCount = Math.max(1, Math.ceil(filteredRegistrations.length / PAGE_SIZE));
@@ -394,12 +407,13 @@ const AdminDashboard = () => {
       return;
     }
 
-    const headers = ["Timestamp", "Name", "Phone Number", "Email"];
+    const headers = ["Timestamp", "Webinar", "Name", "Phone Number", "Email"];
     const csvContent = [
       headers.join(","),
       ...filteredRegistrations.map((reg) =>
         [
           new Date(reg.created_at).toLocaleString(),
+          `"${reg.webinar_name || ""}"`,
           `"${reg.name}"`,
           `"${reg.country_code} ${reg.phone_number}"`,
           reg.email,
@@ -570,7 +584,22 @@ const AdminDashboard = () => {
               <div className="flex flex-wrap items-end gap-3">
                 <div className="relative">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                  <Input placeholder="Search name, email, phone…" value={webinarSearch} onChange={e => setWebinarSearch(e.target.value)} className="h-9 pl-8 w-56" />
+                  <Input placeholder="Search name, email, phone, webinar…" value={webinarSearch} onChange={e => setWebinarSearch(e.target.value)} className="h-9 pl-8 w-56" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Webinar</Label>
+                  <Select value={webinarFilter} onValueChange={setWebinarFilter}>
+                    <SelectTrigger className="h-9 w-56">
+                      <SelectValue placeholder="All webinars" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All webinars</SelectItem>
+                      {webinarNames.map(name => (
+                        <SelectItem key={name} value={name}>{name}</SelectItem>
+                      ))}
+                      <SelectItem value="__none__">(no webinar set)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">From</Label>
@@ -590,7 +619,7 @@ const AdminDashboard = () => {
                     className="h-9 w-40"
                   />
                 </div>
-                <Button variant="outline" size="sm" onClick={() => { setFromDate(""); setToDate(""); setWebinarSearch(""); }}>
+                <Button variant="outline" size="sm" onClick={() => { setFromDate(""); setToDate(""); setWebinarSearch(""); setWebinarFilter("all"); }}>
                   Clear
                 </Button>
                 <Button onClick={exportToCSV} size="sm" variant="outline">
@@ -605,6 +634,7 @@ const AdminDashboard = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Timestamp</TableHead>
+                    <TableHead>Webinar</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Phone Number</TableHead>
                     <TableHead>Email</TableHead>
@@ -614,7 +644,7 @@ const AdminDashboard = () => {
                 <TableBody>
                   {pagedWebinar.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                         No registrations for the selected period
                       </TableCell>
                     </TableRow>
@@ -622,6 +652,7 @@ const AdminDashboard = () => {
                     pagedWebinar.map((reg) => (
                       <TableRow key={reg.id}>
                         <TableCell>{new Date(reg.created_at).toLocaleString()}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{reg.webinar_name || "—"}</TableCell>
                         <TableCell>{reg.name}</TableCell>
                         <TableCell>
                           {reg.country_code} {reg.phone_number}

@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+const WEBINAR_NAME = "Free Education in Europe - 13 May 2026, 8 PM";
 const countryCodes = [{
   code: "+91",
   country: "India"
@@ -159,7 +160,8 @@ const Webinar = () => {
         name,
         email,
         country_code: countryCode,
-        phone_number: phoneNumber
+        phone_number: phoneNumber,
+        webinar_name: WEBINAR_NAME
       });
       if (error) throw error;
 
@@ -198,8 +200,8 @@ const Webinar = () => {
       <main className="flex-1 container mx-auto px-4 py-12">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-4">Erasmus Mundus Webinar</h1>
-            <p className="text-xl text-muted-foreground">At 7:30 PM</p>
+            <h1 className="text-4xl font-bold mb-4">Free Education in Europe</h1>
+            <p className="text-xl text-muted-foreground">At 8 PM</p>
           </div>
 
           <div className="bg-card p-8 rounded-lg shadow-lg border">

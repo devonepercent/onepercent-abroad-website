@@ -277,6 +277,7 @@ export type Database = {
           id: string
           name: string
           phone_number: string
+          webinar_name: string | null
         }
         Insert: {
           country_code: string
@@ -285,6 +286,7 @@ export type Database = {
           id?: string
           name: string
           phone_number: string
+          webinar_name?: string | null
         }
         Update: {
           country_code?: string
@@ -293,6 +295,7 @@ export type Database = {
           id?: string
           name?: string
           phone_number?: string
+          webinar_name?: string | null
         }
         Relationships: []
       }
