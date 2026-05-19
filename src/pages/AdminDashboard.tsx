@@ -74,25 +74,6 @@ interface NewsletterSubscriber {
   created_at: string;
 }
 
-interface ApplicationHelpSubmission {
-  id: string;
-  full_name: string;
-  stage: string;
-  university: string;
-  program: string;
-  country: string;
-  intake: string;
-  fees: string;
-  needs_financing: boolean;
-  phone: string;
-  country_code: string;
-  email: string;
-  utm_source: string | null;
-  utm_campaign: string | null;
-  utm_medium: string | null;
-  created_at: string;
-}
-
 interface SalesEvaluationAdmin {
   id: string;
   candidate_name: string | null;
@@ -143,7 +124,6 @@ const AdminDashboard = () => {
   const [salesEvaluations, setSalesEvaluations] = useState<SalesEvaluationAdmin[]>([]);
   const [billingCycles, setBillingCycles] = useState<BillingCycle[]>([]);
   const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
-  const [appHelp, setAppHelp] = useState<ApplicationHelpSubmission[]>([]);
   const [recentExpenses, setRecentExpenses] = useState<Expense[]>([]);
   const [expenseEmailMap, setExpenseEmailMap] = useState<UserEmailMap>({});
   const [fromDate, setFromDate] = useState("");
@@ -163,11 +143,7 @@ const AdminDashboard = () => {
   const [webinarSearch, setWebinarSearch] = useState("");
   const [hiringSearch, setHiringSearch] = useState("");
   const [subsSearch, setSubsSearch] = useState("");
-  const [appHelpFrom, setAppHelpFrom] = useState("");
-  const [appHelpTo, setAppHelpTo] = useState("");
-  const [appHelpPage, setAppHelpPage] = useState(1);
-  const [appHelpSearch, setAppHelpSearch] = useState("");
-  const [pendingDelete, setPendingDelete] = useState<{ id: string; table: "leads" | "webinar_registrations" | "hiring_applications" | "newsletter_subscribers" | "application_help_submissions"; name: string } | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; table: "leads" | "webinar_registrations" | "hiring_applications" | "newsletter_subscribers"; name: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [adminEmail, setAdminEmail] = useState<string | null>(null);
@@ -181,7 +157,6 @@ const AdminDashboard = () => {
   useEffect(() => { setLeadsPage(1); }, [leadsFrom, leadsTo, leadsSearch]);
   useEffect(() => { setHiringPage(1); }, [hiringFrom, hiringTo, hiringSearch]);
   useEffect(() => { setSubsPage(1); }, [subsFrom, subsTo, subsSearch]);
-  useEffect(() => { setAppHelpPage(1); }, [appHelpFrom, appHelpTo, appHelpSearch]);
 
   const checkAuthAndFetchData = async () => {
     try {
@@ -224,7 +199,6 @@ const AdminDashboard = () => {
         { data: billingData, error: billingError },
         { data: expenseData, error: expenseError },
         { data: subscriberData, error: subscriberError },
-        { data: appHelpData, error: appHelpError },
       ] = await Promise.all([
         supabase
           .from("webinar_registrations" as any)
@@ -253,10 +227,6 @@ const AdminDashboard = () => {
           .limit(10),
         supabase
           .from("newsletter_subscribers" as any)
-          .select("*")
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("application_help_submissions" as any)
           .select("*")
           .order("created_at", { ascending: false }),
       ]);
@@ -295,12 +265,6 @@ const AdminDashboard = () => {
         console.error("Error loading newsletter subscribers:", subscriberError);
       } else {
         setSubscribers((subscriberData as unknown as NewsletterSubscriber[]) || []);
-      }
-
-      if (appHelpError) {
-        console.error("Error loading application help submissions:", appHelpError);
-      } else {
-        setAppHelp((appHelpData as unknown as ApplicationHelpSubmission[]) || []);
       }
 
       if (expenseError) {
@@ -351,7 +315,6 @@ const AdminDashboard = () => {
       else if (pendingDelete.table === "webinar_registrations") setRegistrations(prev => prev.filter(r => r.id !== pendingDelete.id));
       else if (pendingDelete.table === "hiring_applications") setHiring(prev => prev.filter(h => h.id !== pendingDelete.id));
       else if (pendingDelete.table === "newsletter_subscribers") setSubscribers(prev => prev.filter(s => s.id !== pendingDelete.id));
-      else if (pendingDelete.table === "application_help_submissions") setAppHelp(prev => prev.filter(a => a.id !== pendingDelete.id));
       toast({ title: "Deleted", description: `"${pendingDelete.name}" has been permanently deleted.` });
       setPendingDelete(null);
     }
@@ -417,22 +380,6 @@ const AdminDashboard = () => {
   }, [hiring, hiringFrom, hiringTo, hiringSearch]);
   const pagedHiring = filteredHiring.slice((hiringPage - 1) * PAGE_SIZE, hiringPage * PAGE_SIZE);
   const hiringPageCount = Math.max(1, Math.ceil(filteredHiring.length / PAGE_SIZE));
-
-  const filteredAppHelp = useMemo(() => {
-    const f = appHelpFrom ? new Date(appHelpFrom) : null;
-    const t = appHelpTo ? new Date(appHelpTo) : null;
-    if (t) t.setHours(23, 59, 59, 999);
-    const q = appHelpSearch.trim().toLowerCase();
-    return appHelp.filter(a => {
-      const ts = new Date(a.created_at);
-      if (f && ts < f) return false;
-      if (t && ts > t) return false;
-      if (q && !a.full_name.toLowerCase().includes(q) && !a.email.toLowerCase().includes(q) && !a.phone.includes(q) && !a.university.toLowerCase().includes(q) && !a.program.toLowerCase().includes(q)) return false;
-      return true;
-    });
-  }, [appHelp, appHelpFrom, appHelpTo, appHelpSearch]);
-  const pagedAppHelp = filteredAppHelp.slice((appHelpPage - 1) * PAGE_SIZE, appHelpPage * PAGE_SIZE);
-  const appHelpPageCount = Math.max(1, Math.ceil(filteredAppHelp.length / PAGE_SIZE));
 
   const filteredSubs = useMemo(() => {
     const f = subsFrom ? new Date(subsFrom) : null;
@@ -523,7 +470,6 @@ const AdminDashboard = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="flex-wrap h-auto">
             <TabsTrigger value="leads">Get started leads</TabsTrigger>
-            <TabsTrigger value="application-help">Application help</TabsTrigger>
             <TabsTrigger value="webinar">Webinar registrations</TabsTrigger>
             <TabsTrigger value="hiring">Hiring submissions</TabsTrigger>
             <TabsTrigger value="sales-evaluations">Sales evaluation reports</TabsTrigger>
@@ -623,113 +569,6 @@ const AdminDashboard = () => {
                 </TableBody>
               </Table>
               <PaginationBar page={leadsPage} pageCount={leadsPageCount} onPage={setLeadsPage} />
-            </div>
-          </TabsContent>
-
-          {/* Application help tab */}
-          <TabsContent value="application-help">
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-4">
-              <div className="space-y-2">
-                <h2 className="text-xl font-semibold">Application help submissions</h2>
-                <p className="text-sm text-muted-foreground">
-                  {filteredAppHelp.length} of {appHelp.length} total · page {appHelpPage} of {appHelpPageCount}
-                </p>
-              </div>
-              <div className="flex flex-wrap items-end gap-3">
-                <div className="relative">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                  <Input placeholder="Search name, email, phone, uni…" value={appHelpSearch} onChange={e => setAppHelpSearch(e.target.value)} className="h-9 pl-8 w-56" />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">From</Label>
-                  <Input type="date" value={appHelpFrom} onChange={e => setAppHelpFrom(e.target.value)} className="h-9 w-40" />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">To</Label>
-                  <Input type="date" value={appHelpTo} onChange={e => setAppHelpTo(e.target.value)} className="h-9 w-40" />
-                </div>
-                <Button variant="outline" size="sm" onClick={() => { setAppHelpFrom(""); setAppHelpTo(""); setAppHelpSearch(""); }}>Clear</Button>
-                <Button
-                  onClick={() => {
-                    if (filteredAppHelp.length === 0) return;
-                    const headers = ["Timestamp","Name","Email","Phone","Stage","University","Program","Country","Intake","Fees","Needs Financing","UTM Source","UTM Campaign","UTM Medium"];
-                    const rows = filteredAppHelp.map(a => [
-                      new Date(a.created_at).toLocaleString(),
-                      `"${a.full_name}"`,
-                      a.email,
-                      `"${a.country_code} ${a.phone}"`,
-                      `"${a.stage}"`,
-                      `"${a.university}"`,
-                      `"${a.program}"`,
-                      a.country,
-                      `"${a.intake}"`,
-                      `"${a.fees}"`,
-                      a.needs_financing ? "Yes" : "No",
-                      a.utm_source||"",
-                      a.utm_campaign||"",
-                      a.utm_medium||"",
-                    ].join(","));
-                    const blob = new Blob([[headers.join(","),...rows].join("\n")],{type:"text/csv"});
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement("a"); a.href=url; a.download=`application-help-${new Date().toISOString().split("T")[0]}.csv`; a.click(); window.URL.revokeObjectURL(url);
-                  }}
-                  size="sm" variant="outline" disabled={filteredAppHelp.length === 0}
-                >
-                  <Download className="mr-2 h-4 w-4" />Export CSV
-                </Button>
-              </div>
-            </div>
-
-            <div className="bg-card rounded-lg shadow border overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Timestamp</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Stage</TableHead>
-                    <TableHead>University</TableHead>
-                    <TableHead>Program</TableHead>
-                    <TableHead>Country</TableHead>
-                    <TableHead>Intake</TableHead>
-                    <TableHead>Fees</TableHead>
-                    <TableHead>Financing</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead className="w-12"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {pagedAppHelp.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={12} className="text-center py-8 text-muted-foreground">
-                        No application help submissions found
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    pagedAppHelp.map((a) => (
-                      <TableRow key={a.id}>
-                        <TableCell className="whitespace-nowrap">{new Date(a.created_at).toLocaleString()}</TableCell>
-                        <TableCell className="whitespace-nowrap">{a.full_name}</TableCell>
-                        <TableCell className="max-w-[180px] truncate" title={a.stage}>{a.stage}</TableCell>
-                        <TableCell className="max-w-[180px] truncate" title={a.university}>{a.university}</TableCell>
-                        <TableCell className="max-w-[180px] truncate" title={a.program}>{a.program}</TableCell>
-                        <TableCell>{a.country}</TableCell>
-                        <TableCell className="whitespace-nowrap">{a.intake}</TableCell>
-                        <TableCell className="whitespace-nowrap">{a.fees}</TableCell>
-                        <TableCell>{a.needs_financing ? "Yes" : "No"}</TableCell>
-                        <TableCell className="whitespace-nowrap">{a.country_code} {a.phone}</TableCell>
-                        <TableCell>{a.email}</TableCell>
-                        <TableCell>
-                          <button onClick={() => setPendingDelete({ id: a.id, table: "application_help_submissions", name: a.full_name })} className="text-muted-foreground hover:text-destructive transition-colors p-1 rounded" title="Delete submission">
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-              <PaginationBar page={appHelpPage} pageCount={appHelpPageCount} onPage={setAppHelpPage} />
             </div>
           </TabsContent>
 
