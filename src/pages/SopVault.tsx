@@ -111,8 +111,7 @@ a{text-decoration:none;color:inherit}
 .hero::after{content:'';position:absolute;bottom:-60px;left:-40px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(6,93,199,0.1) 0%,transparent 65%);pointer-events:none}
 .hero-inner{position:relative;z-index:2;max-width:760px;margin:0 auto}
 .hero-eyebrow{display:inline-flex;align-items:center;gap:7px;background:rgba(97,162,254,0.15);color:var(--orange-light);font-size:0.7rem;font-weight:700;padding:6px 14px;border-radius:50px;margin-bottom:20px;letter-spacing:0.08em;text-transform:uppercase;border:1px solid rgba(97,162,254,0.25)}
-.hero h1{font-size:clamp(2.2rem,4.2vw,3.6rem);color:white;margin-bottom:18px;line-height:1.1;letter-spacing:-0.02em}
-.hero h1{margin-bottom:22px;font-family:'Outfit',sans-serif;font-weight:700;letter-spacing:-0.025em}
+.hero h1{font-size:clamp(1.7rem,3.4vw,2.5rem);color:white;margin-bottom:14px;line-height:1.2;letter-spacing:-0.02em;font-family:'Outfit',sans-serif;font-weight:600;max-width:520px;margin-left:auto;margin-right:auto}
 .hero h1 em{color:var(--orange-light);font-style:normal;font-weight:700}
 .hero-sub{font-family:'Outfit',sans-serif;font-size:1rem;color:rgba(255,255,255,0.62);line-height:1.7;margin-bottom:32px;max-width:560px;margin-left:auto;margin-right:auto}
 .hero-video{position:relative;width:100%;max-width:640px;margin:0 auto 28px;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:#000;box-shadow:0 24px 64px rgba(0,0,0,0.55),0 0 0 1px rgba(97,162,254,0.25),0 0 0 4px rgba(97,162,254,0.08)}
@@ -128,11 +127,11 @@ a{text-decoration:none;color:inherit}
 .hero-honest{margin-top:14px;display:inline-block;font-family:'Outfit',sans-serif;font-size:0.7rem;color:rgba(255,255,255,0.55);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:6px 12px;border-radius:50px;letter-spacing:0.04em}
 
 /* HERO MINI UNIS */
-.hero-mini-unis{margin-top:26px;display:flex;justify-content:center}
-.hmu-row{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;max-width:520px}
-.hmu-pill{font-family:'Outfit',sans-serif;font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.78);background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);padding:6px 12px;border-radius:50px;letter-spacing:0.02em;white-space:nowrap}
-.hmu-pill.hmu-gold{color:#fde68a;background:rgba(180,83,9,0.22);border-color:rgba(253,230,138,0.3)}
-.hmu-pill.hmu-more{color:var(--orange-light);background:rgba(97,162,254,0.12);border-color:rgba(97,162,254,0.3)}
+.hero-mini-unis{margin:0 0 28px;display:flex;justify-content:center}
+.hmu-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:520px}
+.hmu-pill{font-family:'Outfit',sans-serif;font-size:0.74rem;font-weight:600;color:rgba(255,255,255,0.82);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);padding:7px 14px;border-radius:50px;letter-spacing:0.02em;white-space:nowrap}
+.hmu-pill.hmu-gold{color:#fde68a;background:rgba(180,83,9,0.18);border-color:rgba(253,230,138,0.32)}
+.hmu-pill.hmu-more{color:var(--orange-light);background:rgba(97,162,254,0.1);border-color:rgba(97,162,254,0.32)}
 
 /* HOW IT WORKS */
 .howit-section{background:var(--white);padding:42px 6%;border-bottom:1px solid var(--border)}
@@ -298,9 +297,12 @@ a{text-decoration:none;color:inherit}
 @media(max-width:600px){
   /* HERO — compress */
   .hero{padding:36px 5% 32px}
-  .hero h1{font-size:clamp(1.95rem,8vw,2.4rem);margin-bottom:14px}
+  .hero h1{font-size:clamp(1.5rem,6.4vw,1.9rem);margin-bottom:12px;line-height:1.25}
   .hero-sub{font-size:0.9rem;margin-bottom:24px;line-height:1.6}
   .hero-eyebrow{font-size:0.65rem;padding:5px 12px;margin-bottom:16px}
+  .hero-mini-unis{margin:0 0 20px}
+  .hmu-row{gap:6px}
+  .hmu-pill{font-size:0.7rem;padding:6px 12px}
   .btn-hero{padding:16px 24px;font-size:0.92rem;width:100%;justify-content:center;min-height:52px}
   .hero-hint{font-size:0.72rem;text-align:center}
   .hero-honest{font-size:0.66rem;padding:5px 11px;margin-top:10px}
@@ -491,7 +493,15 @@ const SopVault = () => {
         </Link>
         <div className="hero-inner">
           <div className="hero-eyebrow">Real Admits · Verified PDFs</div>
-          <h1>15 Winning SOPs.<br /><em><span className="price-old">₹799</span>₹199.</em></h1>
+          <h1>Real SOPs from students who got into <em>top universities</em>.</h1>
+          <div className="hero-mini-unis">
+            <div className="hmu-row">
+              <span className="hmu-pill hmu-gold">₹1 Cr scholar</span>
+              <span className="hmu-pill">Hopkins</span>
+              <span className="hmu-pill">4× Erasmus</span>
+              <span className="hmu-pill hmu-more">+11 more</span>
+            </div>
+          </div>
           <div className="hero-video">
             <iframe
               src="https://www.youtube.com/embed/Lp4neH4_TKk?rel=0&modestbranding=1&playsinline=1"
@@ -506,16 +516,6 @@ const SopVault = () => {
               Get All 15 SOPs — <span className="price-old">₹799</span>₹199 →
             </button>
             <div className="hero-hint">Instant email delivery · <strong>No upsells</strong></div>
-          </div>
-
-          <div className="hero-mini-unis">
-            <div className="hmu-row">
-              <span className="hmu-pill hmu-gold">JHU · ₹1 Cr</span>
-              <span className="hmu-pill">Erasmus Mundus ×4</span>
-              <span className="hmu-pill">Hertie</span>
-              <span className="hmu-pill">CEU</span>
-              <span className="hmu-pill hmu-more">+11 more</span>
-            </div>
           </div>
         </div>
       </section>
@@ -532,35 +532,6 @@ const SopVault = () => {
           </div>
         </div>
       </div>
-
-      {/* ── HOW IT WORKS ── */}
-      <section className="howit-section">
-        <div className="howit-wrap">
-          <div className="howit-step">
-            <div className="howit-num">1</div>
-            <div className="howit-body">
-              <div className="howit-title">Pay ₹199</div>
-              <div className="howit-text">UPI, cards, net banking — secured by PayU</div>
-            </div>
-          </div>
-          <div className="howit-arrow">→</div>
-          <div className="howit-step">
-            <div className="howit-num">2</div>
-            <div className="howit-body">
-              <div className="howit-title">Check your email</div>
-              <div className="howit-text">Download link sent within seconds</div>
-            </div>
-          </div>
-          <div className="howit-arrow">→</div>
-          <div className="howit-step">
-            <div className="howit-num">3</div>
-            <div className="howit-body">
-              <div className="howit-title">Read all 15 SOPs</div>
-              <div className="howit-text">72-hour download window — save to device</div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ── VAULT GRID ── */}
       <section id="vault">
