@@ -7,87 +7,92 @@ const SopVaultSuccess = () => {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "#FAFAF7",
+      background: "#EEF4FF",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       fontFamily: "'Outfit', sans-serif",
       padding: "24px",
+      color: "#040B2B",
     }}>
+      <style>{`
+        @keyframes tick-circle-draw { from { stroke-dashoffset: 166 } to { stroke-dashoffset: 0 } }
+        @keyframes tick-check-draw { from { stroke-dashoffset: 42 } to { stroke-dashoffset: 0 } }
+        @keyframes tick-fade-in { from { opacity: 0; transform: scale(0.85) } to { opacity: 1; transform: scale(1) } }
+        .tick-svg { width: 84px; height: 84px; display: block; margin: 0 auto 22px; animation: tick-fade-in 0.4s ease-out both }
+        .tick-circle-bg { fill: rgba(97,162,254,0.12) }
+        .tick-circle { stroke: #61A2FE; stroke-width: 2.5; fill: none; stroke-dasharray: 166; stroke-dashoffset: 166; animation: tick-circle-draw 0.55s cubic-bezier(0.65,0,0.35,1) 0.1s forwards }
+        .tick-check { stroke: #040B2B; stroke-width: 3.5; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 42; stroke-dashoffset: 42; animation: tick-check-draw 0.35s cubic-bezier(0.65,0,0.35,1) 0.55s forwards }
+      `}</style>
       <div style={{
-        maxWidth: 480,
+        maxWidth: 460,
         width: "100%",
-        background: "#fff",
-        border: "1.5px solid #e6ebf0",
-        borderRadius: 24,
+        background: "#ffffff",
+        border: "1px solid rgba(4,11,43,0.06)",
+        borderRadius: 14,
         overflow: "hidden",
-        boxShadow: "0 10px 40px rgba(13,27,42,0.1)",
+        boxShadow: "0 10px 40px rgba(4,11,43,0.08)",
       }}>
         <div style={{
-          background: failed ? "#7a0000" : "#0D1B2A",
-          padding: "36px 40px",
-          textAlign: "center",
+          background: "#040B2B",
+          padding: "32px 36px 28px",
         }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>{failed ? "✕" : "✓"}</div>
           <div style={{
-            fontSize: 22,
+            fontSize: 17,
             fontWeight: 700,
-            color: "white",
-            fontFamily: "'Cormorant Garamond', serif",
+            color: "#ffffff",
             letterSpacing: "-0.01em",
+          }}>
+            OnePercent Abroad
+          </div>
+          <div style={{
+            fontSize: 11,
+            color: failed ? "#fca5a5" : "#61A2FE",
+            fontWeight: 700,
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            marginTop: 22,
           }}>
             {failed ? "Payment Failed" : "Payment Confirmed"}
           </div>
-          <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, marginTop: 6 }}>
-            1% Admit Vault
-          </div>
         </div>
 
-        <div style={{ padding: "36px 40px", textAlign: "center" }}>
+        <div style={{ padding: "32px 36px 36px" }}>
           {failed ? (
             <>
-              <div style={{
-                width: 64, height: 64, borderRadius: "50%",
-                background: "rgba(220,38,38,0.1)", display: "flex",
-                alignItems: "center", justifyContent: "center",
-                fontSize: 28, margin: "0 auto 20px",
-              }}>⚠️</div>
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: "#0D1B2A", margin: "0 0 12px", fontFamily: "'Cormorant Garamond', serif" }}>
+              <h2 style={{
+                fontSize: 20,
+                fontWeight: 700,
+                color: "#040B2B",
+                margin: "0 0 10px",
+                letterSpacing: "-0.01em",
+              }}>
                 Something went wrong
               </h2>
-              <p style={{ fontSize: 14, color: "#7a8694", lineHeight: 1.75, margin: "0 0 28px" }}>
-                Your payment was not completed. You have <strong style={{ color: "#0D1B2A" }}>not been charged</strong>.
-                Please try again or contact us if the issue persists.
+              <p style={{ fontSize: 14, color: "#6B7A99", lineHeight: 1.75, margin: "0 0 28px" }}>
+                Your payment was not completed and you have <strong style={{ color: "#040B2B" }}>not been charged</strong>. Please try again, or reply to your last email and we will help sort it.
               </p>
             </>
           ) : (
             <>
-              <div style={{
-                width: 64, height: 64, borderRadius: "50%",
-                background: "rgba(232,84,26,0.1)", display: "flex",
-                alignItems: "center", justifyContent: "center",
-                fontSize: 28, margin: "0 auto 20px",
-              }}>📬</div>
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: "#0D1B2A", margin: "0 0 12px", fontFamily: "'Cormorant Garamond', serif" }}>
+              <svg className="tick-svg" viewBox="0 0 60 60" aria-hidden="true">
+                <circle className="tick-circle-bg" cx="30" cy="30" r="26" />
+                <circle className="tick-circle" cx="30" cy="30" r="26" />
+                <path className="tick-check" d="M18 30 L27 39 L43 22" />
+              </svg>
+              <h2 style={{
+                fontSize: 20,
+                fontWeight: 700,
+                color: "#040B2B",
+                margin: "0 0 10px",
+                letterSpacing: "-0.01em",
+                textAlign: "center",
+              }}>
                 Check your email
               </h2>
-              <p style={{ fontSize: 14, color: "#7a8694", lineHeight: 1.75, margin: "0 0 28px" }}>
-                Your secure download links have been sent to your inbox.
-                Links expire in <strong style={{ color: "#0D1B2A" }}>72 hours</strong> — save
-                them to your device now.
+              <p style={{ fontSize: 14, color: "#6B7A99", lineHeight: 1.75, margin: "0 0 28px", textAlign: "center" }}>
+                Your secure download link has been sent to your inbox. Links expire in <strong style={{ color: "#040B2B" }}>72 hours</strong> — save the file to your device now.
               </p>
-              <div style={{
-                background: "#FDF0E6", border: "1px solid #F5C9A0", borderRadius: 12,
-                padding: "14px 18px", textAlign: "left", marginBottom: 28,
-              }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#0D1B2A", marginBottom: 4 }}>
-                  ⚖️ Usage Reminder
-                </div>
-                <div style={{ fontSize: 12, color: "#7a8694", lineHeight: 1.65 }}>
-                  Personal study only. No sharing, redistribution, or AI uploading.
-                  Every document is watermarked and tracked.
-                </div>
-              </div>
             </>
           )}
 
@@ -96,37 +101,50 @@ const SopVaultSuccess = () => {
               <Link
                 to="/product/sop-vault"
                 style={{
-                  display: "block", padding: "12px 20px", borderRadius: 50,
-                  background: "#0D1B2A", color: "white", fontSize: 13,
-                  fontWeight: 600, textDecoration: "none", textAlign: "center",
+                  display: "block",
+                  padding: "14px 22px",
+                  borderRadius: 10,
+                  background: "#040B2B",
+                  color: "#ffffff",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  textDecoration: "none",
+                  textAlign: "center",
+                  letterSpacing: "0.02em",
                 }}
               >
-                Try Again →
+                Try again
               </Link>
-            ) : (
-              <a
-                href="mailto:noreply@onepercentabroad.com"
-                style={{
-                  display: "block", padding: "12px 20px", borderRadius: 50,
-                  border: "1.5px solid #e6ebf0", color: "#0D1B2A", fontSize: 13,
-                  fontWeight: 600, textDecoration: "none", textAlign: "center",
-                }}
-              >
-                Didn't receive it? Contact us
-              </a>
-            )}
+            ) : null}
             <Link
               to="/"
               style={{
-                display: "block", padding: "12px 20px", borderRadius: 50,
-                background: failed ? "transparent" : "#0D1B2A",
-                border: failed ? "1.5px solid #e6ebf0" : "none",
-                color: failed ? "#0D1B2A" : "white", fontSize: 13,
-                fontWeight: 600, textDecoration: "none", textAlign: "center",
+                display: "block",
+                padding: "14px 22px",
+                borderRadius: 10,
+                background: failed ? "#ffffff" : "#040B2B",
+                border: failed ? "1px solid rgba(4,11,43,0.12)" : "none",
+                color: failed ? "#040B2B" : "#ffffff",
+                fontSize: 13,
+                fontWeight: 600,
+                textDecoration: "none",
+                textAlign: "center",
+                letterSpacing: "0.02em",
               }}
             >
-              Back to OnePercent Abroad →
+              Back to OnePercent Abroad
             </Link>
+          </div>
+
+          <div style={{
+            marginTop: 28,
+            paddingTop: 20,
+            borderTop: "1px solid rgba(4,11,43,0.08)",
+            fontSize: 12,
+            color: "#6B7A99",
+          }}>
+            <div style={{ fontWeight: 600, color: "#040B2B", marginBottom: 4 }}>OnePercent Abroad</div>
+            <a href="https://onepercentabroad.com" style={{ color: "#065DC7", textDecoration: "none" }}>onepercentabroad.com</a>
           </div>
         </div>
       </div>

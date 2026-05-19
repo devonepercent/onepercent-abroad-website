@@ -107,37 +107,24 @@ serve(async (req) => {
       const linksHtml =
         links.length > 0
           ? links.map(({ name, url }) => `
-            <div style="margin:12px 0;padding:16px 18px;background:#f8f7f4;border-radius:12px;border-left:3px solid #E8541A;">
-              <div style="font-size:13px;font-weight:600;color:#0D1B2A;margin-bottom:8px;font-family:-apple-system,sans-serif;">${name}</div>
-              <a href="${url}" style="display:inline-block;background:#0D1B2A;color:white;padding:10px 22px;border-radius:50px;font-size:12px;font-weight:700;text-decoration:none;letter-spacing:0.04em;font-family:-apple-system,sans-serif;">Download PDF →</a>
-              <div style="font-size:11px;color:#7a8694;margin-top:6px;font-family:-apple-system,sans-serif;">⏱ Link expires in 72 hours</div>
-            </div>`).join("")
-          : `<div style="padding:16px;background:#fff3cd;border-radius:12px;color:#856404;font-size:13px;">Your files are being prepared. You will receive a follow-up email within 24 hours.</div>`;
+            <a href="${url}" style="display:block;background:#040B2B;color:#ffffff;padding:18px 22px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;text-align:center;margin:0 0 10px;letter-spacing:0.01em;font-family:-apple-system,sans-serif;">Download ${name} &nbsp;&rarr;</a>`).join("")
+          : `<div style="padding:16px 18px;background:#EEF4FF;border:1px solid rgba(4,11,43,0.08);border-radius:10px;color:#6B7A99;font-size:13px;line-height:1.6;">Your files are being prepared. You will receive a follow-up email within 24 hours.</div>`;
 
       const emailHtml = `<!DOCTYPE html>
-<html><body style="margin:0;padding:24px;background:#f0ede8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-  <div style="max-width:560px;margin:0 auto;">
-    <div style="background:#0D1B2A;padding:32px 36px;border-radius:16px 16px 0 0;text-align:center;">
-      <div style="font-size:26px;font-weight:700;color:white;letter-spacing:-0.02em;">1% <em style="color:#E8541A;font-style:italic;">Admit</em> Vault</div>
-      <div style="color:rgba(255,255,255,0.45);font-size:11px;margin-top:6px;letter-spacing:0.1em;text-transform:uppercase;">Your SOPs Are Ready</div>
+<html><body style="margin:0;padding:32px 16px;background:#EEF4FF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#040B2B;">
+  <div style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid rgba(4,11,43,0.06);">
+    <div style="background:#040B2B;padding:32px 36px 28px;">
+      <div style="font-size:18px;font-weight:700;color:#ffffff;letter-spacing:-0.01em;">OnePercent Abroad</div>
+      <div style="font-size:11px;color:#61A2FE;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin-top:22px;">Payment Confirmed</div>
     </div>
-    <div style="background:#FAFAF7;padding:36px;border-radius:0 0 16px 16px;">
-      <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#16a34a;font-size:12px;font-weight:700;padding:5px 14px;border-radius:50px;margin-bottom:16px;letter-spacing:0.04em;">✓ PAYMENT CONFIRMED</div>
-      <h2 style="font-size:22px;font-weight:600;color:#0D1B2A;margin:0 0 10px;">Here are your download links</h2>
-      <p style="color:#7a8694;font-size:14px;line-height:1.7;margin:0 0 24px;">
-        You purchased the <strong style="color:#0D1B2A;">${planLabel}</strong>. Your secure download links are below — they expire in <strong>72 hours</strong>, so save them now.
-      </p>
+    <div style="padding:32px 36px 36px;">
+      <p style="font-size:15px;line-height:1.7;color:#040B2B;margin:0 0 6px;font-weight:500;">Hi ${firstname || "there"},</p>
+      <p style="font-size:14px;line-height:1.75;color:#6B7A99;margin:0 0 24px;">Your ${planLabel} is ready. The link below expires in <strong style="color:#040B2B;">72 hours</strong> — please save the file to your device now.</p>
       ${linksHtml}
-      <div style="margin-top:24px;background:#FDF0E6;border:1px solid #F5C9A0;border-radius:12px;padding:16px 20px;">
-        <div style="font-size:13px;font-weight:700;color:#0D1B2A;margin-bottom:6px;">⚖️ Usage Reminder</div>
-        <div style="font-size:12px;color:#7a8694;line-height:1.65;">Personal study only. No sharing, redistribution, or AI uploading. Every document is watermarked and tracked under IP law.</div>
-      </div>
-      <div style="margin-top:16px;background:#E7F8EF;border:1px solid #A8E2C2;border-radius:12px;padding:16px 20px;text-align:center;">
-        <div style="font-size:13px;font-weight:700;color:#0D1B2A;margin-bottom:10px;">Need help? We're one message away.</div>
-        <a href="https://wa.me/919745789659" style="display:inline-block;background:#25D366;color:white;padding:10px 22px;border-radius:50px;font-size:12px;font-weight:700;text-decoration:none;letter-spacing:0.04em;font-family:-apple-system,sans-serif;">Chat on WhatsApp →</a>
-      </div>
-      <div style="margin-top:24px;padding-top:20px;border-top:1px solid #e6ebf0;text-align:center;font-size:12px;color:#7a8694;">
-        © 2025 1% Admit Vault · <a href="https://onepercentabroad.com" style="color:#E8541A;text-decoration:none;">onepercentabroad.com</a>
+      <p style="font-size:13px;line-height:1.7;color:#6B7A99;margin:28px 0 0;">If anything looks off, simply reply to this email and we will fix it.</p>
+      <div style="margin-top:28px;padding-top:20px;border-top:1px solid rgba(4,11,43,0.08);font-size:12px;color:#6B7A99;">
+        <div style="font-weight:600;color:#040B2B;margin-bottom:4px;">OnePercent Abroad</div>
+        <a href="https://onepercentabroad.com" style="color:#065DC7;text-decoration:none;">onepercentabroad.com</a>
       </div>
     </div>
   </div>
@@ -147,9 +134,9 @@ serve(async (req) => {
         method: "POST",
         headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          from: "1% Admit Vault <noreply@notify.onepercentabroad.com>",
+          from: "OnePercent Abroad <noreply@notify.onepercentabroad.com>",
           to: purchase.email,
-          subject: `Your ${planLabel} is ready — 1% Admit Vault`,
+          subject: `Your ${planLabel} is ready — OnePercent Abroad`,
           html: emailHtml,
         }),
       });
@@ -176,27 +163,27 @@ serve(async (req) => {
       });
 
       const adminHtml = `<!DOCTYPE html>
-<html><body style="margin:0;padding:24px;background:#f0ede8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-  <div style="max-width:560px;margin:0 auto;">
-    <div style="background:#0D1B2A;padding:24px 32px;border-radius:16px 16px 0 0;">
-      <div style="font-size:11px;color:#E8541A;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:6px;">✓ New Purchase</div>
-      <div style="font-size:22px;font-weight:700;color:white;">1% Admit Vault — Sale Notification</div>
+<html><body style="margin:0;padding:32px 16px;background:#EEF4FF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#040B2B;">
+  <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid rgba(4,11,43,0.06);">
+    <div style="background:#040B2B;padding:24px 32px;">
+      <div style="font-size:11px;color:#61A2FE;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:6px;">New Purchase</div>
+      <div style="font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.01em;">SOP Vault — Sale Notification</div>
     </div>
-    <div style="background:#FAFAF7;padding:32px;border-radius:0 0 16px 16px;">
-      <div style="font-size:32px;font-weight:700;color:#0D1B2A;margin-bottom:4px;">₹${amount}</div>
-      <div style="font-size:13px;color:#7a8694;margin-bottom:24px;">${planLabel}</div>
+    <div style="padding:30px 32px;">
+      <div style="font-size:30px;font-weight:700;color:#040B2B;margin-bottom:4px;letter-spacing:-0.02em;">₹${amount}</div>
+      <div style="font-size:13px;color:#6B7A99;margin-bottom:24px;">${planLabel}</div>
       <table style="width:100%;border-collapse:collapse;font-size:13px;">
-        <tr><td style="padding:8px 0;color:#7a8694;width:40%;vertical-align:top;">Buyer name</td><td style="padding:8px 0;color:#0D1B2A;font-weight:600;">${firstname || "—"}</td></tr>
-        <tr><td style="padding:8px 0;color:#7a8694;vertical-align:top;">Buyer email</td><td style="padding:8px 0;color:#0D1B2A;font-weight:600;">${purchase.email}</td></tr>
-        <tr><td style="padding:8px 0;color:#7a8694;vertical-align:top;">Plan</td><td style="padding:8px 0;color:#0D1B2A;font-weight:600;">${planLabel}</td></tr>
-        <tr><td style="padding:8px 0;color:#7a8694;vertical-align:top;">SOPs purchased</td><td style="padding:8px 0;color:#0D1B2A;font-weight:600;line-height:1.6;">${sopsList}</td></tr>
-        <tr><td style="padding:8px 0;color:#7a8694;vertical-align:top;">Amount</td><td style="padding:8px 0;color:#0D1B2A;font-weight:600;">₹${amount}</td></tr>
-        <tr><td style="padding:8px 0;color:#7a8694;vertical-align:top;">PayU txn ID</td><td style="padding:8px 0;color:#0D1B2A;font-family:monospace;font-size:12px;">${txnid}</td></tr>
-        <tr><td style="padding:8px 0;color:#7a8694;vertical-align:top;">PayU mihpayid</td><td style="padding:8px 0;color:#0D1B2A;font-family:monospace;font-size:12px;">${mihpayid}</td></tr>
-        <tr><td style="padding:8px 0;color:#7a8694;vertical-align:top;">Time (IST)</td><td style="padding:8px 0;color:#0D1B2A;font-weight:600;">${istTime}</td></tr>
+        <tr><td style="padding:8px 0;color:#6B7A99;width:40%;vertical-align:top;">Buyer name</td><td style="padding:8px 0;color:#040B2B;font-weight:600;">${firstname || "—"}</td></tr>
+        <tr><td style="padding:8px 0;color:#6B7A99;vertical-align:top;">Buyer email</td><td style="padding:8px 0;color:#040B2B;font-weight:600;">${purchase.email}</td></tr>
+        <tr><td style="padding:8px 0;color:#6B7A99;vertical-align:top;">Plan</td><td style="padding:8px 0;color:#040B2B;font-weight:600;">${planLabel}</td></tr>
+        <tr><td style="padding:8px 0;color:#6B7A99;vertical-align:top;">SOPs purchased</td><td style="padding:8px 0;color:#040B2B;font-weight:600;line-height:1.6;">${sopsList}</td></tr>
+        <tr><td style="padding:8px 0;color:#6B7A99;vertical-align:top;">Amount</td><td style="padding:8px 0;color:#040B2B;font-weight:600;">₹${amount}</td></tr>
+        <tr><td style="padding:8px 0;color:#6B7A99;vertical-align:top;">PayU txn ID</td><td style="padding:8px 0;color:#040B2B;font-family:monospace;font-size:12px;">${txnid}</td></tr>
+        <tr><td style="padding:8px 0;color:#6B7A99;vertical-align:top;">PayU mihpayid</td><td style="padding:8px 0;color:#040B2B;font-family:monospace;font-size:12px;">${mihpayid}</td></tr>
+        <tr><td style="padding:8px 0;color:#6B7A99;vertical-align:top;">Time (IST)</td><td style="padding:8px 0;color:#040B2B;font-weight:600;">${istTime}</td></tr>
       </table>
-      <div style="margin-top:20px;padding-top:16px;border-top:1px solid #e6ebf0;font-size:11px;color:#7a8694;">
-        Sent by 1% Admit Vault · noreply@notify.onepercentabroad.com
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(4,11,43,0.08);font-size:11px;color:#6B7A99;">
+        Sent by OnePercent Abroad · noreply@notify.onepercentabroad.com
       </div>
     </div>
   </div>
@@ -206,7 +193,7 @@ serve(async (req) => {
         method: "POST",
         headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          from: "1% Admit Vault <noreply@notify.onepercentabroad.com>",
+          from: "OnePercent Abroad <noreply@notify.onepercentabroad.com>",
           to: [
             "sreejith@onepercentabroad.com",
             "muhasina@onepercentabroad.com",
