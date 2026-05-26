@@ -77,23 +77,24 @@ serve(async (req) => {
     const expiresIn = 72 * 3600;
     const links: { name: string; url: string }[] = [];
 
-    if (purchase.plan === "full") {
+    const sopIdsToDeliver: number[] =
+      purchase.plan === "full"
+        ? Object.keys(SOP_NAMES).map(Number).sort((a, b) => a - b)
+        : (purchase.selected_sop_ids as number[]);
+
+    for (const sopId of sopIdsToDeliver) {
+      const info = SOP_NAMES[sopId];
+      const friendlyName = info ? `${info.univ} - ${info.prog}` : `SOP ${sopId}`;
       const { data } = await supabase.storage
         .from("sop-pdfs")
-        .createSignedUrl("bundles/full-vault.zip", expiresIn);
-      if (data) links.push({ name: "Full Vault — All 15 SOPs", url: data.signedUrl });
-    } else {
-      for (const sopId of purchase.selected_sop_ids as number[]) {
-        const { data } = await supabase.storage
-          .from("sop-pdfs")
-          .createSignedUrl(`individual/sop-${sopId}.pdf`, expiresIn);
-        if (data) {
-          const info = SOP_NAMES[sopId];
-          links.push({
-            name: info ? `${info.univ} — ${info.prog}` : `SOP ${sopId}`,
-            url: data.signedUrl,
-          });
-        }
+        .createSignedUrl(`individual/sop-${sopId}.pdf`, expiresIn, {
+          download: `${friendlyName}.pdf`,
+        });
+      if (data) {
+        links.push({
+          name: info ? `${info.univ} — ${info.prog}` : `SOP ${sopId}`,
+          url: data.signedUrl,
+        });
       }
     }
 
