@@ -103,6 +103,20 @@ interface Expense {
   created_at: string;
 }
 
+interface SopPurchase {
+  id: string;
+  firstname: string | null;
+  email: string;
+  phone: string | null;
+  plan: "single" | "bundle" | "full";
+  selected_sop_ids: number[];
+  amount: number;
+  status: "pending" | "completed" | "failed";
+  payu_txnid: string | null;
+  payu_mihpayid: string | null;
+  created_at: string;
+}
+
 type UserEmailMap = Record<string, string>;
 
 const PAGE_SIZE = 10;
@@ -126,6 +140,13 @@ const AdminDashboard = () => {
   const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
   const [recentExpenses, setRecentExpenses] = useState<Expense[]>([]);
   const [expenseEmailMap, setExpenseEmailMap] = useState<UserEmailMap>({});
+  const [sopPurchases, setSopPurchases] = useState<SopPurchase[]>([]);
+  const [sopFrom, setSopFrom] = useState("");
+  const [sopTo, setSopTo] = useState("");
+  const [sopPage, setSopPage] = useState(1);
+  const [sopSearch, setSopSearch] = useState("");
+  const [sopPlanFilter, setSopPlanFilter] = useState<string>("all");
+  const [sopStatusFilter, setSopStatusFilter] = useState<string>("completed");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [webinarFilter, setWebinarFilter] = useState<string>("all");
@@ -157,6 +178,7 @@ const AdminDashboard = () => {
   useEffect(() => { setLeadsPage(1); }, [leadsFrom, leadsTo, leadsSearch]);
   useEffect(() => { setHiringPage(1); }, [hiringFrom, hiringTo, hiringSearch]);
   useEffect(() => { setSubsPage(1); }, [subsFrom, subsTo, subsSearch]);
+  useEffect(() => { setSopPage(1); }, [sopFrom, sopTo, sopSearch, sopPlanFilter, sopStatusFilter]);
 
   const checkAuthAndFetchData = async () => {
     try {
@@ -199,6 +221,7 @@ const AdminDashboard = () => {
         { data: billingData, error: billingError },
         { data: expenseData, error: expenseError },
         { data: subscriberData, error: subscriberError },
+        { data: sopData, error: sopError },
       ] = await Promise.all([
         supabase
           .from("webinar_registrations" as any)
@@ -227,6 +250,10 @@ const AdminDashboard = () => {
           .limit(10),
         supabase
           .from("newsletter_subscribers" as any)
+          .select("*")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("sop_purchases" as any)
           .select("*")
           .order("created_at", { ascending: false }),
       ]);
@@ -265,6 +292,12 @@ const AdminDashboard = () => {
         console.error("Error loading newsletter subscribers:", subscriberError);
       } else {
         setSubscribers((subscriberData as unknown as NewsletterSubscriber[]) || []);
+      }
+
+      if (sopError) {
+        console.error("Error loading SOP purchases:", sopError);
+      } else {
+        setSopPurchases((sopData as unknown as SopPurchase[]) || []);
       }
 
       if (expenseError) {
@@ -397,6 +430,30 @@ const AdminDashboard = () => {
   const pagedSubs = filteredSubs.slice((subsPage - 1) * PAGE_SIZE, subsPage * PAGE_SIZE);
   const subsPageCount = Math.max(1, Math.ceil(filteredSubs.length / PAGE_SIZE));
 
+  const filteredSop = useMemo(() => {
+    const f = sopFrom ? new Date(sopFrom) : null;
+    const t = sopTo ? new Date(sopTo) : null;
+    if (t) t.setHours(23, 59, 59, 999);
+    const q = sopSearch.trim().toLowerCase();
+    return sopPurchases.filter(s => {
+      const ts = new Date(s.created_at);
+      if (f && ts < f) return false;
+      if (t && ts > t) return false;
+      if (sopPlanFilter !== "all" && s.plan !== sopPlanFilter) return false;
+      if (sopStatusFilter !== "all" && s.status !== sopStatusFilter) return false;
+      if (q) {
+        const name = (s.firstname || "").toLowerCase();
+        const phone = (s.phone || "").toLowerCase();
+        const email = s.email.toLowerCase();
+        const txn = (s.payu_txnid || "").toLowerCase();
+        if (!name.includes(q) && !phone.includes(q) && !email.includes(q) && !txn.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [sopPurchases, sopFrom, sopTo, sopSearch, sopPlanFilter, sopStatusFilter]);
+  const pagedSop = filteredSop.slice((sopPage - 1) * PAGE_SIZE, sopPage * PAGE_SIZE);
+  const sopPageCount = Math.max(1, Math.ceil(filteredSop.length / PAGE_SIZE));
+
   const exportToCSV = () => {
     if (filteredRegistrations.length === 0) {
       toast({
@@ -476,6 +533,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="billing">Billing cycles</TabsTrigger>
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
             <TabsTrigger value="newsletter">Newsletter subscribers</TabsTrigger>
+            <TabsTrigger value="sop-purchases">SOP purchases</TabsTrigger>
             <TabsTrigger value="internal-tools">Internal tools</TabsTrigger>
             <TabsTrigger value="tracker">Tracker</TabsTrigger>
           </TabsList>
@@ -1015,6 +1073,137 @@ const AdminDashboard = () => {
                 </TableBody>
               </Table>
               <PaginationBar page={subsPage} pageCount={subsPageCount} onPage={setSubsPage} />
+            </div>
+          </TabsContent>
+
+          {/* SOP purchases tab */}
+          <TabsContent value="sop-purchases">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-4">
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold">SOP Vault purchases</h2>
+                <p className="text-sm text-muted-foreground">
+                  {filteredSop.length} of {sopPurchases.length} total · page {sopPage} of {sopPageCount}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Input placeholder="Search name, email, phone, txn…" value={sopSearch} onChange={e => setSopSearch(e.target.value)} className="h-9 pl-8 w-56" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Plan</Label>
+                  <Select value={sopPlanFilter} onValueChange={setSopPlanFilter}>
+                    <SelectTrigger className="h-9 w-36">
+                      <SelectValue placeholder="All plans" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All plans</SelectItem>
+                      <SelectItem value="single">Single</SelectItem>
+                      <SelectItem value="bundle">Bundle</SelectItem>
+                      <SelectItem value="full">Full vault</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Status</Label>
+                  <Select value={sopStatusFilter} onValueChange={setSopStatusFilter}>
+                    <SelectTrigger className="h-9 w-36">
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="failed">Failed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">From</Label>
+                  <Input type="date" value={sopFrom} onChange={e => setSopFrom(e.target.value)} className="h-9 w-40" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">To</Label>
+                  <Input type="date" value={sopTo} onChange={e => setSopTo(e.target.value)} className="h-9 w-40" />
+                </div>
+                <Button variant="outline" size="sm" onClick={() => { setSopFrom(""); setSopTo(""); setSopSearch(""); setSopPlanFilter("all"); setSopStatusFilter("completed"); }}>Clear</Button>
+                <Button
+                  onClick={() => {
+                    if (filteredSop.length === 0) return;
+                    const headers = ["Timestamp","Name","Email","Phone","Plan","SOP IDs","Amount (INR)","Status","PayU Txn ID","PayU Mihpayid"];
+                    const rows = filteredSop.map(s => [
+                      new Date(s.created_at).toLocaleString(),
+                      `"${s.firstname || ""}"`,
+                      s.email,
+                      `"${s.phone || ""}"`,
+                      s.plan,
+                      `"${(s.selected_sop_ids || []).join(", ")}"`,
+                      s.amount,
+                      s.status,
+                      s.payu_txnid || "",
+                      s.payu_mihpayid || "",
+                    ].join(","));
+                    const blob = new Blob([[headers.join(","),...rows].join("\n")],{type:"text/csv"});
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a"); a.href=url; a.download=`sop-purchases-${new Date().toISOString().split("T")[0]}.csv`; a.click(); window.URL.revokeObjectURL(url);
+                  }}
+                  size="sm" variant="outline" disabled={filteredSop.length === 0}
+                >
+                  <Download className="mr-2 h-4 w-4" />Export CSV
+                </Button>
+              </div>
+            </div>
+
+            <div className="bg-card rounded-lg shadow border overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Phone</TableHead>
+                    <TableHead>Plan</TableHead>
+                    <TableHead>SOPs</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Txn ID</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pagedSop.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                        No SOP purchases found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    pagedSop.map((s) => (
+                      <TableRow key={s.id}>
+                        <TableCell className="whitespace-nowrap">{new Date(s.created_at).toLocaleString()}</TableCell>
+                        <TableCell className="whitespace-nowrap">{s.firstname || "—"}</TableCell>
+                        <TableCell>{s.email}</TableCell>
+                        <TableCell className="whitespace-nowrap">{s.phone || "—"}</TableCell>
+                        <TableCell className="capitalize">{s.plan}</TableCell>
+                        <TableCell className="max-w-[160px] truncate" title={(s.selected_sop_ids || []).join(", ")}>
+                          {s.plan === "full" ? "All 15" : (s.selected_sop_ids || []).join(", ") || "—"}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">₹{Number(s.amount).toLocaleString()}</TableCell>
+                        <TableCell>
+                          <span className={
+                            s.status === "completed" ? "text-green-600 font-medium" :
+                            s.status === "failed" ? "text-destructive font-medium" :
+                            "text-muted-foreground"
+                          }>
+                            {s.status}
+                          </span>
+                        </TableCell>
+                        <TableCell className="font-mono text-xs">{s.payu_txnid || "—"}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+              <PaginationBar page={sopPage} pageCount={sopPageCount} onPage={setSopPage} />
             </div>
           </TabsContent>
 
