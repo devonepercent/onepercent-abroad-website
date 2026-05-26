@@ -122,7 +122,7 @@ serve(async (req) => {
       <p style="font-size:15px;line-height:1.7;color:#040B2B;margin:0 0 6px;font-weight:500;">Hi ${firstname || "there"},</p>
       <p style="font-size:14px;line-height:1.75;color:#6B7A99;margin:0 0 24px;">Your ${planLabel} is ready. The link below expires in <strong style="color:#040B2B;">72 hours</strong> — please save the file to your device now.</p>
       ${linksHtml}
-      <p style="font-size:13px;line-height:1.7;color:#6B7A99;margin:28px 0 0;">If anything looks off, simply reply to this email and we will fix it.</p>
+      <p style="font-size:13px;line-height:1.7;color:#6B7A99;margin:28px 0 0;">Need help? Email <a href="mailto:sreejith@onepercentabroad.com" style="color:#065DC7;text-decoration:none;font-weight:500;">sreejith@onepercentabroad.com</a> and we'll sort it out.</p>
       <div style="margin-top:28px;padding-top:20px;border-top:1px solid rgba(4,11,43,0.08);font-size:12px;color:#6B7A99;">
         <div style="font-weight:600;color:#040B2B;margin-bottom:4px;">OnePercent Abroad</div>
         <a href="https://onepercentabroad.com" style="color:#065DC7;text-decoration:none;">onepercentabroad.com</a>
