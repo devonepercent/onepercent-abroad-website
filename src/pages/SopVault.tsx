@@ -131,7 +131,10 @@ a{text-decoration:none;color:inherit}
 .hmu-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:520px}
 .hmu-pill{font-family:'Outfit',sans-serif;font-size:0.74rem;font-weight:600;color:rgba(255,255,255,0.82);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);padding:7px 14px;border-radius:50px;letter-spacing:0.02em;white-space:nowrap}
 .hmu-pill.hmu-gold{color:#fde68a;background:rgba(180,83,9,0.18);border-color:rgba(253,230,138,0.32)}
-.hmu-pill.hmu-more{color:var(--orange-light);background:rgba(97,162,254,0.1);border-color:rgba(97,162,254,0.32)}
+.hmu-pill.hmu-more{color:var(--orange-light);background:rgba(97,162,254,0.1);border-color:rgba(97,162,254,0.32);font:inherit;font-family:'Outfit',sans-serif;font-size:0.74rem;font-weight:600;cursor:pointer;transition:background 0.18s ease,border-color 0.18s ease,transform 0.18s ease}
+.hmu-pill.hmu-more:hover{background:rgba(97,162,254,0.2);border-color:rgba(97,162,254,0.55);transform:translateY(-1px)}
+.hmu-pill.hmu-more:focus-visible{outline:2px solid #61A2FE;outline-offset:2px}
+.hmu-pill.hmu-more:active{transform:translateY(0)}
 
 /* HOW IT WORKS */
 .howit-section{background:var(--white);padding:42px 6%;border-bottom:1px solid var(--border)}
@@ -499,7 +502,13 @@ const SopVault = () => {
               <span className="hmu-pill hmu-gold">₹1 Cr scholar</span>
               <span className="hmu-pill">Hopkins</span>
               <span className="hmu-pill">4× Erasmus</span>
-              <span className="hmu-pill hmu-more">+11 more</span>
+              <button
+                type="button"
+                className="hmu-pill hmu-more"
+                onClick={() => document.getElementById("vault")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+              >
+                +11 more →
+              </button>
             </div>
           </div>
           <div className="hero-video">
