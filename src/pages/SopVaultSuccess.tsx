@@ -1,8 +1,29 @@
+import { useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { initMetaPixel, trackMetaEvent } from "@/lib/metaPixel";
+
+const SOP_VAULT_PRICE = 199;
 
 const SopVaultSuccess = () => {
   const [params] = useSearchParams();
   const failed = params.get("status") === "failed";
+
+  useEffect(() => {
+    if (failed) return;
+    if (typeof window === "undefined") return;
+    if (window.sessionStorage.getItem("sop_purchase_tracked")) return;
+
+    initMetaPixel();
+    trackMetaEvent("Purchase", {
+      content_name: "The SOP Vault",
+      content_ids: ["sop-vault"],
+      content_type: "product",
+      value: SOP_VAULT_PRICE,
+      currency: "INR",
+      num_items: 15,
+    });
+    window.sessionStorage.setItem("sop_purchase_tracked", "1");
+  }, [failed]);
 
   return (
     <div style={{

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { initMetaPixel, trackMetaEvent } from "@/lib/metaPixel";
 import logoWhite from "@/assets/logo-white.png";
 import uniHopkins from "@/assets/uni/johns-hopkins.png";
 import uniHertie from "@/assets/uni/hertie.png";
@@ -421,6 +422,17 @@ const SopVault = () => {
     return () => { document.body.style.backgroundColor = prev; };
   }, []);
 
+  useEffect(() => {
+    initMetaPixel();
+    trackMetaEvent("ViewContent", {
+      content_name: "The SOP Vault",
+      content_ids: ["sop-vault"],
+      content_type: "product",
+      value: PRICE,
+      currency: "INR",
+    });
+  }, []);
+
   const openBuyModal = () => {
     setPayError("");
     setModalOpen(true);
@@ -439,6 +451,15 @@ const SopVault = () => {
 
     setIsProcessing(true);
     setPayError("");
+
+    trackMetaEvent("InitiateCheckout", {
+      content_name: "The SOP Vault",
+      content_ids: ["sop-vault"],
+      content_type: "product",
+      value: PRICE,
+      currency: "INR",
+      num_items: 15,
+    });
 
     try {
       const hashRes = await fetch(`${SUPABASE_URL}/functions/v1/generate-payu-hash`, {
