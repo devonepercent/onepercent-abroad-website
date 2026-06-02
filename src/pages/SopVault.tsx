@@ -86,7 +86,7 @@ const faqs = [
   },
   {
     q: "Will I get access immediately after payment?",
-    a: "Yes — instantly. The moment your PayU payment is confirmed, your download link is emailed to you. Links stay live for 72 hours — save the PDFs to your device.",
+    a: "Yes — instantly. The moment your PayU payment is confirmed, your download link is emailed to you. Links stay live for 7 days — save the PDFs to your device.",
   },
   {
     q: "Is there a refund policy?",
