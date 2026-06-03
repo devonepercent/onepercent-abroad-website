@@ -74,6 +74,20 @@ interface NewsletterSubscriber {
   created_at: string;
 }
 
+interface ProgramEnquiry {
+  id: string;
+  student_name: string;
+  student_email: string;
+  student_phone: string | null;
+  program_name: string;
+  university_name: string | null;
+  country: string | null;
+  match_score: number | null;
+  source: string | null;
+  status: string | null;
+  created_at: string;
+}
+
 interface SalesEvaluationAdmin {
   id: string;
   candidate_name: string | null;
@@ -138,6 +152,7 @@ const AdminDashboard = () => {
   const [salesEvaluations, setSalesEvaluations] = useState<SalesEvaluationAdmin[]>([]);
   const [billingCycles, setBillingCycles] = useState<BillingCycle[]>([]);
   const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
+  const [programEnquiries, setProgramEnquiries] = useState<ProgramEnquiry[]>([]);
   const [recentExpenses, setRecentExpenses] = useState<Expense[]>([]);
   const [expenseEmailMap, setExpenseEmailMap] = useState<UserEmailMap>({});
   const [sopPurchases, setSopPurchases] = useState<SopPurchase[]>([]);
@@ -222,6 +237,7 @@ const AdminDashboard = () => {
         { data: expenseData, error: expenseError },
         { data: subscriberData, error: subscriberError },
         { data: sopData, error: sopError },
+        { data: enquiryData, error: enquiryError },
       ] = await Promise.all([
         supabase
           .from("webinar_registrations" as any)
@@ -254,6 +270,10 @@ const AdminDashboard = () => {
           .order("created_at", { ascending: false }),
         supabase
           .from("sop_purchases" as any)
+          .select("*")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("program_enquiries" as any)
           .select("*")
           .order("created_at", { ascending: false }),
       ]);
@@ -298,6 +318,12 @@ const AdminDashboard = () => {
         console.error("Error loading SOP purchases:", sopError);
       } else {
         setSopPurchases((sopData as unknown as SopPurchase[]) || []);
+      }
+
+      if (enquiryError) {
+        console.error("Error loading program enquiries:", enquiryError);
+      } else {
+        setProgramEnquiries((enquiryData as unknown as ProgramEnquiry[]) || []);
       }
 
       if (expenseError) {
@@ -527,6 +553,7 @@ const AdminDashboard = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="flex-wrap h-auto">
             <TabsTrigger value="leads">Get started leads</TabsTrigger>
+            <TabsTrigger value="program-enquiries">Program enquiries</TabsTrigger>
             <TabsTrigger value="webinar">Webinar registrations</TabsTrigger>
             <TabsTrigger value="hiring">Hiring submissions</TabsTrigger>
             <TabsTrigger value="sales-evaluations">Sales evaluation reports</TabsTrigger>
@@ -627,6 +654,70 @@ const AdminDashboard = () => {
                 </TableBody>
               </Table>
               <PaginationBar page={leadsPage} pageCount={leadsPageCount} onPage={setLeadsPage} />
+            </div>
+          </TabsContent>
+
+          {/* Program enquiries tab (from the student app) */}
+          <TabsContent value="program-enquiries">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-4">
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold">Program enquiries</h2>
+                <p className="text-sm text-muted-foreground">
+                  {programEnquiries.length} total · students asking for free application &amp; visa help
+                </p>
+              </div>
+              <Button
+                onClick={() => {
+                  if (programEnquiries.length === 0) return;
+                  const headers = ["Timestamp","Name","Email","Phone","Program","University","Country","Match","Source"];
+                  const rows = programEnquiries.map(e => [new Date(e.created_at).toLocaleString(),`"${e.student_name}"`,e.student_email,`"${e.student_phone || ""}"`,`"${e.program_name}"`,`"${e.university_name || ""}"`,e.country || "",e.match_score ?? "",e.source || ""].join(","));
+                  const blob = new Blob([[headers.join(","),...rows].join("\n")],{type:"text/csv"});
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement("a"); a.href=url; a.download=`program-enquiries-${new Date().toISOString().split("T")[0]}.csv`; a.click(); window.URL.revokeObjectURL(url);
+                }}
+                size="sm" variant="outline" disabled={programEnquiries.length === 0}
+              >
+                <Download className="mr-2 h-4 w-4" />Export CSV
+              </Button>
+            </div>
+
+            <div className="bg-card rounded-lg shadow border overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Phone</TableHead>
+                    <TableHead>Program</TableHead>
+                    <TableHead>University</TableHead>
+                    <TableHead>Country</TableHead>
+                    <TableHead>Match</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {programEnquiries.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                        No program enquiries yet
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    programEnquiries.map((e) => (
+                      <TableRow key={e.id}>
+                        <TableCell className="whitespace-nowrap">{new Date(e.created_at).toLocaleString()}</TableCell>
+                        <TableCell className="whitespace-nowrap">{e.student_name}</TableCell>
+                        <TableCell>{e.student_email}</TableCell>
+                        <TableCell className="whitespace-nowrap">{e.student_phone || "-"}</TableCell>
+                        <TableCell className="max-w-[200px] truncate" title={e.program_name}>{e.program_name}</TableCell>
+                        <TableCell className="max-w-[180px] truncate" title={e.university_name || ""}>{e.university_name || "-"}</TableCell>
+                        <TableCell>{e.country || "-"}</TableCell>
+                        <TableCell className="whitespace-nowrap">{e.match_score != null ? `${e.match_score}/10` : "-"}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
             </div>
           </TabsContent>
 
