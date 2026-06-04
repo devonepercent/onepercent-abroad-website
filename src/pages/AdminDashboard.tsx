@@ -23,6 +23,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle2, ChevronDown, Clock, Download, Loader2, LogOut, Mail, Search, Send, Trash2, Upload, XCircle } from "lucide-react";
@@ -217,6 +227,12 @@ const AdminDashboard = () => {
   const [senderSopIds, setSenderSopIds] = useState<number[]>(ALL_SOP_VAULT_IDS);
   const [senderBusy, setSenderBusy] = useState(false);
   const [senderPickerOpen, setSenderPickerOpen] = useState(false);
+  // Confirmation popup before any SOP email is sent
+  const [confirmSend, setConfirmSend] = useState<{
+    title: string;
+    description: string;
+    onConfirm: () => void;
+  } | null>(null);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [webinarFilter, setWebinarFilter] = useState<string>("all");
@@ -635,6 +651,33 @@ const AdminDashboard = () => {
     } finally {
       setSenderBusy(false);
     }
+  };
+
+  // Ask for confirmation before re-sending a purchase's delivery email.
+  const requestResend = (s: SopPurchase) => {
+    setConfirmSend({
+      title: "Send SOP email?",
+      description: `The SOP delivery email (with download links) will be sent to ${s.email}.`,
+      onConfirm: () => handleResend(s),
+    });
+  };
+
+  // Validate the manual sender form, then ask for confirmation before sending.
+  const requestManualSend = () => {
+    const email = senderEmail.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      toast({ title: "Invalid email", description: "Enter a valid email address.", variant: "destructive" });
+      return;
+    }
+    if (senderSopIds.length === 0) {
+      toast({ title: "No SOPs selected", description: "Pick at least one SOP to send.", variant: "destructive" });
+      return;
+    }
+    setConfirmSend({
+      title: "Send SOP email?",
+      description: `${senderSopIds.length} SOP(s) will be sent to ${email}.`,
+      onConfirm: () => handleManualSend(),
+    });
   };
 
   const exportToCSV = () => {
@@ -1452,7 +1495,7 @@ const AdminDashboard = () => {
                     </PopoverContent>
                   </Popover>
                 </div>
-                <Button size="sm" className="h-9" onClick={handleManualSend} disabled={senderBusy}>
+                <Button size="sm" className="h-9" onClick={requestManualSend} disabled={senderBusy}>
                   {senderBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                   {senderBusy ? "Sending…" : "Send SOP email"}
                 </Button>
@@ -1529,7 +1572,7 @@ const AdminDashboard = () => {
                                 variant={emailed ? "outline" : "default"}
                                 className="h-8"
                                 disabled={resendingId === s.id}
-                                onClick={(e) => { e.stopPropagation(); handleResend(s); }}
+                                onClick={(e) => { e.stopPropagation(); requestResend(s); }}
                               >
                                 {resendingId === s.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Mail className="h-3.5 w-3.5" />}
                                 <span className="ml-1.5">{emailed ? "Resend" : "Send"}</span>
@@ -1668,6 +1711,28 @@ const AdminDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* SOP email send confirmation */}
+      <AlertDialog open={!!confirmSend} onOpenChange={(open) => { if (!open) setConfirmSend(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{confirmSend?.title}</AlertDialogTitle>
+            <AlertDialogDescription>{confirmSend?.description}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                const action = confirmSend?.onConfirm;
+                setConfirmSend(null);
+                action?.();
+              }}
+            >
+              Send email
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
