@@ -71,6 +71,14 @@ serve(async (req) => {
       status: isSuccess ? "completed" : "failed",
     }).eq("payu_txnid", txnid);
 
+    // Lifecycle log: payment outcome reported by PayU.
+    await supabase.from("sop_events").insert({
+      purchase_id: purchase.id,
+      email: purchase.email,
+      event_type: isSuccess ? "payment_success" : "payment_failed",
+      detail: { mihpayid, txnid, amount, status },
+    });
+
     if (!isSuccess) return Response.redirect(failureUrl, 302);
 
     // Generate signed download URLs (7-day expiry)
@@ -131,16 +139,62 @@ serve(async (req) => {
   </div>
 </body></html>`;
 
-      await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          from: "OnePercent Abroad <noreply@notify.onepercentabroad.com>",
-          to: purchase.email,
-          subject: `Your ${planLabel} is ready — OnePercent Abroad`,
-          html: emailHtml,
-        }),
-      });
+      // Buyer delivery email — capture the real Resend result so we know
+      // whether it actually went out.
+      try {
+        const buyerRes = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            from: "OnePercent Abroad <noreply@notify.onepercentabroad.com>",
+            to: purchase.email,
+            subject: `Your ${planLabel} is ready — OnePercent Abroad`,
+            html: emailHtml,
+          }),
+        });
+        const buyerBody = await buyerRes.json().catch(() => ({}));
+
+        if (buyerRes.ok) {
+          await supabase.from("sop_purchases").update({
+            email_sent: true,
+            email_sent_at: new Date().toISOString(),
+            email_error: null,
+            resend_message_id: buyerBody?.id ?? null,
+          }).eq("payu_txnid", txnid);
+
+          await supabase.from("sop_events").insert({
+            purchase_id: purchase.id,
+            email: purchase.email,
+            event_type: "email_sent",
+            detail: { to: purchase.email, resend_id: buyerBody?.id ?? null, links_count: links.length },
+          });
+        } else {
+          const errMsg = buyerBody?.message || `Resend HTTP ${buyerRes.status}`;
+          await supabase.from("sop_purchases").update({
+            email_sent: false,
+            email_error: errMsg,
+          }).eq("payu_txnid", txnid);
+
+          await supabase.from("sop_events").insert({
+            purchase_id: purchase.id,
+            email: purchase.email,
+            event_type: "email_failed",
+            detail: { to: purchase.email, status: buyerRes.status, error: errMsg },
+          });
+        }
+      } catch (sendErr: unknown) {
+        const errMsg = sendErr instanceof Error ? sendErr.message : "Unknown send error";
+        await supabase.from("sop_purchases").update({
+          email_sent: false,
+          email_error: errMsg,
+        }).eq("payu_txnid", txnid);
+        await supabase.from("sop_events").insert({
+          purchase_id: purchase.id,
+          email: purchase.email,
+          event_type: "email_failed",
+          detail: { to: purchase.email, error: errMsg },
+        });
+      }
 
       // Admin notification (success only, no download links)
       const sopsList =
@@ -203,6 +257,19 @@ serve(async (req) => {
           subject: `New SOP Vault purchase — ₹${amount} · ${planLabel}`,
           html: adminHtml,
         }),
+      });
+    } else {
+      // No Resend key configured — delivery cannot happen. Record it so the
+      // dashboard surfaces the failure instead of silently dropping the email.
+      await supabase.from("sop_purchases").update({
+        email_sent: false,
+        email_error: "RESEND_API_KEY not configured",
+      }).eq("payu_txnid", txnid);
+      await supabase.from("sop_events").insert({
+        purchase_id: purchase.id,
+        email: purchase.email,
+        event_type: "email_failed",
+        detail: { error: "RESEND_API_KEY not configured" },
       });
     }
 

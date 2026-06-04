@@ -44,17 +44,36 @@ serve(async (req) => {
     const hashStr = `${key}|${txnid}|${amountStr}|${productinfo}|${firstname}|${email}|||||||||||${salt}`;
     const hash = await sha512(hashStr);
 
-    const { error: insertError } = await supabase.from("sop_purchases").insert({
-      email,
-      phone,
-      firstname,
-      plan,
-      selected_sop_ids: selected_sop_ids ?? [],
-      payu_txnid: txnid,
-      amount: Number(amount),
-      status: "pending",
-    });
+    const { data: inserted, error: insertError } = await supabase
+      .from("sop_purchases")
+      .insert({
+        email,
+        phone,
+        firstname,
+        plan,
+        selected_sop_ids: selected_sop_ids ?? [],
+        payu_txnid: txnid,
+        amount: Number(amount),
+        status: "pending",
+        source: "payu",
+      })
+      .select("id")
+      .single();
     if (insertError) throw insertError;
+
+    // Lifecycle log: buyer clicked Pay and a checkout was initiated.
+    await supabase.from("sop_events").insert({
+      purchase_id: inserted?.id ?? null,
+      email,
+      event_type: "checkout_initiated",
+      detail: {
+        plan,
+        amount: Number(amount),
+        selected_sop_ids: selected_sop_ids ?? [],
+        txnid,
+        productinfo,
+      },
+    });
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const callbackUrl = `${supabaseUrl}/functions/v1/handle-payu-callback`;

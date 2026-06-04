@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,9 +20,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Download, LogOut, Search, Trash2, Upload } from "lucide-react";
+import { CheckCircle2, ChevronDown, Clock, Download, Loader2, LogOut, Mail, Search, Send, Trash2, Upload, XCircle } from "lucide-react";
 import { ProjectView } from "@/components/tracker/ProjectView";
 
 interface Registration {
@@ -129,7 +132,50 @@ interface SopPurchase {
   payu_txnid: string | null;
   payu_mihpayid: string | null;
   created_at: string;
+  email_sent: boolean | null;
+  email_sent_at: string | null;
+  email_error: string | null;
+  resend_message_id: string | null;
+  source: "payu" | "manual" | null;
 }
+
+interface SopEvent {
+  id: string;
+  purchase_id: string | null;
+  email: string | null;
+  event_type: string;
+  detail: Record<string, unknown> | null;
+  created_at: string;
+}
+
+const SOP_VAULT_NAMES: Record<number, string> = {
+  1: "Hertie School — MA Public Policy",
+  2: "Johns Hopkins (SAIS) — MA Public Policy",
+  3: "Erasmus Mundus Joint Master",
+  4: "NMBU — MSc Agroecology",
+  5: "Europubhealth+ — European Public Health",
+  6: "University of Pisa — MSc AI Data Engineering",
+  7: "Central European University — MA Public Policy",
+  8: "University of Glasgow — MSc Data Science",
+  9: "Keele — MSc Environmental & Green Technology",
+  10: "University of Freiburg — MSc Global Urban Health",
+  11: "University of Leeds — MSc Sustainable Cities",
+  12: "University of Glasgow — MSc International Journalism",
+  13: "University of Sussex — MA Development Studies",
+  14: "ACES-STAR — MSc Aquaculture, Environment & Society",
+  15: "University of Sheffield — MPH Public Health",
+};
+const ALL_SOP_VAULT_IDS = Object.keys(SOP_VAULT_NAMES).map(Number).sort((a, b) => a - b);
+
+const SOP_EVENT_LABELS: Record<string, { label: string; tone: string; dot: string }> = {
+  checkout_initiated: { label: "Checkout started", tone: "text-blue-600", dot: "bg-blue-600" },
+  payment_success: { label: "Payment successful", tone: "text-green-600", dot: "bg-green-600" },
+  payment_failed: { label: "Payment failed", tone: "text-destructive", dot: "bg-destructive" },
+  email_sent: { label: "Email sent", tone: "text-green-600", dot: "bg-green-600" },
+  email_failed: { label: "Email failed", tone: "text-destructive", dot: "bg-destructive" },
+  manual_resend: { label: "Manual send triggered", tone: "text-amber-600", dot: "bg-amber-600" },
+};
+const SOP_EVENT_FALLBACK = { label: "", tone: "text-foreground", dot: "bg-muted-foreground" };
 
 type UserEmailMap = Record<string, string>;
 
@@ -156,12 +202,21 @@ const AdminDashboard = () => {
   const [recentExpenses, setRecentExpenses] = useState<Expense[]>([]);
   const [expenseEmailMap, setExpenseEmailMap] = useState<UserEmailMap>({});
   const [sopPurchases, setSopPurchases] = useState<SopPurchase[]>([]);
+  const [sopEvents, setSopEvents] = useState<SopEvent[]>([]);
   const [sopFrom, setSopFrom] = useState("");
   const [sopTo, setSopTo] = useState("");
   const [sopPage, setSopPage] = useState(1);
   const [sopSearch, setSopSearch] = useState("");
   const [sopPlanFilter, setSopPlanFilter] = useState<string>("all");
   const [sopStatusFilter, setSopStatusFilter] = useState<string>("completed");
+  const [expandedSopId, setExpandedSopId] = useState<string | null>(null);
+  const [resendingId, setResendingId] = useState<string | null>(null);
+  // Manual SOP sender
+  const [senderEmail, setSenderEmail] = useState("");
+  const [senderName, setSenderName] = useState("");
+  const [senderSopIds, setSenderSopIds] = useState<number[]>(ALL_SOP_VAULT_IDS);
+  const [senderBusy, setSenderBusy] = useState(false);
+  const [senderPickerOpen, setSenderPickerOpen] = useState(false);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [webinarFilter, setWebinarFilter] = useState<string>("all");
@@ -237,6 +292,7 @@ const AdminDashboard = () => {
         { data: expenseData, error: expenseError },
         { data: subscriberData, error: subscriberError },
         { data: sopData, error: sopError },
+        { data: sopEventsData, error: sopEventsError },
         { data: enquiryData, error: enquiryError },
       ] = await Promise.all([
         supabase
@@ -272,6 +328,10 @@ const AdminDashboard = () => {
           .from("sop_purchases" as any)
           .select("*")
           .order("created_at", { ascending: false }),
+        supabase
+          .from("sop_events" as any)
+          .select("*")
+          .order("created_at", { ascending: true }),
         supabase
           .from("program_enquiries" as any)
           .select("*")
@@ -318,6 +378,12 @@ const AdminDashboard = () => {
         console.error("Error loading SOP purchases:", sopError);
       } else {
         setSopPurchases((sopData as unknown as SopPurchase[]) || []);
+      }
+
+      if (sopEventsError) {
+        console.error("Error loading SOP events:", sopEventsError);
+      } else {
+        setSopEvents((sopEventsData as unknown as SopEvent[]) || []);
       }
 
       if (enquiryError) {
@@ -479,6 +545,97 @@ const AdminDashboard = () => {
   }, [sopPurchases, sopFrom, sopTo, sopSearch, sopPlanFilter, sopStatusFilter]);
   const pagedSop = filteredSop.slice((sopPage - 1) * PAGE_SIZE, sopPage * PAGE_SIZE);
   const sopPageCount = Math.max(1, Math.ceil(filteredSop.length / PAGE_SIZE));
+
+  // Group lifecycle events by purchase for the per-lead timeline.
+  const sopEventsByPurchase = useMemo(() => {
+    const map: Record<string, SopEvent[]> = {};
+    for (const ev of sopEvents) {
+      if (!ev.purchase_id) continue;
+      (map[ev.purchase_id] ??= []).push(ev);
+    }
+    return map;
+  }, [sopEvents]);
+
+  const refreshSop = async () => {
+    const [{ data: sd }, { data: ed }] = await Promise.all([
+      supabase.from("sop_purchases" as any).select("*").order("created_at", { ascending: false }),
+      supabase.from("sop_events" as any).select("*").order("created_at", { ascending: true }),
+    ]);
+    setSopPurchases((sd as unknown as SopPurchase[]) || []);
+    setSopEvents((ed as unknown as SopEvent[]) || []);
+  };
+
+  const callSopSender = async (payload: {
+    email: string;
+    firstname?: string | null;
+    selected_sop_ids?: number[];
+    purchase_id?: string;
+  }) => {
+    const { data, error } = await supabase.functions.invoke("send-sop-email", { body: payload });
+    if (error) {
+      // Surface the edge function's JSON error body when present.
+      let msg = error.message;
+      try {
+        const ctx = (error as { context?: Response }).context;
+        if (ctx && typeof ctx.json === "function") {
+          const body = await ctx.json();
+          if (body?.error) msg = body.error;
+        }
+      } catch { /* ignore */ }
+      throw new Error(msg);
+    }
+    if (!data?.success) throw new Error(data?.error || "Send failed");
+    return data;
+  };
+
+  const handleResend = async (s: SopPurchase) => {
+    setResendingId(s.id);
+    try {
+      const ids = s.plan === "full" ? ALL_SOP_VAULT_IDS : (s.selected_sop_ids || []);
+      await callSopSender({
+        email: s.email,
+        firstname: s.firstname,
+        selected_sop_ids: ids.length > 0 ? ids : ALL_SOP_VAULT_IDS,
+        purchase_id: s.id,
+      });
+      toast({ title: "Email sent", description: `Delivery email re-sent to ${s.email}.` });
+      await refreshSop();
+    } catch (e) {
+      toast({ title: "Send failed", description: e instanceof Error ? e.message : "Unknown error", variant: "destructive" });
+    } finally {
+      setResendingId(null);
+    }
+  };
+
+  const handleManualSend = async () => {
+    const email = senderEmail.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      toast({ title: "Invalid email", description: "Enter a valid email address.", variant: "destructive" });
+      return;
+    }
+    if (senderSopIds.length === 0) {
+      toast({ title: "No SOPs selected", description: "Pick at least one SOP to send.", variant: "destructive" });
+      return;
+    }
+    setSenderBusy(true);
+    try {
+      await callSopSender({
+        email,
+        firstname: senderName.trim() || null,
+        selected_sop_ids: senderSopIds,
+      });
+      toast({ title: "SOP email sent", description: `${senderSopIds.length} SOP(s) sent to ${email}.` });
+      setSenderEmail("");
+      setSenderName("");
+      setSenderSopIds(ALL_SOP_VAULT_IDS);
+      setSenderPickerOpen(false);
+      await refreshSop();
+    } catch (e) {
+      toast({ title: "Send failed", description: e instanceof Error ? e.message : "Unknown error", variant: "destructive" });
+    } finally {
+      setSenderBusy(false);
+    }
+  };
 
   const exportToCSV = () => {
     if (filteredRegistrations.length === 0) {
@@ -1245,52 +1402,189 @@ const AdminDashboard = () => {
               </div>
             </div>
 
+            {/* Manual SOP sender */}
+            <div className="bg-card rounded-lg shadow border p-4 mb-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Send className="h-4 w-4 text-primary" />
+                <h3 className="text-sm font-semibold">Manual SOP sender</h3>
+                <span className="text-xs text-muted-foreground">Send the SOP delivery email (with download links) to any address.</span>
+              </div>
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Recipient email *</Label>
+                  <Input type="email" placeholder="student@email.com" value={senderEmail} onChange={e => setSenderEmail(e.target.value)} className="h-9 w-64" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">First name (optional)</Label>
+                  <Input placeholder="Name for greeting" value={senderName} onChange={e => setSenderName(e.target.value)} className="h-9 w-44" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">SOPs to send</Label>
+                  <Popover open={senderPickerOpen} onOpenChange={setSenderPickerOpen}>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-9 w-56 justify-between font-normal">
+                        <span className="truncate">
+                          {senderSopIds.length === ALL_SOP_VAULT_IDS.length ? "All 15 (Full Vault)" : `${senderSopIds.length} selected`}
+                        </span>
+                        <ChevronDown className="h-4 w-4 opacity-60" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 p-0" align="start">
+                      <div className="flex items-center justify-between px-3 py-2 border-b">
+                        <span className="text-xs font-medium">Select SOPs</span>
+                        <div className="flex gap-2">
+                          <button className="text-xs text-primary hover:underline" onClick={() => setSenderSopIds(ALL_SOP_VAULT_IDS)}>All</button>
+                          <button className="text-xs text-muted-foreground hover:underline" onClick={() => setSenderSopIds([])}>None</button>
+                        </div>
+                      </div>
+                      <div className="max-h-64 overflow-y-auto py-1">
+                        {ALL_SOP_VAULT_IDS.map(id => (
+                          <label key={id} className="flex items-start gap-2 px-3 py-1.5 hover:bg-muted/50 cursor-pointer text-xs">
+                            <Checkbox
+                              checked={senderSopIds.includes(id)}
+                              onCheckedChange={(c) => setSenderSopIds(prev => c ? [...prev, id].sort((a, b) => a - b) : prev.filter(x => x !== id))}
+                              className="mt-0.5"
+                            />
+                            <span><span className="font-mono text-muted-foreground mr-1">{id}.</span>{SOP_VAULT_NAMES[id]}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <Button size="sm" className="h-9" onClick={handleManualSend} disabled={senderBusy}>
+                  {senderBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+                  {senderBusy ? "Sending…" : "Send SOP email"}
+                </Button>
+              </div>
+            </div>
+
             <div className="bg-card rounded-lg shadow border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-8"></TableHead>
                     <TableHead>Timestamp</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
-                    <TableHead>Phone</TableHead>
                     <TableHead>Plan</TableHead>
                     <TableHead>SOPs</TableHead>
                     <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Txn ID</TableHead>
+                    <TableHead className="text-center">Payment</TableHead>
+                    <TableHead className="text-center">Email sent</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {pagedSop.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
                         No SOP purchases found
                       </TableCell>
                     </TableRow>
                   ) : (
-                    pagedSop.map((s) => (
-                      <TableRow key={s.id}>
-                        <TableCell className="whitespace-nowrap">{new Date(s.created_at).toLocaleString()}</TableCell>
-                        <TableCell className="whitespace-nowrap">{s.firstname || "—"}</TableCell>
-                        <TableCell>{s.email}</TableCell>
-                        <TableCell className="whitespace-nowrap">{s.phone || "—"}</TableCell>
-                        <TableCell className="capitalize">{s.plan}</TableCell>
-                        <TableCell className="max-w-[160px] truncate" title={(s.selected_sop_ids || []).join(", ")}>
-                          {s.plan === "full" ? "All 15" : (s.selected_sop_ids || []).join(", ") || "—"}
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap">₹{Number(s.amount).toLocaleString()}</TableCell>
-                        <TableCell>
-                          <span className={
-                            s.status === "completed" ? "text-green-600 font-medium" :
-                            s.status === "failed" ? "text-destructive font-medium" :
-                            "text-muted-foreground"
-                          }>
-                            {s.status}
-                          </span>
-                        </TableCell>
-                        <TableCell className="font-mono text-xs">{s.payu_txnid || "—"}</TableCell>
-                      </TableRow>
-                    ))
+                    pagedSop.map((s) => {
+                      const expanded = expandedSopId === s.id;
+                      const events = sopEventsByPurchase[s.id] || [];
+                      const paid = s.status === "completed";
+                      const emailed = !!s.email_sent;
+                      return (
+                        <Fragment key={s.id}>
+                          <TableRow className="cursor-pointer" onClick={() => setExpandedSopId(expanded ? null : s.id)}>
+                            <TableCell className="align-middle">
+                              <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap">{new Date(s.created_at).toLocaleString()}</TableCell>
+                            <TableCell className="whitespace-nowrap">
+                              {s.firstname || "—"}
+                              {s.source === "manual" && <Badge variant="secondary" className="ml-2 text-[10px] py-0">manual</Badge>}
+                            </TableCell>
+                            <TableCell>{s.email}</TableCell>
+                            <TableCell className="capitalize">{s.plan}</TableCell>
+                            <TableCell className="max-w-[140px] truncate" title={(s.selected_sop_ids || []).join(", ")}>
+                              {s.plan === "full" ? "All 15" : (s.selected_sop_ids || []).join(", ") || "—"}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap">₹{Number(s.amount).toLocaleString()}</TableCell>
+                            <TableCell className="text-center">
+                              {paid ? (
+                                <span className="inline-flex items-center gap-1 text-green-600" title="Payment completed"><CheckCircle2 className="h-4 w-4" /></span>
+                              ) : s.status === "failed" ? (
+                                <span className="inline-flex items-center gap-1 text-destructive" title="Payment failed"><XCircle className="h-4 w-4" /></span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-muted-foreground" title="Pending"><Clock className="h-4 w-4" /></span>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {emailed ? (
+                                <span className="inline-flex items-center gap-1 text-green-600" title={s.email_sent_at ? `Sent ${new Date(s.email_sent_at).toLocaleString()}` : "Sent"}><CheckCircle2 className="h-4 w-4" /></span>
+                              ) : s.email_error ? (
+                                <span className="inline-flex items-center gap-1 text-destructive" title={s.email_error}><XCircle className="h-4 w-4" /></span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-muted-foreground" title="Not sent"><XCircle className="h-4 w-4 opacity-40" /></span>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button
+                                size="sm"
+                                variant={emailed ? "outline" : "default"}
+                                className="h-8"
+                                disabled={resendingId === s.id}
+                                onClick={(e) => { e.stopPropagation(); handleResend(s); }}
+                              >
+                                {resendingId === s.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Mail className="h-3.5 w-3.5" />}
+                                <span className="ml-1.5">{emailed ? "Resend" : "Send"}</span>
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                          {expanded && (
+                            <TableRow className="bg-muted/30 hover:bg-muted/30">
+                              <TableCell colSpan={10} className="py-4">
+                                <div className="grid md:grid-cols-2 gap-6 px-2">
+                                  {/* Technical details */}
+                                  <div className="space-y-2 text-xs">
+                                    <div className="font-semibold text-sm mb-1">Technical details</div>
+                                    <DetailRow label="Purchase ID" value={s.id} mono />
+                                    <DetailRow label="Phone" value={s.phone || "—"} />
+                                    <DetailRow label="Source" value={s.source || "payu"} />
+                                    <DetailRow label="PayU txn ID" value={s.payu_txnid || "—"} mono />
+                                    <DetailRow label="PayU mihpayid" value={s.payu_mihpayid || "—"} mono />
+                                    <DetailRow label="Resend msg ID" value={s.resend_message_id || "—"} mono />
+                                    <DetailRow label="Email sent at" value={s.email_sent_at ? new Date(s.email_sent_at).toLocaleString() : "—"} />
+                                    {s.email_error && <DetailRow label="Email error" value={s.email_error} tone="text-destructive" />}
+                                    {s.plan !== "full" && (
+                                      <DetailRow label="SOPs" value={(s.selected_sop_ids || []).map(id => SOP_VAULT_NAMES[id] || `SOP ${id}`).join(", ") || "—"} />
+                                    )}
+                                  </div>
+                                  {/* Event timeline */}
+                                  <div className="space-y-2">
+                                    <div className="font-semibold text-sm mb-1">Event log</div>
+                                    {events.length === 0 ? (
+                                      <div className="text-xs text-muted-foreground">No events recorded for this lead yet.</div>
+                                    ) : (
+                                      <ol className="relative border-l border-border pl-4 space-y-3">
+                                        {events.map(ev => {
+                                          const meta = SOP_EVENT_LABELS[ev.event_type] || { ...SOP_EVENT_FALLBACK, label: ev.event_type };
+                                          return (
+                                            <li key={ev.id} className="relative">
+                                              <span className={`absolute -left-[1.30rem] top-1 h-2 w-2 rounded-full ${meta.dot}`} />
+                                              <div className={`text-xs font-medium ${meta.tone}`}>{meta.label}</div>
+                                              <div className="text-[11px] text-muted-foreground">{new Date(ev.created_at).toLocaleString()}</div>
+                                              {ev.detail && Object.keys(ev.detail).length > 0 && (
+                                                <pre className="mt-1 text-[10px] bg-background border rounded p-2 overflow-x-auto whitespace-pre-wrap break-all text-muted-foreground">{JSON.stringify(ev.detail, null, 1)}</pre>
+                                              )}
+                                            </li>
+                                          );
+                                        })}
+                                      </ol>
+                                    )}
+                                  </div>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </Fragment>
+                      );
+                    })
                   )}
                 </TableBody>
               </Table>
@@ -1377,6 +1671,13 @@ const AdminDashboard = () => {
     </div>
   );
 };
+
+const DetailRow = ({ label, value, mono, tone }: { label: string; value: string; mono?: boolean; tone?: string }) => (
+  <div className="flex gap-2">
+    <span className="text-muted-foreground w-32 shrink-0">{label}</span>
+    <span className={`${mono ? "font-mono" : ""} ${tone || ""} break-all`}>{value}</span>
+  </div>
+);
 
 const PaginationBar = ({ page, pageCount, onPage }: { page: number; pageCount: number; onPage: (p: number) => void }) => {
   if (pageCount <= 1) return null;
