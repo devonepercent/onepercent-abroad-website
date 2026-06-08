@@ -271,7 +271,7 @@ function collectEnquiryTests(scores: EnquiryProfileForm["scores"] | undefined): 
   return out;
 }
 
-const DetailRow = ({ label, value }: { label: string; value?: ReactNode }) => {
+const EnquiryDetailRow = ({ label, value }: { label: string; value?: ReactNode }) => {
   if (value == null || value === "") return null;
   return (
     <div className="flex gap-2 text-sm">
@@ -317,12 +317,12 @@ const EnquiryDetailDialog = ({
               {/* Contact + enquiry */}
               <div className="space-y-1">
                 <SectionHeading>Enquiry</SectionHeading>
-                <DetailRow label="Email" value={enquiry.student_email} />
-                <DetailRow label="Phone" value={enquiry.student_phone || "—"} />
-                <DetailRow label="Program" value={enquiry.program_name} />
-                <DetailRow label="University" value={enquiry.university_name || "—"} />
-                <DetailRow label="Country" value={enquiry.country || "—"} />
-                <DetailRow label="Match score" value={enquiry.match_score != null ? `${enquiry.match_score}/10` : "—"} />
+                <EnquiryDetailRow label="Email" value={enquiry.student_email} />
+                <EnquiryDetailRow label="Phone" value={enquiry.student_phone || "—"} />
+                <EnquiryDetailRow label="Program" value={enquiry.program_name} />
+                <EnquiryDetailRow label="University" value={enquiry.university_name || "—"} />
+                <EnquiryDetailRow label="Country" value={enquiry.country || "—"} />
+                <EnquiryDetailRow label="Match score" value={enquiry.match_score != null ? `${enquiry.match_score}/10` : "—"} />
               </div>
 
               {!hasDetails && (
@@ -336,13 +336,13 @@ const EnquiryDetailDialog = ({
               {ob && (
                 <div className="space-y-1">
                   <SectionHeading>Quick profile</SectionHeading>
-                  <DetailRow label="Target degree" value={ob.degree} />
-                  <DetailRow label="Destinations" value={ob.destinations?.length ? ob.destinations.join(", ") : undefined} />
-                  <DetailRow label="Intake year" value={ob.start_year} />
-                  <DetailRow label="Field of study" value={ob.field_of_study} />
-                  <DetailRow label="CGPA" value={ob.cgpa != null && ob.cgpa !== "" ? String(ob.cgpa) : undefined} />
-                  <DetailRow label="Budget" value={ob.budget} />
-                  <DetailRow label="Location" value={[ob.city, ob.state].filter(Boolean).join(", ") || undefined} />
+                  <EnquiryDetailRow label="Target degree" value={ob.degree} />
+                  <EnquiryDetailRow label="Destinations" value={ob.destinations?.length ? ob.destinations.join(", ") : undefined} />
+                  <EnquiryDetailRow label="Intake year" value={ob.start_year} />
+                  <EnquiryDetailRow label="Field of study" value={ob.field_of_study} />
+                  <EnquiryDetailRow label="CGPA" value={ob.cgpa != null && ob.cgpa !== "" ? String(ob.cgpa) : undefined} />
+                  <EnquiryDetailRow label="Budget" value={ob.budget} />
+                  <EnquiryDetailRow label="Location" value={[ob.city, ob.state].filter(Boolean).join(", ") || undefined} />
                 </div>
               )}
 
@@ -371,7 +371,7 @@ const EnquiryDetailDialog = ({
               {tests.length ? (
                 <div className="space-y-1">
                   <SectionHeading>Test scores</SectionHeading>
-                  {tests.map((t, i) => <DetailRow key={i} label={t.label} value={t.score} />)}
+                  {tests.map((t, i) => <EnquiryDetailRow key={i} label={t.label} value={t.score} />)}
                 </div>
               ) : null}
 
@@ -379,9 +379,9 @@ const EnquiryDetailDialog = ({
               {form?.work && (form.work.years || form.work.currentRole || form.work.industry) ? (
                 <div className="space-y-1">
                   <SectionHeading>Work experience</SectionHeading>
-                  <DetailRow label="Total years" value={form.work.years} />
-                  <DetailRow label="Current/recent role" value={form.work.currentRole} />
-                  <DetailRow label="Industry" value={form.work.industry} />
+                  <EnquiryDetailRow label="Total years" value={form.work.years} />
+                  <EnquiryDetailRow label="Current/recent role" value={form.work.currentRole} />
+                  <EnquiryDetailRow label="Industry" value={form.work.industry} />
                 </div>
               ) : null}
 
@@ -389,10 +389,10 @@ const EnquiryDetailDialog = ({
               {form?.target && (form.target.degree || form.target.major || form.target.intake || form.target.budgetMin || form.target.budgetMax) ? (
                 <div className="space-y-1">
                   <SectionHeading>Target program</SectionHeading>
-                  <DetailRow label="Target degree" value={form.target.degree} />
-                  <DetailRow label="Major / field" value={form.target.major} />
-                  <DetailRow label="Intake" value={form.target.intake} />
-                  <DetailRow
+                  <EnquiryDetailRow label="Target degree" value={form.target.degree} />
+                  <EnquiryDetailRow label="Major / field" value={form.target.major} />
+                  <EnquiryDetailRow label="Intake" value={form.target.intake} />
+                  <EnquiryDetailRow
                     label="Budget / yr"
                     value={form.target.budgetMin || form.target.budgetMax
                       ? `₹${form.target.budgetMin || 0} – ₹${form.target.budgetMax || "?"}`
