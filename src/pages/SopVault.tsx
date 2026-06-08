@@ -252,6 +252,15 @@ a{text-decoration:none;color:inherit}
 .modal-input{padding:14px 18px;border-radius:50px;border:1.5px solid var(--border);font-family:'Outfit',sans-serif;font-size:0.9rem;color:var(--navy);outline:none;transition:border-color 0.2s;background:white}
 .modal-input:focus{border-color:var(--orange)}
 .modal-field-hint{font-family:'Outfit',sans-serif;font-size:0.74rem;line-height:1.45;color:var(--muted);margin:-4px 6px 2px;display:flex;gap:5px}
+.modal-confirm{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
+.modal-confirm-lead{font-family:'Outfit',sans-serif;font-size:0.9rem;color:var(--muted);line-height:1.55}
+.modal-confirm-email{font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:700;color:var(--navy);word-break:break-all;text-align:center;background:var(--cream-warm);border:1.5px solid var(--border);border-radius:14px;padding:15px 18px}
+.modal-confirm-row{display:flex;justify-content:space-between;align-items:center;font-family:'Outfit',sans-serif;font-size:0.88rem;color:var(--muted);padding:0 4px}
+.modal-confirm-row strong{color:var(--navy);font-weight:600}
+.modal-confirm-note{font-family:'Outfit',sans-serif;font-size:0.78rem;color:#b45309;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);border-radius:10px;padding:10px 14px;line-height:1.5}
+.btn-edit{background:transparent;border:none;color:var(--orange);font-family:'Outfit',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer;padding:11px;width:100%;margin-top:6px}
+.btn-edit:hover:not(:disabled){text-decoration:underline}
+.btn-edit:disabled{opacity:0.5;cursor:not-allowed}
 .btn-pay{background:var(--orange);color:white;border:none;border-radius:50px;padding:16px 28px;font-family:'Outfit',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;box-shadow:0 6px 24px rgba(6,93,199,0.32);transition:all 0.22s;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:0.04em;text-transform:uppercase;width:100%}
 .btn-pay:hover:not(:disabled){background:var(--navy);transform:translateY(-2px)}
 .btn-pay:disabled{opacity:0.6;cursor:not-allowed}
@@ -411,6 +420,8 @@ const SopVault = () => {
   const [phone, setPhone] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [payError, setPayError] = useState("");
+  // Buy modal has two steps: enter details -> confirm them -> pay.
+  const [modalStep, setModalStep] = useState<"form" | "confirm">("form");
 
   useEffect(() => {
     document.body.style.overflow = modalOpen || termsOpen ? "hidden" : "";
@@ -436,10 +447,13 @@ const SopVault = () => {
 
   const openBuyModal = () => {
     setPayError("");
+    setModalStep("form");
     setModalOpen(true);
   };
 
-  const handlePay = async () => {
+  // Step 1 -> Step 2: validate details, then show the confirmation screen.
+  // No payment is initiated here — that only happens on Confirm & Pay.
+  const goToConfirm = () => {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setPayError("Please enter a valid email address");
       return;
@@ -447,6 +461,22 @@ const SopVault = () => {
     const cleanPhone = phone.replace(/\D/g, "");
     if (cleanPhone.length < 10) {
       setPayError("Please enter a valid 10-digit phone number");
+      return;
+    }
+    setPayError("");
+    setModalStep("confirm");
+  };
+
+  const handlePay = async () => {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setPayError("Please enter a valid email address");
+      setModalStep("form");
+      return;
+    }
+    const cleanPhone = phone.replace(/\D/g, "");
+    if (cleanPhone.length < 10) {
+      setPayError("Please enter a valid 10-digit phone number");
+      setModalStep("form");
       return;
     }
 
@@ -684,33 +714,55 @@ const SopVault = () => {
             <div className="modal-price"><span className="modal-old price-old">₹{OLD_PRICE}</span><span className="curr">₹</span>{PRICE}</div>
           </div>
 
-          <div className="modal-fields">
-            <input
-              className="modal-input"
-              type="email"
-              placeholder="your@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-            />
-            <p className="modal-field-hint">
-              📩 Your SOPs will be sent to this email address — please enter a real inbox you can access.
-            </p>
-            <input
-              className="modal-input"
-              type="tel"
-              placeholder="Phone number (10 digits)"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              autoComplete="tel"
-            />
-          </div>
+          {modalStep === "form" ? (
+            <>
+              <div className="modal-fields">
+                <input
+                  className="modal-input"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                />
+                <p className="modal-field-hint">
+                  📩 Your SOPs will be sent to this email address — please enter a real inbox you can access.
+                </p>
+                <input
+                  className="modal-input"
+                  type="tel"
+                  placeholder="Phone number (10 digits)"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  autoComplete="tel"
+                />
+              </div>
 
-          <button className="btn-pay" onClick={handlePay} disabled={isProcessing}>
-            {isProcessing ? "Redirecting to PayU…" : `Pay ₹${PRICE} & Download`}
-          </button>
-          {payError && <div className="pay-error">{payError}</div>}
-          <div className="rzp">Secured by PayU · Safe &amp; Encrypted</div>
+              <button className="btn-pay" onClick={goToConfirm} disabled={isProcessing}>
+                Continue →
+              </button>
+              {payError && <div className="pay-error">{payError}</div>}
+              <div className="rzp">Secured by PayU · Safe &amp; Encrypted</div>
+            </>
+          ) : (
+            <>
+              <div className="modal-confirm">
+                <div className="modal-confirm-lead">Your SOPs will be sent to this email — please confirm it's correct:</div>
+                <div className="modal-confirm-email">{email}</div>
+                <div className="modal-confirm-row"><span>Phone</span><strong>{phone.replace(/\D/g, "")}</strong></div>
+                <div className="modal-confirm-note">⚠️ If this email is wrong, you won't receive your SOPs. Tap Edit to fix it.</div>
+              </div>
+
+              <button className="btn-pay" onClick={handlePay} disabled={isProcessing}>
+                {isProcessing ? "Redirecting to PayU…" : `Confirm & Pay ₹${PRICE}`}
+              </button>
+              <button className="btn-edit" onClick={() => { setPayError(""); setModalStep("form"); }} disabled={isProcessing}>
+                ← Edit details
+              </button>
+              {payError && <div className="pay-error">{payError}</div>}
+              <div className="rzp">Secured by PayU · Safe &amp; Encrypted</div>
+            </>
+          )}
         </div>
       </div>
 
