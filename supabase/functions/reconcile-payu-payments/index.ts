@@ -70,14 +70,21 @@ serve(async (req) => {
     const resendKey = Deno.env.get("RESEND_API_KEY");
     const supabase = createClient(supabaseUrl, serviceKey);
 
-    // Pending PayU purchases worth checking: old enough that the normal
-    // browser callback has had its chance (>2 min), but recent enough that
-    // PayU still has the transaction on file (<14 days).
+    // Undelivered PayU purchases fall into two cases that need *different*
+    // time windows, so they are fetched as two separate queries.
+    //
+    // All windows share a 2-minute lower lip so the live browser callback has
+    // had its chance to deliver first (and so we never race a callback that is
+    // mid-flight right now).
     const now = Date.now();
-    const olderThan = new Date(now - 2 * 60 * 1000).toISOString();
-    const newerThan = new Date(now - 14 * 24 * 60 * 60 * 1000).toISOString();
+    const olderThan      = new Date(now - 2 * 60 * 1000).toISOString();
+    const payuVerifyFrom = new Date(now - 14 * 24 * 60 * 60 * 1000).toISOString();
+    const emailRetryFrom = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-    const { data: pending, error } = await supabase
+    // Case 1 — payment outcome still unknown. Resolving it needs a live PayU
+    // lookup, so it is bounded to PayU's ~14-day verify_payment retention;
+    // older than that, PayU no longer has the txn and we can never confirm it.
+    const { data: pendingRows, error: pendingErr } = await supabase
       .from("sop_purchases")
       .select("*")
       .eq("status", "pending")
@@ -85,16 +92,46 @@ serve(async (req) => {
       .eq("email_sent", false)
       .not("payu_txnid", "is", null)
       .lt("created_at", olderThan)
-      .gt("created_at", newerThan)
+      .gt("created_at", payuVerifyFrom)
       .order("created_at", { ascending: true })
       .limit(50);
+    if (pendingErr) throw pendingErr;
 
-    if (error) throw error;
+    // Case 2 — payment already confirmed but the buyer email never sent (the
+    // live send failed transiently, or the row predates inline delivery). No
+    // PayU call is needed, so this is NOT capped to the 14-day verify window —
+    // only a 30-day sanity bound so a permanently-undeliverable address (hard
+    // bounce) is not retried forever every 2 minutes.
+    const { data: unsentRows, error: unsentErr } = await supabase
+      .from("sop_purchases")
+      .select("*")
+      .eq("status", "completed")
+      .eq("source", "payu")
+      .eq("email_sent", false)
+      .lt("created_at", olderThan)
+      .gt("created_at", emailRetryFrom)
+      .order("created_at", { ascending: true })
+      .limit(50);
+    if (unsentErr) throw unsentErr;
 
     const summary = { checked: 0, delivered: 0, failed: 0, stillPending: 0, errors: 0 };
 
-    for (const purchase of pending ?? []) {
+    // Deliver-only rows first (cheap, no PayU), then the verify path.
+    for (const purchase of [...(unsentRows ?? []), ...(pendingRows ?? [])]) {
       summary.checked++;
+
+      // Payment already confirmed, only the email failed — deliver straight
+      // away without re-querying PayU. deliverPurchase is idempotent.
+      if (purchase.status === "completed") {
+        const result = await deliverPurchase(
+          supabase,
+          purchase,
+          { resendKey, reconciled: true },
+        );
+        if (result.delivered) summary.delivered++;
+        continue;
+      }
+
       const txnid = purchase.payu_txnid as string;
 
       let detail: PayuTxnDetail | null;
