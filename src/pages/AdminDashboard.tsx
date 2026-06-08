@@ -40,9 +40,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle2, ChevronDown, Clock, Download, Loader2, LogOut, Mail, Search, Send, Trash2, Upload, XCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { CheckCircle2, ChevronDown, Clock, Download, Loader2, LogOut, Mail, Menu, Search, Send, Trash2, Upload, XCircle } from "lucide-react";
 import { ProjectView } from "@/components/tracker/ProjectView";
 
 interface Registration {
@@ -451,8 +459,25 @@ const EnquiryDetailDialog = ({
   );
 };
 
+// Single source of truth for the dashboard sections — rendered as horizontal
+// tabs on desktop and as a hamburger drawer list on mobile.
+const ADMIN_TABS: { value: string; label: string }[] = [
+  { value: "leads", label: "Get started leads" },
+  { value: "program-enquiries", label: "Program enquiries" },
+  { value: "webinar", label: "Webinar registrations" },
+  { value: "hiring", label: "Hiring submissions" },
+  { value: "sales-evaluations", label: "Sales evaluation reports" },
+  { value: "billing", label: "Billing cycles" },
+  { value: "expenses", label: "Expenses" },
+  { value: "newsletter", label: "Newsletter subscribers" },
+  { value: "sop-purchases", label: "SOP purchases" },
+  { value: "internal-tools", label: "Internal tools" },
+  { value: "tracker", label: "Tracker" },
+];
+
 const AdminDashboard = () => {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [navOpen, setNavOpen] = useState(false);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [hiring, setHiring] = useState<HiringApplication[]>([]);
   const [salesEvaluations, setSalesEvaluations] = useState<SalesEvaluationAdmin[]>([]);
@@ -470,6 +495,8 @@ const AdminDashboard = () => {
   const [sopSearch, setSopSearch] = useState("");
   const [sopPlanFilter, setSopPlanFilter] = useState<string>("all");
   const [sopStatusFilter, setSopStatusFilter] = useState<string>("completed");
+  // "Paid but email never delivered" view — the failure mode the reconciler heals.
+  const [sopUnsentOnly, setSopUnsentOnly] = useState(false);
   const [expandedSopId, setExpandedSopId] = useState<string | null>(null);
   const [resendingId, setResendingId] = useState<string | null>(null);
   // Manual SOP sender
@@ -800,6 +827,7 @@ const AdminDashboard = () => {
       if (t && ts > t) return false;
       if (sopPlanFilter !== "all" && s.plan !== sopPlanFilter) return false;
       if (sopStatusFilter !== "all" && s.status !== sopStatusFilter) return false;
+      if (sopUnsentOnly && !(s.status === "completed" && !s.email_sent)) return false;
       if (q) {
         const name = (s.firstname || "").toLowerCase();
         const phone = (s.phone || "").toLowerCase();
@@ -809,7 +837,10 @@ const AdminDashboard = () => {
       }
       return true;
     });
-  }, [sopPurchases, sopFrom, sopTo, sopSearch, sopPlanFilter, sopStatusFilter]);
+  }, [sopPurchases, sopFrom, sopTo, sopSearch, sopPlanFilter, sopStatusFilter, sopUnsentOnly]);
+  // Paid purchases whose buyer email never went out — should self-heal within
+  // 30 days via the reconciler; a non-zero count that lingers needs a look.
+  const stuckDeliveries = sopPurchases.filter(s => s.status === "completed" && !s.email_sent).length;
   const pagedSop = filteredSop.slice((sopPage - 1) * PAGE_SIZE, sopPage * PAGE_SIZE);
   const sopPageCount = Math.max(1, Math.ceil(filteredSop.length / PAGE_SIZE));
 
@@ -981,40 +1012,72 @@ const AdminDashboard = () => {
 
   return (
     <div
-      className={`min-h-screen bg-background p-6 transition-colors duration-700 ease-out [&_*]:transition-colors [&_*]:duration-700 [&_*]:ease-out ${
+      className={`min-h-screen bg-background p-4 sm:p-6 transition-colors duration-700 ease-out [&_*]:transition-colors [&_*]:duration-700 [&_*]:ease-out ${
         isTracker ? "dark" : ""
       }`}
     >
       <div className="container mx-auto">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold">Admin Panel</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">Admin Panel</h1>
             <p className="text-muted-foreground mt-1 text-sm">
               {adminEmail
                 ? `Welcome, ${adminEmail} — manage webinar leads, hiring submissions, and internal tool reports.`
                 : "Manage webinar leads, hiring submissions, and internal tool reports."}
             </p>
           </div>
-          <Button onClick={handleLogout} variant="destructive">
+          <Button onClick={handleLogout} variant="destructive" className="w-full sm:w-auto shrink-0">
             <LogOut className="mr-2 h-4 w-4" />
             Logout
           </Button>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="flex-wrap h-auto">
-            <TabsTrigger value="leads">Get started leads</TabsTrigger>
-            <TabsTrigger value="program-enquiries">Program enquiries</TabsTrigger>
-            <TabsTrigger value="webinar">Webinar registrations</TabsTrigger>
-            <TabsTrigger value="hiring">Hiring submissions</TabsTrigger>
-            <TabsTrigger value="sales-evaluations">Sales evaluation reports</TabsTrigger>
-            <TabsTrigger value="billing">Billing cycles</TabsTrigger>
-            <TabsTrigger value="expenses">Expenses</TabsTrigger>
-            <TabsTrigger value="newsletter">Newsletter subscribers</TabsTrigger>
-            <TabsTrigger value="sop-purchases">SOP purchases</TabsTrigger>
-            <TabsTrigger value="internal-tools">Internal tools</TabsTrigger>
-            <TabsTrigger value="tracker">Tracker</TabsTrigger>
+          {/* Desktop: horizontal tab bar */}
+          <TabsList className="hidden md:flex flex-wrap h-auto">
+            {ADMIN_TABS.map((t) => (
+              <TabsTrigger key={t.value} value={t.value}>{t.label}</TabsTrigger>
+            ))}
           </TabsList>
+
+          {/* Mobile: hamburger button that opens a slide-out section drawer */}
+          <div className="md:hidden">
+            <Sheet open={navOpen} onOpenChange={setNavOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" className="w-full justify-between">
+                  <span className="flex items-center gap-2">
+                    <Menu className="h-4 w-4" />
+                    Sections
+                  </span>
+                  <span className="text-sm text-muted-foreground truncate max-w-[55%]">
+                    {ADMIN_TABS.find((t) => t.value === activeTab)?.label ?? ""}
+                  </span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-72 p-0">
+                <SheetHeader className="p-4 border-b text-left">
+                  <SheetTitle>Sections</SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col p-2 overflow-y-auto">
+                  {ADMIN_TABS.map((t) => (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => { setActiveTab(t.value); setNavOpen(false); }}
+                      className={cn(
+                        "text-left rounded-md px-3 py-2.5 text-sm transition-colors",
+                        activeTab === t.value
+                          ? "bg-primary text-primary-foreground font-medium"
+                          : "hover:bg-muted",
+                      )}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
 
           {/* Get started leads tab */}
           <TabsContent value="leads">
@@ -1025,18 +1088,18 @@ const AdminDashboard = () => {
                   {filteredLeads.length} of {leads.length} total · page {leadsPage} of {leadsPageCount}
                 </p>
               </div>
-              <div className="flex flex-wrap items-end gap-3">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-3">
                 <div className="relative">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                  <Input placeholder="Search name, email, phone…" value={leadsSearch} onChange={e => setLeadsSearch(e.target.value)} className="h-9 pl-8 w-56" />
+                  <Input placeholder="Search name, email, phone…" value={leadsSearch} onChange={e => setLeadsSearch(e.target.value)} className="h-9 pl-8 w-full sm:w-56" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">From</Label>
-                  <Input type="date" value={leadsFrom} onChange={e => setLeadsFrom(e.target.value)} className="h-9 w-40" />
+                  <Input type="date" value={leadsFrom} onChange={e => setLeadsFrom(e.target.value)} className="h-9 w-full sm:w-40" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">To</Label>
-                  <Input type="date" value={leadsTo} onChange={e => setLeadsTo(e.target.value)} className="h-9 w-40" />
+                  <Input type="date" value={leadsTo} onChange={e => setLeadsTo(e.target.value)} className="h-9 w-full sm:w-40" />
                 </div>
                 <Button variant="outline" size="sm" onClick={() => { setLeadsFrom(""); setLeadsTo(""); setLeadsSearch(""); }}>Clear</Button>
                 <Button
@@ -1213,15 +1276,15 @@ const AdminDashboard = () => {
                   {filteredRegistrations.length} of {registrations.length} total · page {webinarPage} of {webinarPageCount}.
                 </p>
               </div>
-              <div className="flex flex-wrap items-end gap-3">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-3">
                 <div className="relative">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                  <Input placeholder="Search name, email, phone, webinar…" value={webinarSearch} onChange={e => setWebinarSearch(e.target.value)} className="h-9 pl-8 w-56" />
+                  <Input placeholder="Search name, email, phone, webinar…" value={webinarSearch} onChange={e => setWebinarSearch(e.target.value)} className="h-9 pl-8 w-full sm:w-56" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">Webinar</Label>
                   <Select value={webinarFilter} onValueChange={setWebinarFilter}>
-                    <SelectTrigger className="h-9 w-56">
+                    <SelectTrigger className="h-9 w-full sm:w-56">
                       <SelectValue placeholder="All webinars" />
                     </SelectTrigger>
                     <SelectContent>
@@ -1239,7 +1302,7 @@ const AdminDashboard = () => {
                     type="date"
                     value={fromDate}
                     onChange={(e) => setFromDate(e.target.value)}
-                    className="h-9 w-40"
+                    className="h-9 w-full sm:w-40"
                   />
                 </div>
                 <div className="space-y-1">
@@ -1248,7 +1311,7 @@ const AdminDashboard = () => {
                     type="date"
                     value={toDate}
                     onChange={(e) => setToDate(e.target.value)}
-                    className="h-9 w-40"
+                    className="h-9 w-full sm:w-40"
                   />
                 </div>
                 <Button variant="outline" size="sm" onClick={() => { setFromDate(""); setToDate(""); setWebinarSearch(""); setWebinarFilter("all"); }}>
@@ -1313,18 +1376,18 @@ const AdminDashboard = () => {
                   {filteredHiring.length} of {hiring.length} total · page {hiringPage} of {hiringPageCount}
                 </p>
               </div>
-              <div className="flex flex-wrap items-end gap-3">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-3">
                 <div className="relative">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                  <Input placeholder="Search name, email, phone…" value={hiringSearch} onChange={e => setHiringSearch(e.target.value)} className="h-9 pl-8 w-56" />
+                  <Input placeholder="Search name, email, phone…" value={hiringSearch} onChange={e => setHiringSearch(e.target.value)} className="h-9 pl-8 w-full sm:w-56" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">From</Label>
-                  <Input type="date" value={hiringFrom} onChange={e => setHiringFrom(e.target.value)} className="h-9 w-40" />
+                  <Input type="date" value={hiringFrom} onChange={e => setHiringFrom(e.target.value)} className="h-9 w-full sm:w-40" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">To</Label>
-                  <Input type="date" value={hiringTo} onChange={e => setHiringTo(e.target.value)} className="h-9 w-40" />
+                  <Input type="date" value={hiringTo} onChange={e => setHiringTo(e.target.value)} className="h-9 w-full sm:w-40" />
                 </div>
                 <Button variant="outline" size="sm" onClick={() => { setHiringFrom(""); setHiringTo(""); setHiringSearch(""); }}>Clear</Button>
                 <Button
@@ -1582,18 +1645,18 @@ const AdminDashboard = () => {
                   {filteredSubs.length} of {subscribers.length} total · page {subsPage} of {subsPageCount}
                 </p>
               </div>
-              <div className="flex flex-wrap items-end gap-3">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-3">
                 <div className="relative">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                  <Input placeholder="Search name or email…" value={subsSearch} onChange={e => setSubsSearch(e.target.value)} className="h-9 pl-8 w-56" />
+                  <Input placeholder="Search name or email…" value={subsSearch} onChange={e => setSubsSearch(e.target.value)} className="h-9 pl-8 w-full sm:w-56" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">From</Label>
-                  <Input type="date" value={subsFrom} onChange={e => setSubsFrom(e.target.value)} className="h-9 w-40" />
+                  <Input type="date" value={subsFrom} onChange={e => setSubsFrom(e.target.value)} className="h-9 w-full sm:w-40" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">To</Label>
-                  <Input type="date" value={subsTo} onChange={e => setSubsTo(e.target.value)} className="h-9 w-40" />
+                  <Input type="date" value={subsTo} onChange={e => setSubsTo(e.target.value)} className="h-9 w-full sm:w-40" />
                 </div>
                 <Button variant="outline" size="sm" onClick={() => { setSubsFrom(""); setSubsTo(""); setSubsSearch(""); }}>Clear</Button>
                 <Button
@@ -1658,11 +1721,27 @@ const AdminDashboard = () => {
                 <p className="text-sm text-muted-foreground">
                   {filteredSop.length} of {sopPurchases.length} total · page {sopPage} of {sopPageCount}
                 </p>
+                {stuckDeliveries > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setSopUnsentOnly(v => !v)}
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                      sopUnsentOnly
+                        ? "border-amber-500 bg-amber-500 text-white"
+                        : "border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100"
+                    }`}
+                    title="Paid purchases whose buyer email has not been delivered. The reconciler retries these for 30 days; click to view them."
+                  >
+                    <XCircle className="h-3.5 w-3.5" />
+                    {stuckDeliveries} paid · email not delivered
+                    {sopUnsentOnly && <span className="opacity-80">· showing</span>}
+                  </button>
+                )}
               </div>
-              <div className="flex flex-wrap items-end gap-3">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-3">
                 <div className="relative">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                  <Input placeholder="Search name, email, phone, txn…" value={sopSearch} onChange={e => setSopSearch(e.target.value)} className="h-9 pl-8 w-56" />
+                  <Input placeholder="Search name, email, phone, txn…" value={sopSearch} onChange={e => setSopSearch(e.target.value)} className="h-9 pl-8 w-full sm:w-56" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">Plan</Label>
@@ -1694,11 +1773,11 @@ const AdminDashboard = () => {
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">From</Label>
-                  <Input type="date" value={sopFrom} onChange={e => setSopFrom(e.target.value)} className="h-9 w-40" />
+                  <Input type="date" value={sopFrom} onChange={e => setSopFrom(e.target.value)} className="h-9 w-full sm:w-40" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">To</Label>
-                  <Input type="date" value={sopTo} onChange={e => setSopTo(e.target.value)} className="h-9 w-40" />
+                  <Input type="date" value={sopTo} onChange={e => setSopTo(e.target.value)} className="h-9 w-full sm:w-40" />
                 </div>
                 <Button variant="outline" size="sm" onClick={() => { setSopFrom(""); setSopTo(""); setSopSearch(""); setSopPlanFilter("all"); setSopStatusFilter("completed"); }}>Clear</Button>
                 <Button
@@ -1735,20 +1814,20 @@ const AdminDashboard = () => {
                 <h3 className="text-sm font-semibold">Manual SOP sender</h3>
                 <span className="text-xs text-muted-foreground">Send the SOP delivery email (with download links) to any address.</span>
               </div>
-              <div className="flex flex-wrap items-end gap-3">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs">Recipient email *</Label>
-                  <Input type="email" placeholder="student@email.com" value={senderEmail} onChange={e => setSenderEmail(e.target.value)} className="h-9 w-64" />
+                  <Input type="email" placeholder="student@email.com" value={senderEmail} onChange={e => setSenderEmail(e.target.value)} className="h-9 w-full sm:w-64" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">First name (optional)</Label>
-                  <Input placeholder="Name for greeting" value={senderName} onChange={e => setSenderName(e.target.value)} className="h-9 w-44" />
+                  <Input placeholder="Name for greeting" value={senderName} onChange={e => setSenderName(e.target.value)} className="h-9 w-full sm:w-44" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">SOPs to send</Label>
                   <Popover open={senderPickerOpen} onOpenChange={setSenderPickerOpen}>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-9 w-56 justify-between font-normal">
+                      <Button variant="outline" size="sm" className="h-9 w-full sm:w-56 justify-between font-normal">
                         <span className="truncate">
                           {senderSopIds.length === ALL_SOP_VAULT_IDS.length ? "All 15 (Full Vault)" : `${senderSopIds.length} selected`}
                         </span>
