@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle2, ChevronDown, Clock, Download, Loader2, LogOut, Mail, Search, Send, Trash2, Upload, XCircle } from "lucide-react";
@@ -87,6 +94,36 @@ interface NewsletterSubscriber {
   created_at: string;
 }
 
+interface EnquiryEduEntry {
+  level?: string; institution?: string; degree?: string; major?: string;
+  gpa?: string; gpaScale?: string; startYear?: string; endYear?: string; current?: boolean;
+}
+interface EnquiryTestEntry { id?: string; type?: string; customName?: string; score?: string }
+interface EnquiryProfileForm {
+  education?: EnquiryEduEntry[];
+  scores?: { tests?: EnquiryTestEntry[]; [k: string]: unknown };
+  work?: { years?: string; currentRole?: string; industry?: string };
+  target?: { degree?: string; major?: string; intake?: string; budgetMin?: string; budgetMax?: string };
+  goals?: string;
+  notes?: string;
+  submitted_at?: string | null;
+}
+interface EnquiryOnboarding {
+  degree?: string; destinations?: string[]; start_year?: string; field_of_study?: string;
+  cgpa?: number | string | null; budget?: string; state?: string; city?: string;
+}
+interface EnquiryEvaluation {
+  report_markdown?: string | null;
+  mentor_instructions?: string | null;
+  created_at?: string | null;
+}
+interface StudentSnapshot {
+  captured_at?: string;
+  onboarding?: EnquiryOnboarding | null;
+  profile_form?: EnquiryProfileForm | null;
+  evaluation?: EnquiryEvaluation | null;
+}
+
 interface ProgramEnquiry {
   id: string;
   student_name: string;
@@ -99,6 +136,7 @@ interface ProgramEnquiry {
   source: string | null;
   status: string | null;
   created_at: string;
+  student_snapshot: StudentSnapshot | null;
 }
 
 interface SalesEvaluationAdmin {
@@ -201,6 +239,218 @@ const EXPENSE_CATEGORIES = [
   "Miscellaneous",
 ];
 
+// Coerce the new tests[] array (and legacy fixed score fields) into a uniform
+// list for display — mirrors lib/formatProfile.ts in the Agent app.
+function collectEnquiryTests(scores: EnquiryProfileForm["scores"] | undefined): { label: string; score: string }[] {
+  if (!scores) return [];
+  const out: { label: string; score: string }[] = [];
+  const tests = scores.tests;
+  if (Array.isArray(tests) && tests.length) {
+    for (const t of tests) {
+      if (!t?.score) continue;
+      const label = t.type === "Other" ? (t.customName?.trim() || "Other") : (t.type ?? "Test");
+      out.push({ label, score: t.score });
+    }
+    return out;
+  }
+  const add = (label: string, score?: unknown) => { if (typeof score === "string" && score) out.push({ label, score }); };
+  const s = scores as Record<string, unknown>;
+  if (s.greV || s.greQ || s.greAwa) {
+    out.push({ label: "GRE", score: `V=${s.greV ?? "–"}, Q=${s.greQ ?? "–"}, AWA=${s.greAwa ?? "–"}` });
+  }
+  add("GMAT", s.gmat); add("SAT", s.sat); add("ACT", s.act);
+  add("IELTS", s.ielts); add("TOEFL", s.toefl); add("Duolingo", s.duolingo);
+  return out;
+}
+
+const DetailRow = ({ label, value }: { label: string; value?: ReactNode }) => {
+  if (value == null || value === "") return null;
+  return (
+    <div className="flex gap-2 text-sm">
+      <span className="text-muted-foreground min-w-[140px] shrink-0">{label}</span>
+      <span className="font-medium break-words">{value}</span>
+    </div>
+  );
+};
+
+const SectionHeading = ({ children }: { children: ReactNode }) => (
+  <h4 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground border-b pb-1 mb-2 mt-1">
+    {children}
+  </h4>
+);
+
+const EnquiryDetailDialog = ({
+  enquiry,
+  onClose,
+}: {
+  enquiry: ProgramEnquiry | null;
+  onClose: () => void;
+}) => {
+  const snap = enquiry?.student_snapshot ?? null;
+  const ob = snap?.onboarding ?? null;
+  const form = snap?.profile_form ?? null;
+  const evaluation = snap?.evaluation ?? null;
+  const tests = collectEnquiryTests(form?.scores);
+  const hasDetails = !!(ob || form || evaluation);
+
+  return (
+    <Dialog open={!!enquiry} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+        {enquiry && (
+          <>
+            <DialogHeader>
+              <DialogTitle>{enquiry.student_name}</DialogTitle>
+              <DialogDescription>
+                Enquired {new Date(enquiry.created_at).toLocaleString()} · via {enquiry.source || "agent-app"}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-5">
+              {/* Contact + enquiry */}
+              <div className="space-y-1">
+                <SectionHeading>Enquiry</SectionHeading>
+                <DetailRow label="Email" value={enquiry.student_email} />
+                <DetailRow label="Phone" value={enquiry.student_phone || "—"} />
+                <DetailRow label="Program" value={enquiry.program_name} />
+                <DetailRow label="University" value={enquiry.university_name || "—"} />
+                <DetailRow label="Country" value={enquiry.country || "—"} />
+                <DetailRow label="Match score" value={enquiry.match_score != null ? `${enquiry.match_score}/10` : "—"} />
+              </div>
+
+              {!hasDetails && (
+                <p className="text-sm text-muted-foreground">
+                  No detailed profile was captured for this enquiry. (Older enquiries, sent before
+                  the profile snapshot feature, only carry the basic contact info above.)
+                </p>
+              )}
+
+              {/* Quick profile (onboarding) */}
+              {ob && (
+                <div className="space-y-1">
+                  <SectionHeading>Quick profile</SectionHeading>
+                  <DetailRow label="Target degree" value={ob.degree} />
+                  <DetailRow label="Destinations" value={ob.destinations?.length ? ob.destinations.join(", ") : undefined} />
+                  <DetailRow label="Intake year" value={ob.start_year} />
+                  <DetailRow label="Field of study" value={ob.field_of_study} />
+                  <DetailRow label="CGPA" value={ob.cgpa != null && ob.cgpa !== "" ? String(ob.cgpa) : undefined} />
+                  <DetailRow label="Budget" value={ob.budget} />
+                  <DetailRow label="Location" value={[ob.city, ob.state].filter(Boolean).join(", ") || undefined} />
+                </div>
+              )}
+
+              {/* Education */}
+              {form?.education?.length ? (
+                <div className="space-y-2">
+                  <SectionHeading>Education</SectionHeading>
+                  {form.education.map((e, i) => (
+                    <div key={i} className="text-sm border rounded-md p-2 bg-muted/30">
+                      <div className="font-medium">
+                        {[e.level, e.degree, e.major ? `(${e.major})` : ""].filter(Boolean).join(" ") || "—"}
+                      </div>
+                      <div className="text-muted-foreground">
+                        {[
+                          e.institution,
+                          e.gpa ? `GPA ${e.gpa}/${e.gpaScale ?? "10"}` : "",
+                          e.startYear ? `${e.startYear}–${e.current ? "Present" : (e.endYear ?? "?")}` : "",
+                        ].filter(Boolean).join(" · ")}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+
+              {/* Test scores */}
+              {tests.length ? (
+                <div className="space-y-1">
+                  <SectionHeading>Test scores</SectionHeading>
+                  {tests.map((t, i) => <DetailRow key={i} label={t.label} value={t.score} />)}
+                </div>
+              ) : null}
+
+              {/* Work experience */}
+              {form?.work && (form.work.years || form.work.currentRole || form.work.industry) ? (
+                <div className="space-y-1">
+                  <SectionHeading>Work experience</SectionHeading>
+                  <DetailRow label="Total years" value={form.work.years} />
+                  <DetailRow label="Current/recent role" value={form.work.currentRole} />
+                  <DetailRow label="Industry" value={form.work.industry} />
+                </div>
+              ) : null}
+
+              {/* Target program */}
+              {form?.target && (form.target.degree || form.target.major || form.target.intake || form.target.budgetMin || form.target.budgetMax) ? (
+                <div className="space-y-1">
+                  <SectionHeading>Target program</SectionHeading>
+                  <DetailRow label="Target degree" value={form.target.degree} />
+                  <DetailRow label="Major / field" value={form.target.major} />
+                  <DetailRow label="Intake" value={form.target.intake} />
+                  <DetailRow
+                    label="Budget / yr"
+                    value={form.target.budgetMin || form.target.budgetMax
+                      ? `₹${form.target.budgetMin || 0} – ₹${form.target.budgetMax || "?"}`
+                      : undefined}
+                  />
+                </div>
+              ) : null}
+
+              {/* Goals & notes */}
+              {form?.goals ? (
+                <div className="space-y-1">
+                  <SectionHeading>Career goals</SectionHeading>
+                  <p className="text-sm whitespace-pre-wrap">{form.goals}</p>
+                </div>
+              ) : null}
+              {form?.notes ? (
+                <div className="space-y-1">
+                  <SectionHeading>Additional notes</SectionHeading>
+                  <p className="text-sm whitespace-pre-wrap">{form.notes}</p>
+                </div>
+              ) : null}
+
+              {/* AI analysis report */}
+              {evaluation?.report_markdown ? (
+                <div className="space-y-1">
+                  <SectionHeading>
+                    Overall analysis{evaluation.created_at ? ` · ${new Date(evaluation.created_at).toLocaleDateString()}` : ""}
+                  </SectionHeading>
+                  <div className="text-sm whitespace-pre-wrap bg-muted/30 border rounded-md p-3 max-h-80 overflow-y-auto">
+                    {evaluation.report_markdown}
+                  </div>
+                </div>
+              ) : null}
+              {evaluation?.mentor_instructions ? (
+                <div className="space-y-1">
+                  <SectionHeading>Mentor instructions</SectionHeading>
+                  <p className="text-sm whitespace-pre-wrap bg-muted/30 border rounded-md p-3">{evaluation.mentor_instructions}</p>
+                </div>
+              ) : null}
+
+              {/* Per-student download */}
+              <div className="flex justify-end pt-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    const blob = new Blob([JSON.stringify(enquiry, null, 2)], { type: "application/json" });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `enquiry-${enquiry.student_name.replace(/\s+/g, "-").toLowerCase()}-${enquiry.id.slice(0, 8)}.json`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                  }}
+                >
+                  <Download className="mr-2 h-4 w-4" />Download this student's details
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const AdminDashboard = () => {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -209,6 +459,7 @@ const AdminDashboard = () => {
   const [billingCycles, setBillingCycles] = useState<BillingCycle[]>([]);
   const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
   const [programEnquiries, setProgramEnquiries] = useState<ProgramEnquiry[]>([]);
+  const [selectedEnquiry, setSelectedEnquiry] = useState<ProgramEnquiry | null>(null);
   const [recentExpenses, setRecentExpenses] = useState<Expense[]>([]);
   const [expenseEmailMap, setExpenseEmailMap] = useState<UserEmailMap>({});
   const [sopPurchases, setSopPurchases] = useState<SopPurchase[]>([]);
@@ -866,19 +1117,32 @@ const AdminDashboard = () => {
                   {programEnquiries.length} total · students asking for free application &amp; visa help
                 </p>
               </div>
-              <Button
-                onClick={() => {
-                  if (programEnquiries.length === 0) return;
-                  const headers = ["Timestamp","Name","Email","Phone","Program","University","Country","Match","Source"];
-                  const rows = programEnquiries.map(e => [new Date(e.created_at).toLocaleString(),`"${e.student_name}"`,e.student_email,`"${e.student_phone || ""}"`,`"${e.program_name}"`,`"${e.university_name || ""}"`,e.country || "",e.match_score ?? "",e.source || ""].join(","));
-                  const blob = new Blob([[headers.join(","),...rows].join("\n")],{type:"text/csv"});
-                  const url = window.URL.createObjectURL(blob);
-                  const a = document.createElement("a"); a.href=url; a.download=`program-enquiries-${new Date().toISOString().split("T")[0]}.csv`; a.click(); window.URL.revokeObjectURL(url);
-                }}
-                size="sm" variant="outline" disabled={programEnquiries.length === 0}
-              >
-                <Download className="mr-2 h-4 w-4" />Export CSV
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  onClick={() => {
+                    if (programEnquiries.length === 0) return;
+                    const headers = ["Timestamp","Name","Email","Phone","Program","University","Country","Match","Source"];
+                    const rows = programEnquiries.map(e => [new Date(e.created_at).toLocaleString(),`"${e.student_name}"`,e.student_email,`"${e.student_phone || ""}"`,`"${e.program_name}"`,`"${e.university_name || ""}"`,e.country || "",e.match_score ?? "",e.source || ""].join(","));
+                    const blob = new Blob([[headers.join(","),...rows].join("\n")],{type:"text/csv"});
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a"); a.href=url; a.download=`program-enquiries-${new Date().toISOString().split("T")[0]}.csv`; a.click(); window.URL.revokeObjectURL(url);
+                  }}
+                  size="sm" variant="outline" disabled={programEnquiries.length === 0}
+                >
+                  <Download className="mr-2 h-4 w-4" />Export CSV
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (programEnquiries.length === 0) return;
+                    const blob = new Blob([JSON.stringify(programEnquiries, null, 2)], { type: "application/json" });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a"); a.href=url; a.download=`program-enquiries-full-${new Date().toISOString().split("T")[0]}.json`; a.click(); window.URL.revokeObjectURL(url);
+                  }}
+                  size="sm" variant="outline" disabled={programEnquiries.length === 0}
+                >
+                  <Download className="mr-2 h-4 w-4" />Download all details
+                </Button>
+              </div>
             </div>
 
             <div className="bg-card rounded-lg shadow border overflow-x-auto">
@@ -893,18 +1157,23 @@ const AdminDashboard = () => {
                     <TableHead>University</TableHead>
                     <TableHead>Country</TableHead>
                     <TableHead>Match</TableHead>
+                    <TableHead className="text-right">Details</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {programEnquiries.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                         No program enquiries yet
                       </TableCell>
                     </TableRow>
                   ) : (
                     programEnquiries.map((e) => (
-                      <TableRow key={e.id}>
+                      <TableRow
+                        key={e.id}
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => setSelectedEnquiry(e)}
+                      >
                         <TableCell className="whitespace-nowrap">{new Date(e.created_at).toLocaleString()}</TableCell>
                         <TableCell className="whitespace-nowrap">{e.student_name}</TableCell>
                         <TableCell>{e.student_email}</TableCell>
@@ -913,12 +1182,26 @@ const AdminDashboard = () => {
                         <TableCell className="max-w-[180px] truncate" title={e.university_name || ""}>{e.university_name || "-"}</TableCell>
                         <TableCell>{e.country || "-"}</TableCell>
                         <TableCell className="whitespace-nowrap">{e.match_score != null ? `${e.match_score}/10` : "-"}</TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(ev) => { ev.stopPropagation(); setSelectedEnquiry(e); }}
+                          >
+                            View
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))
                   )}
                 </TableBody>
               </Table>
             </div>
+
+            <EnquiryDetailDialog
+              enquiry={selectedEnquiry}
+              onClose={() => setSelectedEnquiry(null)}
+            />
           </TabsContent>
 
           {/* Webinar tab */}
