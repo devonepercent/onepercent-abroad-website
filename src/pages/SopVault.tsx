@@ -251,6 +251,7 @@ a{text-decoration:none;color:inherit}
 .modal-fields{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
 .modal-input{padding:14px 18px;border-radius:50px;border:1.5px solid var(--border);font-family:'Outfit',sans-serif;font-size:0.9rem;color:var(--navy);outline:none;transition:border-color 0.2s;background:white}
 .modal-input:focus{border-color:var(--orange)}
+.modal-field-hint{font-family:'Outfit',sans-serif;font-size:0.74rem;line-height:1.45;color:var(--muted);margin:-4px 6px 2px;display:flex;gap:5px}
 .btn-pay{background:var(--orange);color:white;border:none;border-radius:50px;padding:16px 28px;font-family:'Outfit',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;box-shadow:0 6px 24px rgba(6,93,199,0.32);transition:all 0.22s;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:0.04em;text-transform:uppercase;width:100%}
 .btn-pay:hover:not(:disabled){background:var(--navy);transform:translateY(-2px)}
 .btn-pay:disabled{opacity:0.6;cursor:not-allowed}
@@ -687,11 +688,14 @@ const SopVault = () => {
             <input
               className="modal-input"
               type="email"
-              placeholder="your@email.com — we'll send PDFs here"
+              placeholder="your@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
             />
+            <p className="modal-field-hint">
+              📩 Your SOPs will be sent to this email address — please enter a real inbox you can access.
+            </p>
             <input
               className="modal-input"
               type="tel"
