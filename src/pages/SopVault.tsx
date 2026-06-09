@@ -204,12 +204,13 @@ a{text-decoration:none;color:inherit}
 .pcard-price{font-family:'Outfit',sans-serif;font-size:3rem;font-weight:700;color:white;line-height:1;margin-bottom:6px;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;letter-spacing:-0.02em}
 .price-old{color:#ef4444;text-decoration:line-through;text-decoration-color:#dc2626;text-decoration-thickness:2.5px;font-weight:700;letter-spacing:-0.01em}
 .pcard-old{font-family:'Outfit',sans-serif;font-size:1.9rem;font-weight:600;color:#fca5a5;text-decoration:line-through;text-decoration-color:#ef4444;text-decoration-thickness:3px;margin-right:8px;line-height:1;letter-spacing:-0.01em}
-.modal-old{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:#dc2626;text-decoration-thickness:2.5px;margin-right:8px;letter-spacing:-0.01em}
-.sticky-old{font-family:'Cormorant Garamond',serif;font-size:1rem;color:#dc2626;text-decoration-thickness:2px;margin-right:4px}
+.modal-old{font-family:'Outfit',sans-serif;font-weight:600;font-size:1.4rem;color:#dc2626;text-decoration-thickness:2.5px;margin-right:8px;letter-spacing:-0.01em}
+.sticky-old{font-family:'Outfit',sans-serif;font-weight:600;font-size:0.95rem;color:#dc2626;text-decoration-thickness:2px;margin-right:4px}
+.price-now{font-family:'Outfit',sans-serif;font-weight:800;letter-spacing:-0.02em}
 .btn-hero .price-old,.btn-footer .price-old,.btn-pcard .price-old{color:rgba(255,255,255,0.72);text-decoration-color:#fca5a5;text-decoration-thickness:2.5px;margin-right:5px;font-weight:700}
 .hero h1 .price-old{color:#fca5a5;text-decoration-color:#ef4444;text-decoration-thickness:3px;margin-right:10px;font-style:italic}
-.pricing-title .price-old{color:#dc2626;font-family:'Cormorant Garamond',serif;text-decoration-thickness:2.5px;margin-right:8px}
-.footer-cta h2 .price-old{color:#fca5a5;text-decoration-color:#ef4444;text-decoration-thickness:3px;margin-right:10px}
+.pricing-title .price-old{color:#dc2626;font-family:'Outfit',sans-serif;font-weight:700;text-decoration-thickness:2.5px;margin-right:8px}
+.footer-cta h2 .price-old{color:#fca5a5;font-family:'Outfit',sans-serif;font-weight:700;text-decoration-color:#ef4444;text-decoration-thickness:3px;margin-right:10px}
 .pcard-price .curr{font-family:'Outfit',sans-serif;font-size:1.3rem;font-weight:500;color:rgba(255,255,255,0.6)}
 .pcard-price-note{font-family:'Outfit',sans-serif;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-bottom:22px}
 .pcard-features{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
@@ -246,7 +247,7 @@ a{text-decoration:none;color:inherit}
 .modal-prog{font-family:'Outfit',sans-serif;font-size:0.86rem;color:var(--muted);margin-bottom:22px}
 .modal-price-row{display:flex;align-items:baseline;justify-content:space-between;padding:18px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:22px}
 .modal-price-row .lbl{font-family:'Outfit',sans-serif;font-size:0.85rem;color:var(--muted)}
-.modal-price{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:600;color:var(--navy);line-height:1}
+.modal-price{font-family:'Outfit',sans-serif;font-size:2.1rem;font-weight:800;color:var(--navy);line-height:1;letter-spacing:-0.02em}
 .modal-price .curr{font-family:'Outfit',sans-serif;font-size:1rem;color:var(--muted)}
 .modal-fields{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
 .modal-input{padding:14px 18px;border-radius:50px;border:1.5px solid var(--border);font-family:'Outfit',sans-serif;font-size:0.9rem;color:var(--navy);outline:none;transition:border-color 0.2s;background:white}
@@ -280,7 +281,7 @@ a{text-decoration:none;color:inherit}
 .mob-sticky{display:none;position:fixed;bottom:0;left:0;right:0;z-index:150;background:var(--white);border-top:1px solid var(--border);padding:10px 16px max(10px,env(safe-area-inset-bottom));box-shadow:0 -4px 22px rgba(0,0,0,0.12);align-items:center;justify-content:space-between;gap:12px}
 .sticky-info{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
 .sticky-lbl{font-family:'Outfit',sans-serif;font-size:0.78rem;color:var(--muted);font-weight:500}
-.sticky-price{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--navy);font-weight:700;line-height:1.05;display:flex;align-items:baseline;gap:4px}
+.sticky-price{font-family:'Outfit',sans-serif;font-size:1.25rem;color:var(--navy);font-weight:800;letter-spacing:-0.02em;line-height:1.05;display:flex;align-items:baseline;gap:4px}
 .sticky-sub{font-family:'Outfit',sans-serif;font-size:0.65rem;color:var(--muted);letter-spacing:0.02em}
 .btn-sticky-mob{background:var(--orange);color:white;border:none;border-radius:50px;padding:14px 22px;font-family:'Outfit',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;box-shadow:0 4px 16px rgba(6,93,199,0.36);min-height:48px}
 
@@ -607,7 +608,7 @@ const SopVault = () => {
       <div className="pricing-section" id="pricing">
         <div className="pricing-wrap">
           <div className="pricing-eyebrow">One Price · No Tiers</div>
-          <h2 className="pricing-title">Everything for <span className="price-old">₹799</span>₹199</h2>
+          <h2 className="pricing-title">Everything for <span className="price-old">₹799</span><span className="price-now">₹199</span></h2>
 
           <div className="pcard">
             <div className="pcard-tag">Launch Price</div>
@@ -653,7 +654,7 @@ const SopVault = () => {
 
       {/* ── FOOTER CTA ── */}
       <div className="footer-cta">
-        <h2><span className="price-old">₹799</span>₹199. 15 real SOPs.<br />Skip the guesswork.</h2>
+        <h2><span className="price-old">₹799</span><span className="price-now">₹199</span>. 15 real SOPs.<br />Skip the guesswork.</h2>
         <p>One payment. Instant email delivery. No upsells.</p>
         <button className="btn-footer" onClick={openBuyModal}>Get All 15 — <span className="price-old">₹{OLD_PRICE}</span>₹{PRICE} →</button>
       </div>
