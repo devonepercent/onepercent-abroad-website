@@ -93,8 +93,12 @@ const SopVaultFeedback = () => {
       setError("Please tap a star to rate your experience.");
       return;
     }
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError("Please enter a valid email address (or leave it blank).");
+    if (!name.trim()) {
+      setError("Please enter your name.");
+      return;
+    }
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Please enter a valid email address.");
       return;
     }
 
@@ -202,7 +206,7 @@ const SopVaultFeedback = () => {
               <div className="fb-row">
                 <div className="fb-field">
                   <label className="fb-label" htmlFor="fb-name">
-                    Name <span className="fb-optional">(optional)</span>
+                    Name <span className="req">*</span>
                   </label>
                   <input
                     id="fb-name"
@@ -216,7 +220,7 @@ const SopVaultFeedback = () => {
                 </div>
                 <div className="fb-field">
                   <label className="fb-label" htmlFor="fb-email">
-                    Email <span className="fb-optional">(optional)</span>
+                    Email <span className="req">*</span>
                   </label>
                   <input
                     id="fb-email"
