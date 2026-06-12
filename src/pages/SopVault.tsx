@@ -660,7 +660,7 @@ const SopVault = () => {
       </div>
 
       <footer className="sv-footer">
-        <p>© 2025 OnePercent Abroad · <button className="terms-link" style={{ fontSize: "0.75rem" }} onClick={() => setTermsOpen(true)}>Usage Terms</button></p>
+        <p>© 2025 OnePercent Abroad · <button className="terms-link" style={{ fontSize: "0.75rem" }} onClick={() => setTermsOpen(true)}>Usage Terms</button> · <Link className="terms-link" style={{ fontSize: "0.75rem" }} to="/product/sop-vault/feedback">Share Feedback</Link></p>
       </footer>
 
       {/* ── MOBILE STICKY ── */}

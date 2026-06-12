@@ -154,6 +154,17 @@ interface SalesEvaluationAdmin {
   created_at: string;
 }
 
+interface SopFeedback {
+  id: string;
+  rating: number;
+  review: string | null;
+  suggestions: string | null;
+  name: string | null;
+  email: string | null;
+  source: string | null;
+  created_at: string;
+}
+
 interface BillingCycle {
   id: string;
   name: string;
@@ -471,6 +482,7 @@ const ADMIN_TABS: { value: string; label: string }[] = [
   { value: "expenses", label: "Expenses" },
   { value: "newsletter", label: "Newsletter subscribers" },
   { value: "sop-purchases", label: "SOP purchases" },
+  { value: "sop-feedback", label: "SOP feedback" },
   { value: "internal-tools", label: "Internal tools" },
   { value: "tracker", label: "Tracker" },
 ];
@@ -485,6 +497,7 @@ const AdminDashboard = () => {
   const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
   const [programEnquiries, setProgramEnquiries] = useState<ProgramEnquiry[]>([]);
   const [selectedEnquiry, setSelectedEnquiry] = useState<ProgramEnquiry | null>(null);
+  const [sopFeedback, setSopFeedback] = useState<SopFeedback[]>([]);
   const [recentExpenses, setRecentExpenses] = useState<Expense[]>([]);
   const [expenseEmailMap, setExpenseEmailMap] = useState<UserEmailMap>({});
   const [sopPurchases, setSopPurchases] = useState<SopPurchase[]>([]);
@@ -588,6 +601,7 @@ const AdminDashboard = () => {
         { data: sopData, error: sopError },
         { data: sopEventsData, error: sopEventsError },
         { data: enquiryData, error: enquiryError },
+        { data: feedbackData, error: feedbackError },
       ] = await Promise.all([
         supabase
           .from("webinar_registrations" as any)
@@ -628,6 +642,10 @@ const AdminDashboard = () => {
           .order("created_at", { ascending: true }),
         supabase
           .from("program_enquiries" as any)
+          .select("*")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("sop_feedback" as any)
           .select("*")
           .order("created_at", { ascending: false }),
       ]);
@@ -684,6 +702,12 @@ const AdminDashboard = () => {
         console.error("Error loading program enquiries:", enquiryError);
       } else {
         setProgramEnquiries((enquiryData as unknown as ProgramEnquiry[]) || []);
+      }
+
+      if (feedbackError) {
+        console.error("Error loading SOP feedback:", feedbackError);
+      } else {
+        setSopFeedback((feedbackData as unknown as SopFeedback[]) || []);
       }
 
       if (expenseError) {
@@ -1265,6 +1289,75 @@ const AdminDashboard = () => {
               enquiry={selectedEnquiry}
               onClose={() => setSelectedEnquiry(null)}
             />
+          </TabsContent>
+
+          {/* SOP Vault feedback tab */}
+          <TabsContent value="sop-feedback">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-4">
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold">SOP Vault feedback</h2>
+                <p className="text-sm text-muted-foreground">
+                  {sopFeedback.length} total
+                  {sopFeedback.length > 0 && (
+                    <> · avg {(sopFeedback.reduce((s, f) => s + f.rating, 0) / sopFeedback.length).toFixed(1)} ★</>
+                  )}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  onClick={() => {
+                    if (sopFeedback.length === 0) return;
+                    const headers = ["Timestamp","Rating","Review","Suggestions","Name","Email"];
+                    const esc = (v: string | null) => `"${(v || "").replace(/"/g, '""')}"`;
+                    const rows = sopFeedback.map(f => [new Date(f.created_at).toLocaleString(),f.rating,esc(f.review),esc(f.suggestions),esc(f.name),f.email || ""].join(","));
+                    const blob = new Blob([[headers.join(","),...rows].join("\n")],{type:"text/csv"});
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a"); a.href=url; a.download=`sop-feedback-${new Date().toISOString().split("T")[0]}.csv`; a.click(); window.URL.revokeObjectURL(url);
+                  }}
+                  size="sm" variant="outline" disabled={sopFeedback.length === 0}
+                >
+                  <Download className="mr-2 h-4 w-4" />Export CSV
+                </Button>
+              </div>
+            </div>
+
+            <div className="bg-card rounded-lg shadow border overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>Rating</TableHead>
+                    <TableHead>Review</TableHead>
+                    <TableHead>Suggestions</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sopFeedback.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                        No feedback yet
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    sopFeedback.map((f) => (
+                      <TableRow key={f.id}>
+                        <TableCell className="whitespace-nowrap">{new Date(f.created_at).toLocaleString()}</TableCell>
+                        <TableCell className="whitespace-nowrap" title={`${f.rating} / 5`}>
+                          <span className="text-amber-500">{"★".repeat(f.rating)}</span>
+                          <span className="text-muted-foreground">{"★".repeat(5 - f.rating)}</span>
+                        </TableCell>
+                        <TableCell className="max-w-[260px] whitespace-pre-wrap break-words" title={f.review || ""}>{f.review || "-"}</TableCell>
+                        <TableCell className="max-w-[260px] whitespace-pre-wrap break-words" title={f.suggestions || ""}>{f.suggestions || "-"}</TableCell>
+                        <TableCell className="whitespace-nowrap">{f.name || "-"}</TableCell>
+                        <TableCell>{f.email || "-"}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </TabsContent>
 
           {/* Webinar tab */}

@@ -28,6 +28,7 @@ import OfferCardTool from "./pages/OfferCardTool";
 import Newsletter from "./pages/Newsletter";
 import SopVault from "./pages/SopVault";
 import SopVaultSuccess from "./pages/SopVaultSuccess";
+import SopVaultFeedback from "./pages/SopVaultFeedback";
 import { initMetaPixel, trackMetaEvent } from "./lib/metaPixel";
 
 const queryClient = new QueryClient();
@@ -69,6 +70,7 @@ const AppRoutes = () => {
       <Route path="/newsletter" element={<Newsletter />} />
       <Route path="/product/sop-vault" element={<SopVault />} />
       <Route path="/product/sop-vault/success" element={<SopVaultSuccess />} />
+      <Route path="/product/sop-vault/feedback" element={<SopVaultFeedback />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
