@@ -35,7 +35,7 @@ const uniLogos = [
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
 
-const PRICE = 199;
+const PRICE = 1; // TEMP: ₹1 for testing — revert to 199 before going live
 const OLD_PRICE = 799;
 
 const scholMap: Record<string, string> = {

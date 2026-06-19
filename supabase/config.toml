@@ -9,6 +9,9 @@ verify_jwt = false
 [functions.handle-payu-callback]
 verify_jwt = false
 
+[functions.payu-webhook]
+verify_jwt = false
+
 [functions.reconcile-payu-payments]
 verify_jwt = false
 
