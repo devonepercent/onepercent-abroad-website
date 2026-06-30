@@ -29,6 +29,7 @@ import Newsletter from "./pages/Newsletter";
 import SopVault from "./pages/SopVault";
 import SopVaultSuccess from "./pages/SopVaultSuccess";
 import SopVaultFeedback from "./pages/SopVaultFeedback";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import { initMetaPixel, trackMetaEvent } from "./lib/metaPixel";
 
 const queryClient = new QueryClient();
@@ -68,6 +69,7 @@ const AppRoutes = () => {
       <Route path="/muhasinatask" element={<MuhasinTask />} />
       <Route path="/internal/offer-desk" element={<OfferCardTool />} />
       <Route path="/newsletter" element={<Newsletter />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/product/sop-vault" element={<SopVault />} />
       <Route path="/product/sop-vault/success" element={<SopVaultSuccess />} />
       <Route path="/product/sop-vault/feedback" element={<SopVaultFeedback />} />

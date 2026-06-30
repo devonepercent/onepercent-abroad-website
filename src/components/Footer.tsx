@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import logoWhite from "@/assets/logo-white.png";
 
 const Footer = () => (
@@ -28,7 +29,7 @@ const Footer = () => (
           </div>
           <div style={{ display:"flex",flexDirection:"column",gap:13 }}>
             <h4 style={{ fontSize:10,fontWeight:600,letterSpacing:3,textTransform:"uppercase",color:"rgba(255,255,255,0.3)",margin:0,marginBottom:7 }}>Legal</h4>
-            <a href="#" style={{ fontSize:14,color:"rgba(255,255,255,0.6)",textDecoration:"none" }} onMouseOver={e=>e.currentTarget.style.color="#fff"} onMouseOut={e=>e.currentTarget.style.color="rgba(255,255,255,0.6)"}>Privacy Policy</a>
+            <Link to="/privacy-policy" style={{ fontSize:14,color:"rgba(255,255,255,0.6)",textDecoration:"none" }} onMouseOver={e=>e.currentTarget.style.color="#fff"} onMouseOut={e=>e.currentTarget.style.color="rgba(255,255,255,0.6)"}>Privacy Policy</Link>
             <a href="#" style={{ fontSize:14,color:"rgba(255,255,255,0.6)",textDecoration:"none" }} onMouseOver={e=>e.currentTarget.style.color="#fff"} onMouseOut={e=>e.currentTarget.style.color="rgba(255,255,255,0.6)"}>Terms of Service</a>
           </div>
           <div style={{ display:"flex",flexDirection:"column",gap:13 }}>
@@ -54,7 +55,7 @@ const Footer = () => (
           <p style={{ fontSize:12,color:"rgba(255,255,255,0.3)",margin:"4px 0 0" }}>Aspira Onepercent Pvt Ltd</p>
         </div>
         <div style={{ display:"flex",gap:24 }}>
-          <a href="#" style={{ fontSize:12,color:"rgba(255,255,255,0.3)",textDecoration:"none" }} onMouseOver={e=>e.currentTarget.style.color="rgba(255,255,255,0.6)"} onMouseOut={e=>e.currentTarget.style.color="rgba(255,255,255,0.3)"}>Privacy Policy</a>
+          <Link to="/privacy-policy" style={{ fontSize:12,color:"rgba(255,255,255,0.3)",textDecoration:"none" }} onMouseOver={e=>e.currentTarget.style.color="rgba(255,255,255,0.6)"} onMouseOut={e=>e.currentTarget.style.color="rgba(255,255,255,0.3)"}>Privacy Policy</Link>
           <a href="#" style={{ fontSize:12,color:"rgba(255,255,255,0.3)",textDecoration:"none" }} onMouseOver={e=>e.currentTarget.style.color="rgba(255,255,255,0.6)"} onMouseOut={e=>e.currentTarget.style.color="rgba(255,255,255,0.3)"}>Terms of Service</a>
         </div>
       </div>
