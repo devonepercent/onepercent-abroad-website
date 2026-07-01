@@ -264,7 +264,7 @@ const LeadForm = () => {
       initMetaPixel();
       trackMetaEvent("Lead");
 
-      window.location.href = "https://chat.whatsapp.com/GzkeVrL9N1S749BhMkdXN9";
+      window.location.href = "https://whatsapp.com/channel/0029VbBitCgDZ4LTysQAwx2z";
     } catch (error) {
       console.error("Submission error:", error);
       toast({
