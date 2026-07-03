@@ -104,6 +104,18 @@ export default {
           "0%": { opacity: "0", transform: "translateX(-20px)" },
           "100%": { opacity: "1", transform: "translateX(0)" },
         },
+        wiggle: {
+          "0%, 88%, 100%": { transform: "rotate(0deg) scale(1)" },
+          "90%": { transform: "rotate(-4deg) scale(1.04)" },
+          "92%": { transform: "rotate(4deg) scale(1.04)" },
+          "94%": { transform: "rotate(-3deg) scale(1.03)" },
+          "96%": { transform: "rotate(3deg) scale(1.03)" },
+          "98%": { transform: "rotate(-1.5deg) scale(1.01)" },
+        },
+        "glow-pulse": {
+          "0%, 100%": { boxShadow: "0 10px 25px -5px rgba(29,78,216,0.45)" },
+          "50%": { boxShadow: "0 12px 32px -2px rgba(29,78,216,0.75)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -112,6 +124,8 @@ export default {
         marquee2: "marquee2 60s linear infinite",
         "fade-in": "fade-in 0.6s ease-out",
         "slide-in": "slide-in 0.6s ease-out",
+        wiggle: "wiggle 3.5s ease-in-out infinite",
+        "glow-pulse": "glow-pulse 2s ease-in-out infinite",
       },
     },
   },

@@ -1,254 +1,210 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-const WEBINAR_NAME = "Free Education in Europe - 13 May 2026, 8 PM";
-const countryCodes = [{
-  code: "+91",
-  country: "India"
-}, {
-  code: "+1",
-  country: "USA/Canada"
-}, {
-  code: "+92",
-  country: "Pakistan"
-}, {
-  code: "+44",
-  country: "UK"
-}, {
-  code: "+971",
-  country: "UAE"
-}, {
-  code: "+86",
-  country: "China"
-}, {
-  code: "+81",
-  country: "Japan"
-}, {
-  code: "+82",
-  country: "South Korea"
-}, {
-  code: "+65",
-  country: "Singapore"
-}, {
-  code: "+60",
-  country: "Malaysia"
-}, {
-  code: "+66",
-  country: "Thailand"
-}, {
-  code: "+61",
-  country: "Australia"
-}, {
-  code: "+64",
-  country: "New Zealand"
-}, {
-  code: "+49",
-  country: "Germany"
-}, {
-  code: "+33",
-  country: "France"
-}, {
-  code: "+39",
-  country: "Italy"
-}, {
-  code: "+34",
-  country: "Spain"
-}, {
-  code: "+31",
-  country: "Netherlands"
-}, {
-  code: "+32",
-  country: "Belgium"
-}, {
-  code: "+41",
-  country: "Switzerland"
-}, {
-  code: "+46",
-  country: "Sweden"
-}, {
-  code: "+47",
-  country: "Norway"
-}, {
-  code: "+45",
-  country: "Denmark"
-}, {
-  code: "+358",
-  country: "Finland"
-}, {
-  code: "+7",
-  country: "Russia"
-}, {
-  code: "+27",
-  country: "South Africa"
-}, {
-  code: "+20",
-  country: "Egypt"
-}, {
-  code: "+966",
-  country: "Saudi Arabia"
-}, {
-  code: "+974",
-  country: "Qatar"
-}, {
-  code: "+973",
-  country: "Bahrain"
-}, {
-  code: "+968",
-  country: "Oman"
-}, {
-  code: "+965",
-  country: "Kuwait"
-}, {
-  code: "+961",
-  country: "Lebanon"
-}, {
-  code: "+962",
-  country: "Jordan"
-}, {
-  code: "+90",
-  country: "Turkey"
-}, {
-  code: "+55",
-  country: "Brazil"
-}, {
-  code: "+52",
-  country: "Mexico"
-}, {
-  code: "+54",
-  country: "Argentina"
-}, {
-  code: "+57",
-  country: "Colombia"
-}, {
-  code: "+51",
-  country: "Peru"
-}, {
-  code: "+56",
-  country: "Chile"
-}];
+
+const WEBINAR_NAME = "Building a Competitive Profile in 2026 (3 July 2026)";
+const MEET_URL = "https://meet.google.com/bba-tewz-jpq";
+const CALENDAR_URL =
+  "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Webinar+on+Building+a+competitive+profile+in+2026&dates=20260703T140000Z%2F20260703T150000Z&details=%F0%9F%8E%AF+Building+a+Competitive+Profile+in+2026%0A%0AIf+you%27re+planning+to+study+abroad+and+want+to+understand+what+universities+are+actually+looking+for%2C+this+session+is+for+you.&location=https%3A%2F%2Fmeet.google.com%2Fbba-tewz-jpq";
+const BANNER_SRC = "/webianr%20banner.png";
+
+const AGENDA = [
+  "Build a standout profile that gets noticed",
+  "What top universities actually look for in 2026",
+  "How to position your story for competitive programs",
+  "Avoid the common mistakes most applicants make",
+];
+
 const Webinar = () => {
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [countryCode, setCountryCode] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const {
-    toast
-  } = useToast();
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name || !email || !countryCode || !phoneNumber) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all fields",
-        variant: "destructive"
-      });
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      // Save to database
-      const {
-        error
-      } = await supabase.from("webinar_registrations").insert({
-        name,
-        email,
-        country_code: countryCode,
-        phone_number: phoneNumber,
-        webinar_name: WEBINAR_NAME
-      });
-      if (error) throw error;
 
-      // Send to LeadSquared CRM (don't block redirect on failure)
-      supabase.functions.invoke('leadsquared-create-lead', {
-        body: {
-          name,
-          email,
-          phoneNumber,
-          countryCode,
-          utm_source: "Webinar"
-        }
-      }).then(({
-        error: lsError
-      }) => {
-        if (lsError) console.error('LeadSquared error:', lsError);
+  // Fire-and-forget: capture the name if provided, never block the CTA.
+  const recordRegistration = () => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    supabase
+      .from("webinar_registrations")
+      .insert({
+        name: trimmed,
+        email: "",
+        country_code: "",
+        phone_number: "",
+        webinar_name: WEBINAR_NAME,
+      })
+      .then(({ error }) => {
+        if (error) console.error("Webinar registration error:", error);
       });
-      toast({
-        title: "Registration Successful!",
-        description: "Redirecting you to the webinar..."
-      });
-
-      // Redirect to Google Meet on same tab
-      window.location.href = "https://meet.google.com/bba-tewz-jpq";
-    } catch (error: any) {
-      toast({
-        title: "Registration Failed",
-        description: error.message || "Something went wrong",
-        variant: "destructive"
-      });
-      setIsSubmitting(false);
-    }
   };
-  return <div className="min-h-screen flex flex-col">
+
+  const openCalendar = () => {
+    recordRegistration();
+    window.open(CALENDAR_URL, "_blank", "noopener,noreferrer");
+  };
+
+  const openMeet = () => {
+    recordRegistration();
+    window.open(MEET_URL, "_blank", "noopener,noreferrer");
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-white font-display text-slate-900">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-12">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-4">Tier 1 Admission Strategy</h1>
-            <p className="text-xl text-muted-foreground">At 8 PM</p>
+
+      <main className="flex-1">
+        {/* ---------- HERO ---------- */}
+        <section className="mx-auto max-w-5xl px-4 pt-8 sm:pt-12">
+          <img
+            src={BANNER_SRC}
+            alt="Live Webinar. Building a Competitive Profile in 2026 with Favaz MP, Chief Mentor at 1%Abroad"
+            className="w-full rounded-2xl shadow-xl ring-1 ring-black/5"
+          />
+
+          <div className="mx-auto mt-8 max-w-2xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-blue-700">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-blue-600" />
+              Live Webinar
+            </span>
+
+            <h1 className="mt-4 font-display text-3xl font-bold leading-tight sm:text-4xl">
+              Building a Competitive Profile in 2026
+            </h1>
+
+            <p className="mt-3 text-base font-medium text-slate-600 sm:text-lg">
+              Friday, 3 July 2026 · 7:30 PM IST · 60 minutes
+            </p>
+            <p className="mt-2 text-sm text-slate-500 sm:text-base">
+              Join us live to learn what universities are actually looking for, and how to
+              stand out.
+            </p>
+
+            {/* Optional name capture — does not block the CTA */}
+            <div className="mx-auto mt-6 max-w-sm">
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your name (optional)"
+                className="w-full rounded-xl border border-slate-300 px-4 py-3 text-center text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+            </div>
+
+            {/* CTAs */}
+            <div className="mt-5 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+              <button
+                onClick={openCalendar}
+                className="inline-flex origin-center items-center justify-center gap-2 rounded-xl bg-blue-700 px-8 py-4 text-lg font-bold text-white ring-4 ring-blue-200 transition animate-[wiggle_3.5s_ease-in-out_infinite,glow-pulse_2s_ease-in-out_infinite] hover:bg-blue-800 hover:animate-none active:scale-[0.99]"
+              >
+                <BellIcon />
+                Remind Me
+              </button>
+              <button
+                onClick={openMeet}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-blue-700 px-6 py-3 text-base font-semibold text-blue-700 transition hover:bg-blue-50 active:scale-[0.99]"
+              >
+                Join the Webinar
+              </button>
+            </div>
+            <p className="mt-3 text-xs text-slate-400">
+              Adds it to your Google Calendar so you get a notification. The join link is also
+              above.
+            </p>
+          </div>
+        </section>
+
+        {/* ---------- EVENT DETAILS ---------- */}
+        <section className="mx-auto mt-14 max-w-3xl px-4">
+          <div className="grid gap-4 sm:grid-cols-3">
+            <DetailCard label="Date & Time" value="Fri, 3 July 2026" sub="7:30 PM IST (GMT+5:30)" />
+            <DetailCard label="Duration" value="60 minutes" sub="Live + Q&A" />
+            <DetailCard label="Where" value="Google Meet" sub="Link above" />
           </div>
 
-          <div className="bg-card p-8 rounded-lg shadow-lg border">
-            <h2 className="text-2xl font-semibold mb-6">Register Now</h2>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name *</Label>
-                <Input id="name" value={name} onChange={e => setName(e.target.value)} placeholder="Enter your full name" required />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address *</Label>
-                <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your.email@example.com" required />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="country-code">Country Code *</Label>
-                  <Select value={countryCode} onValueChange={setCountryCode} required>
-                    <SelectTrigger id="country-code">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {countryCodes.map(({
-                      code,
-                      country
-                    }) => <SelectItem key={code} value={code}>
-                          {code} ({country})
-                        </SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="phone">Phone Number *</Label>
-                  <Input id="phone" type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} placeholder="Enter phone number" required />
-                </div>
-              </div>
-
-              <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
-                {isSubmitting ? "Joining..." : "Join the Webinar"}
-              </Button>
-            </form>
+          <div className="mt-8 flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-blue-700 text-lg font-bold text-white">
+              FM
+            </div>
+            <div>
+              <p className="text-base font-semibold">Favaz MP</p>
+              <p className="text-sm text-slate-500">Chief Mentor · 1%Abroad</p>
+              <p className="mt-1 text-sm text-slate-600">
+                Guiding students into the world&apos;s top universities.
+              </p>
+            </div>
           </div>
-        </div>
+
+          <p className="mt-6 text-center text-slate-600">
+            If you&apos;re planning to study abroad and want to understand what universities are
+            actually looking for, this session is for you. Walk away knowing exactly how to build
+            a profile that competes at the top.
+          </p>
+        </section>
+
+        {/* ---------- AGENDA ---------- */}
+        <section className="mx-auto mt-14 max-w-3xl px-4">
+          <h2 className="text-center font-display text-2xl font-bold">What You&apos;ll Learn</h2>
+          <ul className="mx-auto mt-6 max-w-xl space-y-3">
+            {AGENDA.map((item) => (
+              <li
+                key={item}
+                className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+              >
+                <CheckIcon />
+                <span className="text-slate-800">{item}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* ---------- FINAL CTA ---------- */}
+        <section className="mx-auto mt-14 mb-16 max-w-3xl px-4">
+          <div className="rounded-2xl bg-gradient-to-br from-blue-700 to-blue-900 px-6 py-10 text-center text-white">
+            <h2 className="font-display text-2xl font-bold sm:text-3xl">Save your spot, it&apos;s free</h2>
+            <p className="mt-2 text-blue-100">Friday, 3 July 2026 · 7:30 PM IST</p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <button
+                onClick={openCalendar}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3.5 text-base font-semibold text-blue-800 shadow-lg transition hover:bg-blue-50 active:scale-[0.99]"
+              >
+                <BellIcon />
+                Remind Me
+              </button>
+              <button
+                onClick={openMeet}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-white/70 px-7 py-3.5 text-base font-semibold text-white transition hover:bg-white/10 active:scale-[0.99]"
+              >
+                Join the Webinar
+              </button>
+            </div>
+          </div>
+        </section>
       </main>
+
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
+const DetailCard = ({ label, value, sub }: { label: string; value: string; sub: string }) => (
+  <div className="rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm">
+    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</p>
+    <p className="mt-1 text-lg font-bold text-slate-900">{value}</p>
+    <p className="text-sm text-slate-500">{sub}</p>
+  </div>
+);
+
+const BellIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+  </svg>
+);
+
+const CheckIcon = () => (
+  <svg className="mt-0.5 shrink-0 text-blue-700" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <path d="m9 12 2 2 4-4" />
+  </svg>
+);
+
 export default Webinar;
