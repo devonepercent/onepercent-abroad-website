@@ -1,50 +1,84 @@
 import { useState } from "react";
+import { Calendar, Clock, Monitor, Ticket, type LucideIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-const WEBINAR_NAME = "Building a Competitive Profile in 2026 (3 July 2026)";
-const MEET_URL = "https://meet.google.com/bba-tewz-jpq";
-const CALENDAR_URL =
-  "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Webinar+on+Building+a+competitive+profile+in+2026&dates=20260703T140000Z%2F20260703T150000Z&details=%F0%9F%8E%AF+Building+a+Competitive+Profile+in+2026%0A%0AIf+you%27re+planning+to+study+abroad+and+want+to+understand+what+universities+are+actually+looking+for%2C+this+session+is+for+you.&location=https%3A%2F%2Fmeet.google.com%2Fbba-tewz-jpq";
-const BANNER_SRC = "/webianr%20banner.png";
+const WEBINAR_NAME = "Germany Master's Webinar 2026 (13 July 2026)";
+const WHATSAPP_GROUP_URL = "https://chat.whatsapp.com/BE2F3Mt9iisLUNm0fbS8xR";
+
+const COUNTRY_CODES = [
+  { code: "+91", label: "🇮🇳 +91" },
+  { code: "+1", label: "🇺🇸 +1" },
+  { code: "+44", label: "🇬🇧 +44" },
+  { code: "+61", label: "🇦🇺 +61" },
+  { code: "+49", label: "🇩🇪 +49" },
+  { code: "+33", label: "🇫🇷 +33" },
+  { code: "+971", label: "🇦🇪 +971" },
+  { code: "+65", label: "🇸🇬 +65" },
+  { code: "+60", label: "🇲🇾 +60" },
+  { code: "+977", label: "🇳🇵 +977" },
+  { code: "+94", label: "🇱🇰 +94" },
+  { code: "+880", label: "🇧🇩 +880" },
+];
 
 const AGENDA = [
-  "Build a standout profile that gets noticed",
-  "What top universities actually look for in 2026",
-  "How to position your story for competitive programs",
-  "Avoid the common mistakes most applicants make",
+  "Tuition-free public universities in Germany",
+  "Germany Master's admission process",
+  "What is the dMAT?",
+  "Who needs to take the dMAT?",
+  "How to prepare for the dMAT",
+  "DAAD Scholarship overview",
+  "Live Q&A with our experts",
 ];
 
 const Webinar = () => {
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [countryCode, setCountryCode] = useState("+91");
+  const [phone, setPhone] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  // Fire-and-forget: capture the name if provided, never block the CTA.
-  const recordRegistration = () => {
-    const trimmed = name.trim();
-    if (!trimmed) return;
-    supabase
-      .from("webinar_registrations")
-      .insert({
-        name: trimmed,
-        email: "",
-        country_code: "",
-        phone_number: "",
-        webinar_name: WEBINAR_NAME,
-      })
-      .then(({ error }) => {
-        if (error) console.error("Webinar registration error:", error);
-      });
+  const scrollToForm = () => {
+    document.getElementById("register")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const openCalendar = () => {
-    recordRegistration();
-    window.open(CALENDAR_URL, "_blank", "noopener,noreferrer");
-  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (submitting) return;
 
-  const openMeet = () => {
-    recordRegistration();
-    window.open(MEET_URL, "_blank", "noopener,noreferrer");
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+    const trimmedPhone = phone.replace(/[^0-9]/g, "");
+
+    if (!trimmedName) {
+      setError("Please enter your name.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    if (trimmedPhone.length < 7 || trimmedPhone.length > 15) {
+      setError("Please enter a valid phone number.");
+      return;
+    }
+
+    setError("");
+    setSubmitting(true);
+
+    // Best effort: never strand the user if the insert fails — they still join the group.
+    const { error: insertError } = await supabase.from("webinar_registrations").insert({
+      name: trimmedName,
+      email: trimmedEmail,
+      country_code: countryCode,
+      phone_number: trimmedPhone,
+      webinar_name: WEBINAR_NAME,
+    });
+    if (insertError) console.error("Webinar registration error:", insertError);
+
+    window.location.href = WHATSAPP_GROUP_URL;
   };
 
   return (
@@ -53,91 +87,56 @@ const Webinar = () => {
 
       <main className="flex-1">
         {/* ---------- HERO ---------- */}
-        <section className="mx-auto max-w-5xl px-4 pt-8 sm:pt-12">
-          <img
-            src={BANNER_SRC}
-            alt="Live Webinar. Building a Competitive Profile in 2026 with Favaz MP, Chief Mentor at 1%Abroad"
-            className="w-full rounded-2xl shadow-xl ring-1 ring-black/5"
-          />
-
-          <div className="mx-auto mt-8 max-w-2xl text-center">
-            <span className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-blue-700">
+        <section className="bg-gradient-to-b from-blue-50 to-white">
+          <div className="mx-auto max-w-3xl px-4 pb-14 pt-12 text-center sm:pt-16">
+            <span className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-blue-700">
               <span className="h-2 w-2 animate-pulse rounded-full bg-blue-600" />
-              Live Webinar
+              Free Live Webinar
             </span>
 
-            <h1 className="mt-4 font-display text-3xl font-bold leading-tight sm:text-4xl">
-              Building a Competitive Profile in 2026
+            <h1 className="mt-5 font-display text-3xl font-bold leading-tight sm:text-5xl">
+              Germany Master&apos;s Webinar 2026
             </h1>
 
-            <p className="mt-3 text-base font-medium text-slate-600 sm:text-lg">
-              Friday, 3 July 2026 · 7:30 PM IST · 60 minutes
-            </p>
-            <p className="mt-2 text-sm text-slate-500 sm:text-base">
-              Join us live to learn what universities are actually looking for, and how to
-              stand out.
+            <p className="mx-auto mt-4 max-w-2xl text-base font-medium text-slate-600 sm:text-lg">
+              Study in Germany&apos;s tuition-free public universities &amp; understand the new
+              dMAT requirement.
             </p>
 
-            {/* Optional name capture — does not block the CTA */}
-            <div className="mx-auto mt-6 max-w-sm">
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your name (optional)"
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 text-center text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              />
+            <div className="mx-auto mt-8 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
+              <DetailCard icon={Calendar} label="Date" value="13 July 2026" />
+              <DetailCard icon={Clock} label="Time" value="7:30 PM IST" />
+              <DetailCard icon={Monitor} label="Mode" value="Online" />
+              <DetailCard icon={Ticket} label="Registration" value="Free" />
             </div>
 
-            {/* CTAs */}
-            <div className="mt-5 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <button
-                onClick={openCalendar}
-                className="inline-flex origin-center items-center justify-center gap-2 rounded-xl bg-blue-700 px-8 py-4 text-lg font-bold text-white ring-4 ring-blue-200 transition animate-[wiggle_3.5s_ease-in-out_infinite,glow-pulse_2s_ease-in-out_infinite] hover:bg-blue-800 hover:animate-none active:scale-[0.99]"
-              >
-                <BellIcon />
-                Remind Me
-              </button>
-              <button
-                onClick={openMeet}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-blue-700 px-6 py-3 text-base font-semibold text-blue-700 transition hover:bg-blue-50 active:scale-[0.99]"
-              >
-                Join the Webinar
-              </button>
-            </div>
-            <p className="mt-3 text-xs text-slate-400">
-              Adds it to your Google Calendar so you get a notification. The join link is also
-              above.
-            </p>
+            <button
+              onClick={scrollToForm}
+              className="mt-8 inline-flex items-center justify-center gap-2 rounded-xl bg-blue-700 px-8 py-4 text-lg font-bold text-white ring-4 ring-blue-200 transition hover:bg-blue-800 active:scale-[0.99]"
+            >
+              Register Now — It&apos;s Free
+            </button>
           </div>
         </section>
 
-        {/* ---------- EVENT DETAILS ---------- */}
+        {/* ---------- ABOUT ---------- */}
         <section className="mx-auto mt-14 max-w-3xl px-4">
-          <div className="grid gap-4 sm:grid-cols-3">
-            <DetailCard label="Date & Time" value="Fri, 3 July 2026" sub="7:30 PM IST (GMT+5:30)" />
-            <DetailCard label="Duration" value="60 minutes" sub="Live + Q&A" />
-            <DetailCard label="Where" value="Google Meet" sub="Link above" />
+          <h2 className="text-center font-display text-2xl font-bold">About the Webinar</h2>
+          <div className="mt-5 space-y-4 text-center text-slate-600">
+            <p className="text-lg font-medium text-slate-800">
+              Planning to pursue your Master&apos;s in Germany?
+            </p>
+            <p>
+              Join this free webinar by <span className="font-semibold text-slate-800">1% Abroad</span>{" "}
+              to learn about tuition-free public universities, the latest admission process,
+              scholarships, and the new{" "}
+              <span className="font-semibold text-slate-800">
+                Digital Master Assessment Test (dMAT)
+              </span>{" "}
+              being introduced by some German universities from 2026.
+            </p>
+            <p>Our experts will guide you through everything you need to know before you apply.</p>
           </div>
-
-          <div className="mt-8 flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-blue-700 text-lg font-bold text-white">
-              FM
-            </div>
-            <div>
-              <p className="text-base font-semibold">Favaz MP</p>
-              <p className="text-sm text-slate-500">Chief Mentor · 1%Abroad</p>
-              <p className="mt-1 text-sm text-slate-600">
-                Guiding students into the world&apos;s top universities.
-              </p>
-            </div>
-          </div>
-
-          <p className="mt-6 text-center text-slate-600">
-            If you&apos;re planning to study abroad and want to understand what universities are
-            actually looking for, this session is for you. Walk away knowing exactly how to build
-            a profile that competes at the top.
-          </p>
         </section>
 
         {/* ---------- AGENDA ---------- */}
@@ -156,26 +155,92 @@ const Webinar = () => {
           </ul>
         </section>
 
-        {/* ---------- FINAL CTA ---------- */}
-        <section className="mx-auto mt-14 mb-16 max-w-3xl px-4">
-          <div className="rounded-2xl bg-gradient-to-br from-blue-700 to-blue-900 px-6 py-10 text-center text-white">
-            <h2 className="font-display text-2xl font-bold sm:text-3xl">Save your spot, it&apos;s free</h2>
-            <p className="mt-2 text-blue-100">Friday, 3 July 2026 · 7:30 PM IST</p>
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+        {/* ---------- REGISTRATION FORM ---------- */}
+        <section id="register" className="mx-auto mt-14 mb-16 max-w-3xl scroll-mt-24 px-4">
+          <div className="rounded-2xl bg-gradient-to-br from-blue-700 to-blue-900 px-6 py-10 text-white sm:px-10">
+            <h2 className="text-center font-display text-2xl font-bold sm:text-3xl">
+              Reserve Your Spot
+            </h2>
+            <p className="mt-2 text-center text-blue-100">
+              Seats are limited. Register now to attend the webinar for free and get your questions
+              answered by our Germany admissions experts.
+            </p>
+
+            <form onSubmit={handleSubmit} className="mx-auto mt-8 max-w-md space-y-4">
+              <div>
+                <label htmlFor="webinar-name" className="mb-1.5 block text-sm font-medium text-blue-100">
+                  Full Name
+                </label>
+                <input
+                  id="webinar-name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your full name"
+                  className="w-full rounded-xl border border-white/30 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-white focus:ring-2 focus:ring-white/40"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="webinar-email" className="mb-1.5 block text-sm font-medium text-blue-100">
+                  Email
+                </label>
+                <input
+                  id="webinar-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="w-full rounded-xl border border-white/30 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-white focus:ring-2 focus:ring-white/40"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="webinar-phone" className="mb-1.5 block text-sm font-medium text-blue-100">
+                  Phone Number
+                </label>
+                <div className="flex gap-2">
+                  <select
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    className="min-w-[100px] rounded-xl border border-white/30 bg-white px-3 py-3 text-sm text-slate-900 outline-none transition focus:border-white focus:ring-2 focus:ring-white/40"
+                  >
+                    {COUNTRY_CODES.map((cc) => (
+                      <option key={cc.code} value={cc.code}>
+                        {cc.label}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    id="webinar-phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="Phone number"
+                    className="w-full rounded-xl border border-white/30 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-white focus:ring-2 focus:ring-white/40"
+                  />
+                </div>
+              </div>
+
+              {error && (
+                <p className="rounded-xl bg-red-500/20 px-4 py-2.5 text-center text-sm font-medium text-red-100">
+                  {error}
+                </p>
+              )}
+
               <button
-                onClick={openCalendar}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3.5 text-base font-semibold text-blue-800 shadow-lg transition hover:bg-blue-50 active:scale-[0.99]"
+                type="submit"
+                disabled={submitting}
+                className="w-full rounded-xl bg-white px-7 py-4 text-lg font-bold text-blue-800 shadow-lg transition hover:bg-blue-50 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
               >
-                <BellIcon />
-                Remind Me
+                {submitting ? "Registering…" : "Register & Join WhatsApp Group"}
               </button>
-              <button
-                onClick={openMeet}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-white/70 px-7 py-3.5 text-base font-semibold text-white transition hover:bg-white/10 active:scale-[0.99]"
-              >
-                Join the Webinar
-              </button>
-            </div>
+
+              <p className="text-center text-xs text-blue-200">
+                After registering you&apos;ll be added to our WhatsApp group for the webinar link
+                and updates.
+              </p>
+            </form>
           </div>
         </section>
       </main>
@@ -185,19 +250,12 @@ const Webinar = () => {
   );
 };
 
-const DetailCard = ({ label, value, sub }: { label: string; value: string; sub: string }) => (
-  <div className="rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm">
-    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</p>
-    <p className="mt-1 text-lg font-bold text-slate-900">{value}</p>
-    <p className="text-sm text-slate-500">{sub}</p>
+const DetailCard = ({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) => (
+  <div className="rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm">
+    <Icon className="mx-auto h-6 w-6 text-blue-700" strokeWidth={2} />
+    <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</p>
+    <p className="text-sm font-bold text-slate-900 sm:text-base">{value}</p>
   </div>
-);
-
-const BellIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-  </svg>
 );
 
 const CheckIcon = () => (
