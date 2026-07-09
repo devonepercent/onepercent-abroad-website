@@ -19,6 +19,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { sha512, deliverPurchase } from "../_shared/sop-delivery.ts";
+import { deliverErasmusPurchase } from "../_shared/erasmus-delivery.ts";
 
 const text = (body: string, status = 200) =>
   new Response(body, { status, headers: { "Content-Type": "text/plain" } });
@@ -63,11 +64,40 @@ serve(async (req) => {
       .eq("payu_txnid", txnid)
       .single();
 
-    // Ack unknown txns with a 200 so PayU does not retry forever; we simply
-    // have no purchase row to deliver against.
+    // Not an SOP txn — this webhook receives every merchant transaction, so
+    // check the Erasmus purchases before giving up.
     if (!purchase) {
-      console.warn("payu-webhook: no purchase for txnid:", txnid);
-      return text("OK (no matching purchase)", 200);
+      const { data: erasmus } = await supabase
+        .from("erasmus_purchases")
+        .select("*")
+        .eq("payu_txnid", txnid)
+        .single();
+
+      // Ack unknown txns with a 200 so PayU does not retry forever; we simply
+      // have no purchase row to deliver against.
+      if (!erasmus) {
+        console.warn("payu-webhook: no purchase for txnid:", txnid);
+        return text("OK (no matching purchase)", 200);
+      }
+
+      const erasmusSuccess = status === "success";
+      await supabase
+        .from("erasmus_purchases")
+        .update({
+          payu_mihpayid: mihpayid,
+          status: erasmusSuccess ? "completed" : "failed",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("payu_txnid", txnid);
+
+      if (!erasmusSuccess) return text("OK", 200);
+
+      await deliverErasmusPurchase(
+        supabase,
+        { ...erasmus, payu_mihpayid: mihpayid },
+        { resendKey: Deno.env.get("RESEND_API_KEY") },
+      );
+      return text("OK", 200);
     }
 
     const isSuccess = status === "success";

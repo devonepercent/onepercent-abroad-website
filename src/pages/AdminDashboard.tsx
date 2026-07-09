@@ -165,6 +165,29 @@ interface SopFeedback {
   created_at: string;
 }
 
+interface ErasmusCallRequest {
+  id: string;
+  name: string;
+  phone: string;
+  source: string | null;
+  created_at: string;
+}
+
+interface ErasmusPurchase {
+  id: string;
+  name: string | null;
+  email: string;
+  phone: string | null;
+  items: { id: string; code: string; name: string; category?: string }[] | null;
+  num_items: number;
+  amount: number;
+  payu_txnid: string | null;
+  payu_mihpayid: string | null;
+  status: string;
+  email_sent: boolean | null;
+  created_at: string;
+}
+
 interface BillingCycle {
   id: string;
   name: string;
@@ -483,6 +506,8 @@ const ADMIN_TABS: { value: string; label: string }[] = [
   { value: "newsletter", label: "Newsletter subscribers" },
   { value: "sop-purchases", label: "SOP purchases" },
   { value: "sop-feedback", label: "SOP feedback" },
+  { value: "programs", label: "Programs" },
+  { value: "erasmus-calls", label: "Erasmus call requests" },
   { value: "internal-tools", label: "Internal tools" },
   { value: "tracker", label: "Tracker" },
 ];
@@ -498,6 +523,8 @@ const AdminDashboard = () => {
   const [programEnquiries, setProgramEnquiries] = useState<ProgramEnquiry[]>([]);
   const [selectedEnquiry, setSelectedEnquiry] = useState<ProgramEnquiry | null>(null);
   const [sopFeedback, setSopFeedback] = useState<SopFeedback[]>([]);
+  const [erasmusCalls, setErasmusCalls] = useState<ErasmusCallRequest[]>([]);
+  const [erasmusPurchases, setErasmusPurchases] = useState<ErasmusPurchase[]>([]);
   const [recentExpenses, setRecentExpenses] = useState<Expense[]>([]);
   const [expenseEmailMap, setExpenseEmailMap] = useState<UserEmailMap>({});
   const [sopPurchases, setSopPurchases] = useState<SopPurchase[]>([]);
@@ -602,6 +629,8 @@ const AdminDashboard = () => {
         { data: sopEventsData, error: sopEventsError },
         { data: enquiryData, error: enquiryError },
         { data: feedbackData, error: feedbackError },
+        { data: erasmusCallData, error: erasmusCallError },
+        { data: erasmusPurchaseData, error: erasmusPurchaseError },
       ] = await Promise.all([
         supabase
           .from("webinar_registrations" as any)
@@ -646,6 +675,14 @@ const AdminDashboard = () => {
           .order("created_at", { ascending: false }),
         supabase
           .from("sop_feedback" as any)
+          .select("*")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("erasmus_call_requests" as any)
+          .select("*")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("erasmus_purchases" as any)
           .select("*")
           .order("created_at", { ascending: false }),
       ]);
@@ -708,6 +745,18 @@ const AdminDashboard = () => {
         console.error("Error loading SOP feedback:", feedbackError);
       } else {
         setSopFeedback((feedbackData as unknown as SopFeedback[]) || []);
+      }
+
+      if (erasmusCallError) {
+        console.error("Error loading Erasmus call requests:", erasmusCallError);
+      } else {
+        setErasmusCalls((erasmusCallData as unknown as ErasmusCallRequest[]) || []);
+      }
+
+      if (erasmusPurchaseError) {
+        console.error("Error loading Erasmus purchases:", erasmusPurchaseError);
+      } else {
+        setErasmusPurchases((erasmusPurchaseData as unknown as ErasmusPurchase[]) || []);
       }
 
       if (expenseError) {
@@ -1352,6 +1401,184 @@ const AdminDashboard = () => {
                         <TableCell className="max-w-[260px] whitespace-pre-wrap break-words" title={f.suggestions || ""}>{f.suggestions || "-"}</TableCell>
                         <TableCell className="whitespace-nowrap">{f.name || "-"}</TableCell>
                         <TableCell>{f.email || "-"}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </TabsContent>
+
+          {/* Programs tab — one section per paid programme offering */}
+          <TabsContent value="programs">
+            <div className="space-y-2 mb-4">
+              <h2 className="text-xl font-semibold">Programs</h2>
+              <p className="text-sm text-muted-foreground">Paid programme offerings and their purchases.</p>
+            </div>
+
+            {/* Erasmus */}
+            <div className="border rounded-lg bg-card shadow">
+              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 p-4 border-b">
+                <div className="space-y-1">
+                  <h3 className="text-lg font-semibold">Erasmus Mundus — Application Filing</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {erasmusPurchases.filter((p) => p.status === "completed").length} paid ·{" "}
+                    ₹{erasmusPurchases.filter((p) => p.status === "completed").reduce((s, p) => s + Number(p.amount), 0).toLocaleString("en-IN")}{" "}
+                    collected · {erasmusPurchases.filter((p) => p.status === "pending").length} pending ·{" "}
+                    {erasmusPurchases.filter((p) => p.status === "failed").length} failed
+                  </p>
+                </div>
+                <Button
+                  onClick={() => {
+                    if (erasmusPurchases.length === 0) return;
+                    const headers = ["Timestamp", "Name", "Email", "Phone", "Programmes", "Apps", "Amount", "Status", "PayU Txn"];
+                    const esc = (v: string | null) => `"${(v || "").replace(/"/g, '""')}"`;
+                    const rows = erasmusPurchases.map((p) =>
+                      [
+                        new Date(p.created_at).toLocaleString(),
+                        esc(p.name),
+                        esc(p.email),
+                        esc(p.phone),
+                        esc((p.items ?? []).map((i) => i.code).join(" | ")),
+                        p.num_items,
+                        p.amount,
+                        p.status,
+                        esc(p.payu_txnid),
+                      ].join(","),
+                    );
+                    const blob = new Blob([[headers.join(","), ...rows].join("\n")], { type: "text/csv" });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `erasmus-purchases-${new Date().toISOString().split("T")[0]}.csv`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                  }}
+                  size="sm"
+                  variant="outline"
+                  disabled={erasmusPurchases.length === 0}
+                >
+                  <Download className="mr-2 h-4 w-4" />Export CSV
+                </Button>
+              </div>
+
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Timestamp</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Programmes</TableHead>
+                      <TableHead>Apps</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Email sent</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {erasmusPurchases.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                          No purchases yet
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      erasmusPurchases.map((p) => (
+                        <TableRow key={p.id}>
+                          <TableCell className="whitespace-nowrap">{new Date(p.created_at).toLocaleString()}</TableCell>
+                          <TableCell className="whitespace-nowrap">{p.name || "-"}</TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            <a href={`mailto:${p.email}`} className="text-primary hover:underline">{p.email}</a>
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            {p.phone ? (
+                              <a href={`tel:${p.phone}`} className="text-primary hover:underline">{p.phone}</a>
+                            ) : (
+                              "-"
+                            )}
+                          </TableCell>
+                          <TableCell className="max-w-[260px]">
+                            <span title={(p.items ?? []).map((i) => `${i.code} — ${i.name}`).join("\n")}>
+                              {(p.items ?? []).map((i) => i.code).join(", ") || "-"}
+                            </span>
+                          </TableCell>
+                          <TableCell>{p.num_items}</TableCell>
+                          <TableCell className="whitespace-nowrap">₹{Number(p.amount).toLocaleString("en-IN")}</TableCell>
+                          <TableCell>
+                            <span
+                              className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${
+                                p.status === "completed"
+                                  ? "bg-green-100 text-green-800"
+                                  : p.status === "failed"
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-amber-100 text-amber-800"
+                              }`}
+                            >
+                              {p.status}
+                            </span>
+                          </TableCell>
+                          <TableCell>{p.email_sent ? "✓" : "—"}</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="erasmus-calls">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-4">
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold">Erasmus call requests</h2>
+                <p className="text-sm text-muted-foreground">{erasmusCalls.length} total</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  onClick={() => {
+                    if (erasmusCalls.length === 0) return;
+                    const headers = ["Timestamp", "Name", "Phone", "Source"];
+                    const esc = (v: string | null) => `"${(v || "").replace(/"/g, '""')}"`;
+                    const rows = erasmusCalls.map((c) => [new Date(c.created_at).toLocaleString(), esc(c.name), esc(c.phone), c.source || ""].join(","));
+                    const blob = new Blob([[headers.join(","), ...rows].join("\n")], { type: "text/csv" });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a"); a.href = url; a.download = `erasmus-call-requests-${new Date().toISOString().split("T")[0]}.csv`; a.click(); window.URL.revokeObjectURL(url);
+                  }}
+                  size="sm" variant="outline" disabled={erasmusCalls.length === 0}
+                >
+                  <Download className="mr-2 h-4 w-4" />Export CSV
+                </Button>
+              </div>
+            </div>
+
+            <div className="bg-card rounded-lg shadow border overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Phone</TableHead>
+                    <TableHead>Source</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {erasmusCalls.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                        No call requests yet
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    erasmusCalls.map((c) => (
+                      <TableRow key={c.id}>
+                        <TableCell className="whitespace-nowrap">{new Date(c.created_at).toLocaleString()}</TableCell>
+                        <TableCell className="whitespace-nowrap">{c.name}</TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          <a href={`tel:${c.phone}`} className="text-primary hover:underline">{c.phone}</a>
+                        </TableCell>
+                        <TableCell>{c.source || "-"}</TableCell>
                       </TableRow>
                     ))
                   )}
