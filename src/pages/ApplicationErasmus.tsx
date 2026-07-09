@@ -197,8 +197,9 @@ const HeroSection = () => {
   const [muted, setMuted] = useState(true);
   return (
   <section className="md:pb-12">
-    <div style={{ position: "relative", overflow: "hidden", background: "#040B2B" }}>
-      {/* Full-bleed vertical background video */}
+    {/* Mobile: full-bleed video · Desktop: flat brand-blue */}
+    <div className="bg-[#040B2B] md:bg-[#065DC7]" style={{ position: "relative", overflow: "hidden" }}>
+      {/* Full-bleed vertical background video (mobile only) */}
       <video
         autoPlay
         muted={muted}
@@ -206,6 +207,7 @@ const HeroSection = () => {
         playsInline
         preload="metadata"
         poster="/erasmus-hero.jpg"
+        className="md:hidden"
         style={{
           position: "absolute",
           inset: 0,
@@ -213,16 +215,17 @@ const HeroSection = () => {
           height: "100%",
           objectFit: "cover",
           filter: "brightness(1.25)",
-          transform: "translate(10%, -5%) scale(1.2)",
+          transform: "translate(5%, -5%) scale(1.2)",
           zIndex: 0,
         }}
       >
         <source src="/erasmus-hero.mp4" type="video/mp4" />
       </video>
 
-      {/* Legibility overlay — keeps white copy readable over the footage */}
+      {/* Legibility overlay — keeps white copy readable over the footage (mobile only) */}
       <div
         aria-hidden="true"
+        className="md:hidden"
         style={{
           position: "absolute",
           inset: 0,
@@ -298,10 +301,11 @@ const HeroSection = () => {
         </p>
       </div>
 
-      {/* Sound toggle — browsers require a user tap before audio can play */}
+      {/* Sound toggle — mobile only, where the video lives */}
       <button
         onClick={() => setMuted((m) => !m)}
         aria-label={muted ? "Unmute video" : "Mute video"}
+        className="md:hidden flex items-center justify-center"
         style={{
           position: "absolute",
           bottom: 20,
@@ -315,9 +319,6 @@ const HeroSection = () => {
           backdropFilter: "blur(8px)",
           WebkitBackdropFilter: "blur(8px)",
           color: "#fff",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
           cursor: "pointer",
         }}
       >
