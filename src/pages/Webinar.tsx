@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Calendar, Clock, Monitor, Ticket, type LucideIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { trackMetaEvent } from "@/lib/metaPixel";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -77,6 +78,8 @@ const Webinar = () => {
       webinar_name: WEBINAR_NAME,
     });
     if (insertError) console.error("Webinar registration error:", insertError);
+
+    trackMetaEvent("CompleteRegistration", { content_name: WEBINAR_NAME });
 
     window.location.href = WHATSAPP_GROUP_URL;
   };
