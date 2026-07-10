@@ -235,6 +235,33 @@ const HeroSection = () => {
         }}
       />
 
+      {/* Header background image (desktop only) */}
+      <div
+        aria-hidden="true"
+        className="hidden md:block"
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 0,
+          backgroundImage: "url(/header-bg.avif)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      />
+
+      {/* Legibility overlay for the header image (desktop only) */}
+      <div
+        aria-hidden="true"
+        className="hidden md:block"
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 1,
+          background:
+            "linear-gradient(180deg, rgba(4,11,43,0.78) 0%, rgba(4,11,43,0.55) 55%, rgba(4,11,43,0.68) 100%)",
+        }}
+      />
+
       <div
         className="erz-hero"
         style={{
@@ -296,7 +323,7 @@ const HeroSection = () => {
             fontFamily: "'Outfit', sans-serif",
           }}
         >
-          All-inclusive filing for every application — and a shot at a fully-funded scholarship worth{" "}
+          All-inclusive filing for every application, and a shot at a fully-funded scholarship worth{" "}
           <strong style={{ color: "#fff", fontWeight: 700 }}>₹40 lakh+</strong>.
         </p>
       </div>
@@ -410,7 +437,7 @@ const uspCards = [
     icon: "/leap/IELTS_PREP_SVG_IMG_SEO_3.svg",
     highlight: "Flat " + inr(PRICE),
     rest: "Per Application",
-    body: "All-inclusive filing — agencies charge ₹25,000+ for the same work",
+    body: "All-inclusive filing. Agencies charge ₹25,000+ for the same work",
   },
 ];
 
@@ -481,7 +508,7 @@ const FormSection = () => {
       .insert({ name: name.trim(), phone: phone.trim(), source: "erasmus" } as never);
     setSubmitting(false);
     if (insertError) {
-      setError("Something went wrong — please try again in a moment.");
+      setError("Something went wrong. Please try again in a moment.");
       return;
     }
     setStep(3);
@@ -490,16 +517,9 @@ const FormSection = () => {
   return (
     <div className="py-10 md:py-16" id="erasmus-form">
       <div className="flex border border-[#B9D3F1] rounded-[16px] md:rounded-[32px] mx-4 md:mx-0 bg-[#F5F8FF] min-h-[491px]">
-        {/* Left image (placeholder from reference) */}
-        <img
-          className="hidden md:block min-w-[499px] h-[513px] rounded-[32px] object-cover"
-          src="/leap/student_seo_form.webp"
-          alt="Student Form"
-        />
-
         <div className="w-full">
-          <section className="md:w-[747px] relative w-full pb-4 md:px-16 md:py-8 bg-white justify-between h-full rounded-[16px] md:rounded-[32px]">
-            <div className="md:p-0 flex flex-col items-center justify-between md:min-h-[449px] m-auto bg-[linear-gradient(180deg,#EEF4FF_0%,#FFF_100%)] md:bg-none rounded-[16px] md:rounded-[32px] h-full">
+          <section className="relative w-full pb-4 md:px-16 md:py-8 bg-white justify-between h-full rounded-[16px] md:rounded-[32px]">
+            <div className="md:p-0 flex flex-col items-center justify-between md:min-h-[449px] w-full md:max-w-[620px] m-auto bg-[linear-gradient(180deg,#EEF4FF_0%,#FFF_100%)] md:bg-none rounded-[16px] md:rounded-[32px] h-full">
               <div className="flex flex-col w-full">
                 <div className="flex flex-col leading-[14px] text-[18px] whitespace-nowrap items-center gap-[6px] py-5 md:py-0 md:pb-7 px-4 md:px-0">
                   <p className="text-[18px] md:text-[20px] md:w-full text-center font-poppins font-semibold leading-[23.4px] md:leading-[32px]">
@@ -660,7 +680,7 @@ const MentorsSection = () => (
     <div className="px-4 mb-8 md:mb-10">
       <div className="md:max-w-[822px] mx-auto">
         <p className="text-[#6B7A99] font-normal text-[14px] md:text-[16px] leading-5 md:leading-6 text-center">
-          From fully-funded Erasmus Mundus scholars to admits at Johns Hopkins, KU Leuven and Glasgow — we have
+          From fully-funded Erasmus Mundus scholars to admits at Johns Hopkins, KU Leuven and Glasgow, we have
           experience mentoring students into the world's top universities, with funding.
         </p>
       </div>
@@ -731,7 +751,7 @@ const WinnersSection = () => (
     <div className="mx-4 mb-8 md:mb-10">
       <div className="md:max-w-[822px] mx-auto">
         <p className="text-[#6B7A99] font-normal text-[14px] md:text-[16px] leading-5 md:leading-6 text-center">
-          One flat, all-inclusive fee per application — no hidden charges. Agencies charge ₹25,000+ for the same
+          One flat, all-inclusive fee per application with no hidden charges. Agencies charge ₹25,000+ for the same
           end-to-end filing.
         </p>
       </div>
@@ -798,7 +818,7 @@ const DarkResourcesSection = () => (
                 <li className="flex items-center gap-2 text-[16px] leading-6 mb-4 ml-0">
                   <PurpleTick />
                   <span className="font-inter leading-[21px] text-[14px] md:text-[16px] md:leading-6">
-                    <span className="font-semibold">Every Field</span> — AI to Public Policy
+                    <span className="font-semibold">Every Field</span>: AI to Public Policy
                   </span>
                 </li>
                 <li className="flex items-center gap-2 text-[16px] leading-6 mb-4 ml-0">
@@ -875,15 +895,15 @@ const DarkResourcesSection = () => (
 const faqs = [
   {
     q: "What is Erasmus Mundus?",
-    a: "Erasmus Mundus Joint Masters are prestigious programmes funded by the European Union. You study in two or three European countries within one degree, and the scholarship covers full tuition, travel and a monthly living stipend — a package typically worth ₹40 lakh or more.",
+    a: "Erasmus Mundus Joint Masters are prestigious programmes funded by the European Union. You study in two or three European countries within one degree, and the scholarship covers full tuition, travel and a monthly living stipend, a package typically worth ₹40 lakh or more.",
   },
   {
     q: "Am I eligible to apply?",
-    a: "You need a completed bachelor's degree (final-year students can usually apply too) in a field relevant to the programme. Each programme sets its own academic and English-language requirements — we map your eligibility for every programme before filing anything.",
+    a: "You need a completed bachelor's degree (final-year students can usually apply too) in a field relevant to the programme. Each programme sets its own academic and English-language requirements. We map your eligibility for every programme before filing anything.",
   },
   {
     q: "How many programmes can I apply to?",
-    a: "The EU allows you to hold scholarship applications to a maximum of three Erasmus Mundus programmes per intake. Choosing the right three matters — our mentors help you shortlist where your profile is strongest.",
+    a: "The EU allows you to hold scholarship applications to a maximum of three Erasmus Mundus programmes per intake. Choosing the right three matters. Our mentors help you shortlist where your profile is strongest.",
   },
   {
     q: `What does the ${inr(PRICE)} fee include?`,
@@ -891,7 +911,7 @@ const faqs = [
   },
   {
     q: "When are the application deadlines?",
-    a: "Most Erasmus Mundus programmes open applications between October and January for the following September intake. Deadlines vary by programme — once you apply with us, we track every date so nothing slips.",
+    a: "Most Erasmus Mundus programmes open applications between October and January for the following September intake. Deadlines vary by programme. Once you apply with us, we track every date so nothing slips.",
   },
   {
     q: "Do I need IELTS or TOEFL?",
@@ -943,7 +963,7 @@ const FinalCtaSection = () => (
         Ready to start your <span className="text-[#61A2FE]">Erasmus journey</span>?
       </h2>
       <p className="text-white/70 font-inter text-[14px] md:text-[16px] leading-5 md:leading-6 mb-8">
-        Talk to our team for free, or jump straight into picking your programmes — flat {inr(PRICE)} per application,
+        Talk to our team for free, or jump straight into picking your programmes: flat {inr(PRICE)} per application,
         everything included.
       </p>
       <div className="flex flex-col md:flex-row gap-3 md:gap-4 justify-center md:max-w-[560px] mx-auto">

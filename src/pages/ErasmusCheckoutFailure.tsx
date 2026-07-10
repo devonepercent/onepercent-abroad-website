@@ -48,7 +48,7 @@ const ErasmusCheckoutFailure = () => (
 
       <div style={{ padding: "28px 32px 32px" }}>
         <p style={{ fontSize: 15, lineHeight: 1.65, color: "#40506B", margin: "0 0 22px" }}>
-          No money was deducted on our side — if your bank shows a debit, it will auto-reverse. Your cart is saved, so
+          No money was deducted on our side. If your bank shows a debit, it will auto-reverse. Your cart is saved, so
           you can try again in one tap.
         </p>
         <Link

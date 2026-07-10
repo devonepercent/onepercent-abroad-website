@@ -117,7 +117,7 @@ const Webinar = () => {
               onClick={scrollToForm}
               className="mt-8 inline-flex items-center justify-center gap-2 rounded-xl bg-blue-700 px-8 py-4 text-lg font-bold text-white ring-4 ring-blue-200 transition hover:bg-blue-800 active:scale-[0.99]"
             >
-              Register Now — It&apos;s Free
+              Register Now, It&apos;s Free
             </button>
           </div>
         </section>

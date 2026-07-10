@@ -78,15 +78,15 @@ const sops: Sop[] = [
 const faqs = [
   {
     q: "What exactly do I get?",
-    a: "15 PDF files — one Statement of Purpose per file. Sent to your email instantly after payment. Nothing else. No videos, no templates, no analysis — just the real documents that got real students admitted.",
+    a: "15 PDF files, one Statement of Purpose per file. Sent to your email instantly after payment. Nothing else. No videos, no templates, no analysis. Just the real documents that got real students admitted.",
   },
   {
     q: "Are these real SOPs from actual admitted students?",
-    a: "Yes — 100%. Every SOP belongs to a real student who was accepted to the programme listed. Not AI-generated, not fictional. Shared with the author's explicit consent. All identifying details kept strictly confidential.",
+    a: "Yes, 100%. Every SOP belongs to a real student who was accepted to the programme listed. Not AI-generated, not fictional. Shared with the author's explicit consent. All identifying details kept strictly confidential.",
   },
   {
     q: "Will I get access immediately after payment?",
-    a: "Yes — instantly. The moment your PayU payment is confirmed, your download link is emailed to you. Links stay live for 7 days — save the PDFs to your device.",
+    a: "Yes, instantly. The moment your PayU payment is confirmed, your download link is emailed to you. Links stay live for 7 days, so save the PDFs to your device.",
   },
   {
     q: "Is there a refund policy?",
@@ -545,7 +545,7 @@ const SopVault = () => {
           </div>
           <div className="hero-cta-wrap">
             <button className="btn-hero" onClick={openBuyModal}>
-              Get All 15 SOPs — <span className="price-old">₹799</span>₹199 →
+              Get All 15 SOPs: <span className="price-old">₹799</span>₹199 →
             </button>
             <div className="hero-hint">Instant email delivery · <strong>No upsells</strong></div>
           </div>
@@ -571,7 +571,7 @@ const SopVault = () => {
           <div className="section-eyebrow" style={{ justifyContent: "center" }}>Inside the Vault</div>
           <h2 className="section-title">15 Real Admits. 15 PDFs.</h2>
           <p className="section-sub">
-            Every SOP belongs to a real student who got in — shared with their consent.
+            Every SOP belongs to a real student who got in, shared with their consent.
           </p>
         </div>
 
@@ -656,7 +656,7 @@ const SopVault = () => {
       <div className="footer-cta">
         <h2><span className="price-old">₹799</span><span className="price-now">₹199</span>. 15 real SOPs.<br />Skip the guesswork.</h2>
         <p>One payment. Instant email delivery. No upsells.</p>
-        <button className="btn-footer" onClick={openBuyModal}>Get All 15 — <span className="price-old">₹{OLD_PRICE}</span>₹{PRICE} →</button>
+        <button className="btn-footer" onClick={openBuyModal}>Get All 15: <span className="price-old">₹{OLD_PRICE}</span>₹{PRICE} →</button>
       </div>
 
       <footer className="sv-footer">
@@ -695,7 +695,7 @@ const SopVault = () => {
               autoComplete="email"
             />
             <p className="modal-field-hint">
-              📩 Your SOPs will be sent to this email address — please enter a real inbox you can access.
+              📩 Your SOPs will be sent to this email address. Please enter a real inbox you can access.
             </p>
             <input
               className="modal-input"
@@ -728,11 +728,11 @@ const SopVault = () => {
           </ul>
           <h4>2. Strictly Prohibited</h4>
           <ul>
-            <li><strong>No commercial use</strong> — no selling, licensing, or monetising.</li>
-            <li><strong>No social media sharing</strong> — no posting on Instagram, LinkedIn, WhatsApp, Telegram, Reddit, or any other platform.</li>
-            <li><strong>No redistribution</strong> — no forwarding or sharing with any person or institution.</li>
-            <li><strong>No AI uploading</strong> — not to be fed into any AI tool or LLM platform.</li>
-            <li><strong>No plagiarism</strong> — copying or imitating these SOPs for your own application is academic fraud.</li>
+            <li><strong>No commercial use</strong>: no selling, licensing, or monetising.</li>
+            <li><strong>No social media sharing</strong>: no posting on Instagram, LinkedIn, WhatsApp, Telegram, Reddit, or any other platform.</li>
+            <li><strong>No redistribution</strong>: no forwarding or sharing with any person or institution.</li>
+            <li><strong>No AI uploading</strong>: not to be fed into any AI tool or LLM platform.</li>
+            <li><strong>No plagiarism</strong>: copying or imitating these SOPs for your own application is academic fraud.</li>
           </ul>
           <h4>3. Enforcement</h4>
           <p>Every download is digitally watermarked and tracked. Violations will be pursued with legal action and significant damages sought per instance.</p>

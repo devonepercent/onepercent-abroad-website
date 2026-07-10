@@ -78,12 +78,12 @@ const PrivacyPolicy = () => {
           <p>We collect information in the following ways:</p>
           <ul>
             <li>
-              <strong>Information you give us</strong> — your name, email address, phone number, country, and details
+              <strong>Information you give us</strong>: your name, email address, phone number, country, and details
               you submit through our forms (for example when you request a consultation, register for a webinar, or
               apply to a program).
             </li>
             <li>
-              <strong>Information collected automatically</strong> — your device type, browser, IP address, pages
+              <strong>Information collected automatically</strong>: your device type, browser, IP address, pages
               viewed, referring links, and actions taken on our site. This is gathered using cookies and similar
               technologies, including the Meta Pixel described below.
             </li>
@@ -92,22 +92,22 @@ const PrivacyPolicy = () => {
           <h2>3. Meta Pixel &amp; advertising on Facebook and Instagram</h2>
           <p>
             We run advertising campaigns on Meta platforms (Facebook and Instagram) and use the{" "}
-            <strong>Meta Pixel</strong> &mdash; a small piece of tracking code &mdash; on our website. The Meta Pixel
+            <strong>Meta Pixel</strong>, a small piece of tracking code, on our website. The Meta Pixel
             helps us understand how visitors who arrive from our ads behave on our site so we can measure and improve
             those campaigns.
           </p>
           <h3>What the Meta Pixel does</h3>
           <ul>
             <li>
-              <strong>Measures conversions</strong> — it records actions such as viewing a page, submitting a lead
+              <strong>Measures conversions</strong>: it records actions such as viewing a page, submitting a lead
               form, or registering for a webinar, so we can see which ads are effective.
             </li>
             <li>
-              <strong>Builds audiences</strong> — it allows us to show our ads to people who have visited our site
+              <strong>Builds audiences</strong>: it allows us to show our ads to people who have visited our site
               (retargeting) and to reach new people with similar interests (lookalike audiences).
             </li>
             <li>
-              <strong>Shares limited event data with Meta</strong> — when a tracked action happens, certain data
+              <strong>Shares limited event data with Meta</strong>: when a tracked action happens, certain data
               (such as your hashed identifiers, the action taken, page URL, and device/browser information) is sent to
               Meta Platforms, Inc. so that conversions can be attributed to our campaigns.
             </li>

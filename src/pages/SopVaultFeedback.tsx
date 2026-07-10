@@ -63,11 +63,11 @@ const css = `
 `;
 
 const RATING_LABELS: Record<number, string> = {
-  1: "Poor — it didn't work for me",
+  1: "Poor, it didn't work for me",
   2: "Below average",
   3: "It was okay",
-  4: "Good — I'd recommend it",
-  5: "Excellent — exactly what I needed",
+  4: "Good, I'd recommend it",
+  5: "Excellent, exactly what I needed",
 };
 
 const SopVaultFeedback = () => {
@@ -116,7 +116,7 @@ const SopVaultFeedback = () => {
 
     if (insertError) {
       setSubmitting(false);
-      setError("Something went wrong — please try again in a moment.");
+      setError("Something went wrong. Please try again in a moment.");
       return;
     }
     setSubmitting(false);
@@ -148,7 +148,7 @@ const SopVaultFeedback = () => {
             <div className="fb-thanks">
               <div className="fb-thanks-emoji">🙏</div>
               <h2>Feedback received</h2>
-              <p>Thanks for taking the time to share your thoughts — it genuinely helps us improve.</p>
+              <p>Thanks for taking the time to share your thoughts. It genuinely helps us improve.</p>
               <Link to="/product/sop-vault" className="fb-back">Back to The SOP Vault</Link>
             </div>
           ) : (

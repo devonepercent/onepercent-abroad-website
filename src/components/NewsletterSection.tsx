@@ -39,7 +39,7 @@ const NewsletterSection = () => (
         marginRight: "auto",
       }}>
         Get updates on scholarships, top university programs, mentorship opportunities,
-        and expert insights on studying abroad — straight to your inbox.
+        and expert insights on studying abroad, straight to your inbox.
       </p>
       <NewsletterForm source="section" />
       <p style={{ marginTop: 16, fontSize: 12, color: "rgba(255,255,255,0.2)" }}>

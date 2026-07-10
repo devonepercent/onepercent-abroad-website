@@ -72,7 +72,7 @@ const ErasmusProgram = () => {
             </span>
 
             <p className="font-inter text-[14px] md:text-[15px] leading-6 text-[#40506B] mb-8">
-              {prog.name} ({prog.code}) is an Erasmus Mundus Joint Master — you study in two or three European
+              {prog.name} ({prog.code}) is an Erasmus Mundus Joint Master. You study in two or three European
               countries within one degree, and the EU scholarship covers full tuition, travel and a monthly living
               stipend worth ₹40 lakh+. We handle your entire application end-to-end for one flat fee.
             </p>

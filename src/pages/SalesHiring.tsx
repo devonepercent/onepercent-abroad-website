@@ -233,24 +233,18 @@ const SalesHiring = () => {
               <div className="bg-card border rounded-xl p-6 shadow-sm space-y-4">
                 <ul className="space-y-3 text-sm md:text-base text-muted-foreground list-disc list-inside">
                   <li>
-                    <span className="font-medium text-foreground">Fluent in English</span> — strong spoken
+                    <span className="font-medium text-foreground">Fluent in English</span>: strong spoken
                     and written communication.
                   </li>
                   <li>
-                    <span className="font-medium text-foreground">Confident on calls</span> — comfortable
+                    <span className="font-medium text-foreground">Confident on calls</span>: comfortable
                     speaking with students and parents on high-value calls.
                   </li>
                   <li>
-                    <span className="font-medium text-foreground">
-                      Proven in closing premium deals
-                    </span>{" "}
-                    — experience in consultative or high-ticket sales is a strong plus.
+                    <span className="font-medium text-foreground">Proven in closing premium deals</span>: experience in consultative or high-ticket sales is a strong plus.
                   </li>
                   <li>
-                    <span className="font-medium text-foreground">
-                      Bachelor&apos;s / Master&apos;s degree required
-                    </span>{" "}
-                    — background in business, education, or related fields is preferred but not mandatory.
+                    <span className="font-medium text-foreground">Bachelor&apos;s / Master&apos;s degree required</span>: background in business, education, or related fields is preferred but not mandatory.
                   </li>
                 </ul>
 

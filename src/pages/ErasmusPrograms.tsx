@@ -75,7 +75,7 @@ const ErasmusPrograms = () => {
           Browse Erasmus Mundus Programmes
         </h1>
         <p className="font-inter text-[14px] md:text-[16px] text-[#6B7A99] mb-8">
-          Flat {inr(PRICE)} per application — SOP, LORs, filing and deadline tracking all included.
+          Flat {inr(PRICE)} per application. SOP, LORs, filing and deadline tracking all included.
         </p>
 
         {/* Search */}

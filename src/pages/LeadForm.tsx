@@ -287,7 +287,7 @@ const LeadForm = () => {
         <div className="px-8 md:px-12 pt-8 md:pt-10 pb-6">
           <img src="/logo-blue.png" alt="OnePercent Abroad" className="h-9 w-auto mb-3" />
           <p className="text-sm text-muted-foreground">
-            Tell us about your study abroad goals — we'll match you with the right guidance.
+            Tell us about your study abroad goals. We'll match you with the right guidance.
           </p>
         </div>
 

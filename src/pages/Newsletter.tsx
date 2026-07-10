@@ -58,7 +58,7 @@ const Newsletter = () => (
         margin: "0 0 36px",
       }}>
         Get updates on scholarships, top university programs, mentorship
-        opportunities, and expert insights on studying abroad — free, straight
+        opportunities, and expert insights on studying abroad. Free, straight
         to your inbox.
       </p>
 

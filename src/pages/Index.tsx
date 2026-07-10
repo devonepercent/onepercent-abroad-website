@@ -14,7 +14,7 @@ const milestones = [
   { step: "Step 01", title: "Onboarding",          desc: "We understand your dreams, strengths, and aspirations. A deep-dive session maps your academic profile and sets the trajectory.",                side: 2.8},
   { step: "Step 02", title: "School listing",       desc: "Our golden database of 1,000+ programs meets your profile. A strategic mix of ambitious, target, and safe universities.",                        side: -2.8},
   { step: "Step 03", title: "Profile development",  desc: "Building a compelling narrative. We identify gaps, strengthen weak points, and position you as the unmissable candidate.",                        side: 2.8 },
-  { step: "Step 04", title: "SOP writing strategy", desc: "Your Statement of Purpose becomes your strongest weapon — a narrative admissions committees remember.",                                           side: -2.8},
+  { step: "Step 04", title: "SOP writing strategy", desc: "Your Statement of Purpose becomes your strongest weapon, a narrative admissions committees remember.",                                           side: -2.8},
   { step: "Step 05", title: "CV finalizing",        desc: "Every line refined to academic standards. Achievements, research, and experiences presented with maximum impact.",                               side: 2.8 },
   { step: "Step 06", title: "Application strategy", desc: "Deadline management, interview prep, and a submission strategy maximising your odds at every dream university.",                                  side: -2.8},
 ];

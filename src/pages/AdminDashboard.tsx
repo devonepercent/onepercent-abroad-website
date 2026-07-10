@@ -1095,7 +1095,7 @@ const AdminDashboard = () => {
             <h1 className="text-2xl sm:text-3xl font-bold">Admin Panel</h1>
             <p className="text-muted-foreground mt-1 text-sm">
               {adminEmail
-                ? `Welcome, ${adminEmail} — manage webinar leads, hiring submissions, and internal tool reports.`
+                ? `Welcome, ${adminEmail}. Manage webinar leads, hiring submissions, and internal tool reports.`
                 : "Manage webinar leads, hiring submissions, and internal tool reports."}
             </p>
           </div>

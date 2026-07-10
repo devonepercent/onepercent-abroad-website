@@ -198,7 +198,7 @@ const OfferCardTool = () => {
       expiry: expiry.toISOString(),
     });
     if (error) {
-      showNotif("Save failed — check connection");
+      showNotif("Save failed. Check connection");
       return;
     }
     await fetchOffers();
@@ -244,7 +244,7 @@ const OfferCardTool = () => {
       link.click();
       showNotif("PNG downloaded!");
     } catch {
-      showNotif("Download failed — try again");
+      showNotif("Download failed. Try again");
     }
   };
 
@@ -528,7 +528,7 @@ const OfferCardTool = () => {
                       <img src={logoWhite} alt="1%abroad" className="od-card-logo-img od-coupon-logo" />
                       <div className="od-coupon-tag">Closer's Edge · Exclusive Discount Coupon</div>
                       <div className="od-coupon-title">{isCustom ? (closerAmt > 0 ? `${INR(closerAmt)} Off` : "Custom Off") : "5% Extra Off"}</div>
-                      <div className="od-coupon-subtitle">Exclusively issued for you — valid for 48 hours only</div>
+                      <div className="od-coupon-subtitle">Exclusively issued for you, valid for 48 hours only</div>
                     </div>
                     <div className="od-coupon-holes">
                       <div className="od-hole"></div>

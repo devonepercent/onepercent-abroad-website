@@ -106,7 +106,7 @@ const NewsletterPopup = () => {
           margin: "0 0 28px",
         }}>
           Scholarships, top university programs, mentorship tips, and expert
-          insights on studying abroad — free, straight to your inbox.
+          insights on studying abroad. Free, straight to your inbox.
         </p>
 
         <NewsletterForm source="popup" onSuccess={close} compact />

@@ -88,7 +88,7 @@ const Testimonials = () => {
             Lives changed, <em style={{ fontStyle:"italic",color:"#61A2FE" }}>dreams realised</em>
           </h2>
           <p style={{ color:"rgba(255,255,255,0.6)",fontSize:isMobile?14:16,maxWidth:480,margin:"0 auto" }}>
-            From aspiration to acceptance — hear directly from students who made the climb.
+            From aspiration to acceptance. Hear directly from students who made the climb.
           </p>
         </div>
 

@@ -112,7 +112,7 @@ const SopVaultSuccess = () => {
                 Check your email
               </h2>
               <p style={{ fontSize: 14, color: "#6B7A99", lineHeight: 1.75, margin: "0 0 28px", textAlign: "center" }}>
-                Your secure download link has been sent to your inbox. Links expire in <strong style={{ color: "#040B2B" }}>7 days</strong> — save the file to your device now.
+                Your secure download link has been sent to your inbox. Links expire in <strong style={{ color: "#040B2B" }}>7 days</strong>, so save the file to your device now.
               </p>
             </>
           )}
