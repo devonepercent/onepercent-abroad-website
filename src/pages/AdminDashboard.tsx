@@ -495,10 +495,15 @@ const EnquiryDetailDialog = ({
 
 // Single source of truth for the dashboard sections — rendered as horizontal
 // tabs on desktop and as a hamburger drawer list on mobile.
+// Joins from the /webinar joining page are stored in webinar_registrations with
+// this suffix on webinar_name so they can be split out as attendees.
+const ATTENDED_SUFFIX = " - Attended";
+
 const ADMIN_TABS: { value: string; label: string }[] = [
   { value: "leads", label: "Get started leads" },
   { value: "program-enquiries", label: "Program enquiries" },
   { value: "webinar", label: "Webinar registrations" },
+  { value: "webinar-attendees", label: "Webinar attendees" },
   { value: "hiring", label: "Hiring submissions" },
   { value: "sales-evaluations", label: "Sales evaluation reports" },
   { value: "billing", label: "Billing cycles" },
@@ -555,6 +560,10 @@ const AdminDashboard = () => {
   const [toDate, setToDate] = useState("");
   const [webinarFilter, setWebinarFilter] = useState<string>("all");
   const [webinarPage, setWebinarPage] = useState(1);
+  const [attendeesFrom, setAttendeesFrom] = useState("");
+  const [attendeesTo, setAttendeesTo] = useState("");
+  const [attendeesPage, setAttendeesPage] = useState(1);
+  const [attendeesSearch, setAttendeesSearch] = useState("");
   const [leadsFrom, setLeadsFrom] = useState("");
   const [leadsTo, setLeadsTo] = useState("");
   const [leadsPage, setLeadsPage] = useState(1);
@@ -579,6 +588,7 @@ const AdminDashboard = () => {
 
   useEffect(() => { checkAuthAndFetchData(); }, []);
   useEffect(() => { setWebinarPage(1); }, [fromDate, toDate, webinarSearch, webinarFilter]);
+  useEffect(() => { setAttendeesPage(1); }, [attendeesFrom, attendeesTo, attendeesSearch]);
   useEffect(() => { setLeadsPage(1); }, [leadsFrom, leadsTo, leadsSearch]);
   useEffect(() => { setHiringPage(1); }, [hiringFrom, hiringTo, hiringSearch]);
   useEffect(() => { setSubsPage(1); }, [subsFrom, subsTo, subsSearch]);
@@ -813,18 +823,29 @@ const AdminDashboard = () => {
     setIsDeleting(false);
   };
 
+  // Attendees (joins from the live webinar page) live in the same table but get
+  // their own tab; keep them out of the registrations tab.
+  const attendeeRegistrations = useMemo(
+    () => registrations.filter(r => r.webinar_name?.endsWith(ATTENDED_SUFFIX)),
+    [registrations],
+  );
+  const nonAttendeeRegistrations = useMemo(
+    () => registrations.filter(r => !r.webinar_name?.endsWith(ATTENDED_SUFFIX)),
+    [registrations],
+  );
+
   const webinarNames = useMemo(() => {
     const set = new Set<string>();
-    registrations.forEach(r => { if (r.webinar_name) set.add(r.webinar_name); });
+    nonAttendeeRegistrations.forEach(r => { if (r.webinar_name) set.add(r.webinar_name); });
     return Array.from(set).sort();
-  }, [registrations]);
+  }, [nonAttendeeRegistrations]);
 
   const filteredRegistrations = useMemo(() => {
     const from = fromDate ? new Date(fromDate) : null;
     const to = toDate ? new Date(toDate) : null;
     if (to) to.setHours(23, 59, 59, 999);
     const q = webinarSearch.trim().toLowerCase();
-    return registrations.filter((reg) => {
+    return nonAttendeeRegistrations.filter((reg) => {
       const ts = new Date(reg.created_at);
       if (from && ts < from) return false;
       if (to && ts > to) return false;
@@ -836,10 +857,27 @@ const AdminDashboard = () => {
       if (q && !reg.name.toLowerCase().includes(q) && !reg.email.toLowerCase().includes(q) && !reg.phone_number.includes(q) && !(reg.webinar_name || "").toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [registrations, fromDate, toDate, webinarSearch, webinarFilter]);
+  }, [nonAttendeeRegistrations, fromDate, toDate, webinarSearch, webinarFilter]);
 
   const pagedWebinar = filteredRegistrations.slice((webinarPage - 1) * PAGE_SIZE, webinarPage * PAGE_SIZE);
   const webinarPageCount = Math.max(1, Math.ceil(filteredRegistrations.length / PAGE_SIZE));
+
+  const filteredAttendees = useMemo(() => {
+    const from = attendeesFrom ? new Date(attendeesFrom) : null;
+    const to = attendeesTo ? new Date(attendeesTo) : null;
+    if (to) to.setHours(23, 59, 59, 999);
+    const q = attendeesSearch.trim().toLowerCase();
+    return attendeeRegistrations.filter((reg) => {
+      const ts = new Date(reg.created_at);
+      if (from && ts < from) return false;
+      if (to && ts > to) return false;
+      if (q && !reg.name.toLowerCase().includes(q) && !reg.email.toLowerCase().includes(q) && !reg.phone_number.includes(q) && !(reg.webinar_name || "").toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [attendeeRegistrations, attendeesFrom, attendeesTo, attendeesSearch]);
+
+  const pagedAttendees = filteredAttendees.slice((attendeesPage - 1) * PAGE_SIZE, attendeesPage * PAGE_SIZE);
+  const attendeesPageCount = Math.max(1, Math.ceil(filteredAttendees.length / PAGE_SIZE));
 
   const filteredLeads = useMemo(() => {
     const f = leadsFrom ? new Date(leadsFrom) : null;
@@ -1064,6 +1102,44 @@ const AdminDashboard = () => {
     const a = document.createElement("a");
     a.href = url;
     a.download = `webinar-registrations-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+
+    toast({
+      title: "Export Successful",
+      description: "CSV file has been downloaded",
+    });
+  };
+
+  const exportAttendeesCSV = () => {
+    if (filteredAttendees.length === 0) {
+      toast({
+        title: "No Data",
+        description: "No attendees to export for selected range",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const headers = ["Timestamp", "Webinar", "Name", "Phone Number", "Email"];
+    const csvContent = [
+      headers.join(","),
+      ...filteredAttendees.map((reg) =>
+        [
+          new Date(reg.created_at).toLocaleString(),
+          `"${reg.webinar_name || ""}"`,
+          `"${reg.name}"`,
+          `"${reg.country_code} ${reg.phone_number}"`,
+          reg.email,
+        ].join(","),
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `webinar-attendees-${new Date().toISOString().split("T")[0]}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
 
@@ -1593,7 +1669,7 @@ const AdminDashboard = () => {
               <div className="space-y-2">
                 <h2 className="text-xl font-semibold">Webinar registrations</h2>
                 <p className="text-sm text-muted-foreground">
-                  {filteredRegistrations.length} of {registrations.length} total · page {webinarPage} of {webinarPageCount}.
+                  {filteredRegistrations.length} of {nonAttendeeRegistrations.length} total · page {webinarPage} of {webinarPageCount}.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-3">
@@ -1684,6 +1760,92 @@ const AdminDashboard = () => {
                 </TableBody>
               </Table>
               <PaginationBar page={webinarPage} pageCount={webinarPageCount} onPage={setWebinarPage} />
+            </div>
+          </TabsContent>
+
+          {/* Webinar attendees tab */}
+          <TabsContent value="webinar-attendees">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-4">
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold">Webinar attendees</h2>
+                <p className="text-sm text-muted-foreground">
+                  Leads who joined the live webinar from the /webinar page.{" "}
+                  {filteredAttendees.length} of {attendeeRegistrations.length} total · page {attendeesPage} of {attendeesPageCount}.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-3">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Input placeholder="Search name, email, phone…" value={attendeesSearch} onChange={e => setAttendeesSearch(e.target.value)} className="h-9 pl-8 w-full sm:w-56" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">From</Label>
+                  <Input
+                    type="date"
+                    value={attendeesFrom}
+                    onChange={(e) => setAttendeesFrom(e.target.value)}
+                    className="h-9 w-full sm:w-40"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">To</Label>
+                  <Input
+                    type="date"
+                    value={attendeesTo}
+                    onChange={(e) => setAttendeesTo(e.target.value)}
+                    className="h-9 w-full sm:w-40"
+                  />
+                </div>
+                <Button variant="outline" size="sm" onClick={() => { setAttendeesFrom(""); setAttendeesTo(""); setAttendeesSearch(""); }}>
+                  Clear
+                </Button>
+                <Button onClick={exportAttendeesCSV} size="sm" variant="outline">
+                  <Download className="mr-2 h-4 w-4" />
+                  Export CSV
+                </Button>
+              </div>
+            </div>
+
+            <div className="bg-card rounded-lg shadow border overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>Webinar</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Phone Number</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead className="w-12"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pagedAttendees.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                        No attendees for the selected period
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    pagedAttendees.map((reg) => (
+                      <TableRow key={reg.id}>
+                        <TableCell>{new Date(reg.created_at).toLocaleString()}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{reg.webinar_name || "—"}</TableCell>
+                        <TableCell>{reg.name}</TableCell>
+                        <TableCell>
+                          {reg.country_code} {reg.phone_number}
+                        </TableCell>
+                        <TableCell>{reg.email}</TableCell>
+                        <TableCell>
+                          <button onClick={() => setPendingDelete({ id: reg.id, table: "webinar_registrations", name: reg.name })} className="text-muted-foreground hover:text-destructive transition-colors p-1 rounded" title="Delete attendee">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+              <PaginationBar page={attendeesPage} pageCount={attendeesPageCount} onPage={setAttendeesPage} />
             </div>
           </TabsContent>
 

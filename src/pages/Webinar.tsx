@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Calendar, Clock, Monitor, Ticket, type LucideIcon } from "lucide-react";
+import { Calendar, Clock, Monitor, Video, type LucideIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { trackMetaEvent } from "@/lib/metaPixel";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-const WEBINAR_NAME = "Germany Master's Webinar 2026 (13 July 2026)";
-const WHATSAPP_GROUP_URL = "https://chat.whatsapp.com/BE2F3Mt9iisLUNm0fbS8xR";
+const WEBINAR_NAME = "Germany Master's Webinar 2026 (13 July 2026) - Attended";
+const GOOGLE_MEET_URL = "https://meet.google.com/bba-tewz-jpq";
 
 const COUNTRY_CODES = [
   { code: "+91", label: "🇮🇳 +91" },
@@ -23,16 +23,6 @@ const COUNTRY_CODES = [
   { code: "+880", label: "🇧🇩 +880" },
 ];
 
-const AGENDA = [
-  "Tuition-free public universities in Germany",
-  "Germany Master's admission process",
-  "What is the dMAT?",
-  "Who needs to take the dMAT?",
-  "How to prepare for the dMAT",
-  "DAAD Scholarship overview",
-  "Live Q&A with our experts",
-];
-
 const Webinar = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -40,10 +30,6 @@ const Webinar = () => {
   const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-
-  const scrollToForm = () => {
-    document.getElementById("register")?.scrollIntoView({ behavior: "smooth" });
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +55,7 @@ const Webinar = () => {
     setError("");
     setSubmitting(true);
 
-    // Best effort: never strand the user if the insert fails — they still join the group.
+    // Best effort: never strand the user if the insert fails — they still join the webinar.
     const { error: insertError } = await supabase.from("webinar_registrations").insert({
       name: trimmedName,
       email: trimmedEmail,
@@ -77,11 +63,11 @@ const Webinar = () => {
       phone_number: trimmedPhone,
       webinar_name: WEBINAR_NAME,
     });
-    if (insertError) console.error("Webinar registration error:", insertError);
+    if (insertError) console.error("Webinar attendee error:", insertError);
 
     trackMetaEvent("CompleteRegistration", { content_name: WEBINAR_NAME });
 
-    window.location.href = WHATSAPP_GROUP_URL;
+    window.location.href = GOOGLE_MEET_URL;
   };
 
   return (
@@ -91,10 +77,10 @@ const Webinar = () => {
       <main className="flex-1">
         {/* ---------- HERO ---------- */}
         <section className="bg-gradient-to-b from-blue-50 to-white">
-          <div className="mx-auto max-w-3xl px-4 pb-14 pt-12 text-center sm:pt-16">
-            <span className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-blue-700">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-blue-600" />
-              Free Live Webinar
+          <div className="mx-auto max-w-3xl px-4 pb-10 pt-12 text-center sm:pt-16">
+            <span className="inline-flex items-center gap-2 rounded-full bg-red-100 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-red-700">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-red-600" />
+              Live Now
             </span>
 
             <h1 className="mt-5 font-display text-3xl font-bold leading-tight sm:text-5xl">
@@ -102,71 +88,27 @@ const Webinar = () => {
             </h1>
 
             <p className="mx-auto mt-4 max-w-2xl text-base font-medium text-slate-600 sm:text-lg">
-              Study in Germany&apos;s tuition-free public universities &amp; understand the new
-              dMAT requirement.
+              The webinar is starting. Enter your details below and join us live on Google Meet.
             </p>
 
             <div className="mx-auto mt-8 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
               <DetailCard icon={Calendar} label="Date" value="13 July 2026" />
               <DetailCard icon={Clock} label="Time" value="7:30 PM IST" />
-              <DetailCard icon={Monitor} label="Mode" value="Online" />
-              <DetailCard icon={Ticket} label="Registration" value="Free" />
+              <DetailCard icon={Monitor} label="Mode" value="Google Meet" />
+              <DetailCard icon={Video} label="Access" value="Free" />
             </div>
-
-            <button
-              onClick={scrollToForm}
-              className="mt-8 inline-flex items-center justify-center gap-2 rounded-xl bg-blue-700 px-8 py-4 text-lg font-bold text-white ring-4 ring-blue-200 transition hover:bg-blue-800 active:scale-[0.99]"
-            >
-              Register Now, It&apos;s Free
-            </button>
           </div>
         </section>
 
-        {/* ---------- ABOUT ---------- */}
-        <section className="mx-auto mt-14 max-w-3xl px-4">
-          <h2 className="text-center font-display text-2xl font-bold">About the Webinar</h2>
-          <div className="mt-5 space-y-4 text-center text-slate-600">
-            <p className="text-lg font-medium text-slate-800">
-              Planning to pursue your Master&apos;s in Germany?
-            </p>
-            <p>
-              Join this free webinar by <span className="font-semibold text-slate-800">1% Abroad</span>{" "}
-              to learn about tuition-free public universities, the latest admission process,
-              scholarships, and the new{" "}
-              <span className="font-semibold text-slate-800">
-                Digital Master Assessment Test (dMAT)
-              </span>{" "}
-              being introduced by some German universities from 2026.
-            </p>
-            <p>Our experts will guide you through everything you need to know before you apply.</p>
-          </div>
-        </section>
-
-        {/* ---------- AGENDA ---------- */}
-        <section className="mx-auto mt-14 max-w-3xl px-4">
-          <h2 className="text-center font-display text-2xl font-bold">What You&apos;ll Learn</h2>
-          <ul className="mx-auto mt-6 max-w-xl space-y-3">
-            {AGENDA.map((item) => (
-              <li
-                key={item}
-                className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-              >
-                <CheckIcon />
-                <span className="text-slate-800">{item}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        {/* ---------- REGISTRATION FORM ---------- */}
-        <section id="register" className="mx-auto mt-14 mb-16 max-w-3xl scroll-mt-24 px-4">
+        {/* ---------- JOIN FORM ---------- */}
+        <section id="join" className="mx-auto mt-6 mb-16 max-w-3xl scroll-mt-24 px-4">
           <div className="rounded-2xl bg-gradient-to-br from-blue-700 to-blue-900 px-6 py-10 text-white sm:px-10">
             <h2 className="text-center font-display text-2xl font-bold sm:text-3xl">
-              Reserve Your Spot
+              Join the Webinar
             </h2>
             <p className="mt-2 text-center text-blue-100">
-              Seats are limited. Register now to attend the webinar for free and get your questions
-              answered by our Germany admissions experts.
+              Fill in your details and you&apos;ll be taken straight to the live Google Meet
+              session.
             </p>
 
             <form onSubmit={handleSubmit} className="mx-auto mt-8 max-w-md space-y-4">
@@ -236,12 +178,11 @@ const Webinar = () => {
                 disabled={submitting}
                 className="w-full rounded-xl bg-white px-7 py-4 text-lg font-bold text-blue-800 shadow-lg transition hover:bg-blue-50 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {submitting ? "Registering…" : "Register & Join WhatsApp Group"}
+                {submitting ? "Joining…" : "Join Webinar on Google Meet"}
               </button>
 
               <p className="text-center text-xs text-blue-200">
-                After registering you&apos;ll be added to our WhatsApp group for the webinar link
-                and updates.
+                You&apos;ll be redirected to the live Google Meet session right after you submit.
               </p>
             </form>
           </div>
@@ -259,13 +200,6 @@ const DetailCard = ({ icon: Icon, label, value }: { icon: LucideIcon; label: str
     <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</p>
     <p className="text-sm font-bold text-slate-900 sm:text-base">{value}</p>
   </div>
-);
-
-const CheckIcon = () => (
-  <svg className="mt-0.5 shrink-0 text-blue-700" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" />
-    <path d="m9 12 2 2 4-4" />
-  </svg>
 );
 
 export default Webinar;
