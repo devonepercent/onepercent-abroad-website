@@ -5,7 +5,7 @@ import { trackMetaEvent } from "@/lib/metaPixel";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-const WEBINAR_NAME = "Germany Master's Webinar 2026 (13 July 2026) - Attended";
+const WEBINAR_NAME = "Chevening Scholarship Webinar (31 July 2026) - Attended";
 const GOOGLE_MEET_URL = "https://meet.google.com/bba-tewz-jpq";
 
 const COUNTRY_CODES = [
@@ -84,7 +84,7 @@ const Webinar = () => {
             </span>
 
             <h1 className="mt-5 font-display text-3xl font-bold leading-tight sm:text-5xl">
-              Germany Master&apos;s Webinar 2026
+              Chevening Scholarship Webinar
             </h1>
 
             <p className="mx-auto mt-4 max-w-2xl text-base font-medium text-slate-600 sm:text-lg">
@@ -92,7 +92,7 @@ const Webinar = () => {
             </p>
 
             <div className="mx-auto mt-8 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
-              <DetailCard icon={Calendar} label="Date" value="13 July 2026" />
+              <DetailCard icon={Calendar} label="Date" value="31 July 2026" />
               <DetailCard icon={Clock} label="Time" value="7:30 PM IST" />
               <DetailCard icon={Monitor} label="Mode" value="Google Meet" />
               <DetailCard icon={Video} label="Access" value="Free" />
