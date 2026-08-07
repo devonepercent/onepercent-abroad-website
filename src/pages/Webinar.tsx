@@ -1,12 +1,21 @@
 import { useState } from "react";
-import { Calendar, Clock, Monitor, Video, type LucideIcon } from "lucide-react";
+import { Calendar, Clock, Monitor, Ticket, type LucideIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { trackMetaEvent } from "@/lib/metaPixel";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-const WEBINAR_NAME = "Chevening Scholarship Webinar (31 July 2026) - Attended";
-const GOOGLE_MEET_URL = "https://meet.google.com/bba-tewz-jpq";
+const WEBINAR_NAME = "Chinese Government Scholarship (CSC) Webinar (7 August 2026)";
+const JOIN_URL = "https://meet.google.com/bba-tewz-jpq";
+
+// 7:00-8:00 PM IST on 7 Aug 2026, expressed in UTC for Google Calendar.
+const CALENDAR_URL = `https://calendar.google.com/calendar/render?${new URLSearchParams({
+  action: "TEMPLATE",
+  text: "Chinese Government Scholarship (CSC) Webinar | 1% Abroad",
+  dates: "20260807T133000Z/20260807T143000Z",
+  details: `Join here: ${JOIN_URL}`,
+  location: JOIN_URL,
+}).toString()}`;
 
 const COUNTRY_CODES = [
   { code: "+91", label: "🇮🇳 +91" },
@@ -23,6 +32,15 @@ const COUNTRY_CODES = [
   { code: "+880", label: "🇧🇩 +880" },
 ];
 
+const AGENDA = [
+  "Who is eligible for the CSC Scholarship",
+  "How to build a winning scholarship profile",
+  "Required documents and the application process",
+  "Common mistakes that lead to rejection",
+  "University selection and CSC scholarship categories explained",
+  "Live Q&A",
+];
+
 const Webinar = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -30,6 +48,11 @@ const Webinar = () => {
   const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [registered, setRegistered] = useState(false);
+
+  const scrollToForm = () => {
+    document.getElementById("register")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +78,8 @@ const Webinar = () => {
     setError("");
     setSubmitting(true);
 
-    // Best effort: never strand the user if the insert fails — they still join the webinar.
+    // No redirect to fall back on here, so a failed insert has to surface —
+    // otherwise we'd promise a confirmation email that never gets sent.
     const { error: insertError } = await supabase.from("webinar_registrations").insert({
       name: trimmedName,
       email: trimmedEmail,
@@ -63,11 +87,18 @@ const Webinar = () => {
       phone_number: trimmedPhone,
       webinar_name: WEBINAR_NAME,
     });
-    if (insertError) console.error("Webinar attendee error:", insertError);
+
+    if (insertError) {
+      console.error("Webinar registration error:", insertError);
+      setError("Something went wrong while registering. Please try again.");
+      setSubmitting(false);
+      return;
+    }
 
     trackMetaEvent("CompleteRegistration", { content_name: WEBINAR_NAME });
 
-    window.location.href = GOOGLE_MEET_URL;
+    setSubmitting(false);
+    setRegistered(true);
   };
 
   return (
@@ -77,114 +108,225 @@ const Webinar = () => {
       <main className="flex-1">
         {/* ---------- HERO ---------- */}
         <section className="bg-gradient-to-b from-blue-50 to-white">
-          <div className="mx-auto max-w-3xl px-4 pb-10 pt-12 text-center sm:pt-16">
-            <span className="inline-flex items-center gap-2 rounded-full bg-red-100 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-red-700">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-red-600" />
-              Live Now
+          <div className="mx-auto max-w-3xl px-4 pb-14 pt-12 text-center sm:pt-16">
+            <span className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-blue-700">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-blue-600" />
+              Free Live Webinar
             </span>
 
             <h1 className="mt-5 font-display text-3xl font-bold leading-tight sm:text-5xl">
-              Chevening Scholarship Webinar
+              Chinese Government Scholarship (CSC)
             </h1>
 
             <p className="mx-auto mt-4 max-w-2xl text-base font-medium text-slate-600 sm:text-lg">
-              The webinar is starting. Enter your details below and join us live on Google Meet.
+              Everything you need to know before you apply. Planning to study in China with a fully
+              funded scholarship? Join us live.
             </p>
 
             <div className="mx-auto mt-8 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
-              <DetailCard icon={Calendar} label="Date" value="31 July 2026" />
-              <DetailCard icon={Clock} label="Time" value="7:30 PM IST" />
-              <DetailCard icon={Monitor} label="Mode" value="Google Meet" />
-              <DetailCard icon={Video} label="Access" value="Free" />
+              <DetailCard icon={Calendar} label="Date" value="7 August 2026" />
+              <DetailCard icon={Clock} label="Time" value="7:00 PM IST" />
+              <DetailCard icon={Monitor} label="Mode" value="Online" />
+              <DetailCard icon={Ticket} label="Registration" value="Free" />
             </div>
+
+            <button
+              onClick={scrollToForm}
+              className="mt-8 inline-flex items-center justify-center gap-2 rounded-xl bg-blue-700 px-8 py-4 text-lg font-bold text-white ring-4 ring-blue-200 transition hover:bg-blue-800 active:scale-[0.99]"
+            >
+              Register Now, It&apos;s Free
+            </button>
           </div>
         </section>
 
-        {/* ---------- JOIN FORM ---------- */}
-        <section id="join" className="mx-auto mt-6 mb-16 max-w-3xl scroll-mt-24 px-4">
-          <div className="rounded-2xl bg-gradient-to-br from-blue-700 to-blue-900 px-6 py-10 text-white sm:px-10">
-            <h2 className="text-center font-display text-2xl font-bold sm:text-3xl">
-              Join the Webinar
-            </h2>
-            <p className="mt-2 text-center text-blue-100">
-              Fill in your details and you&apos;ll be taken straight to the live Google Meet
-              session.
+        {/* ---------- ABOUT ---------- */}
+        <section className="mx-auto mt-14 max-w-3xl px-4">
+          <h2 className="text-center font-display text-2xl font-bold">About the Webinar</h2>
+          <div className="mt-5 space-y-4 text-center text-slate-600">
+            <p className="text-lg font-medium text-slate-800">
+              Planning to study in China with a fully funded scholarship?
             </p>
+            <p>
+              Join this free live webinar by{" "}
+              <span className="font-semibold text-slate-800">1% Abroad</span> and learn everything
+              you need to know about the{" "}
+              <span className="font-semibold text-slate-800">
+                Chinese Government Scholarship (CSC)
+              </span>{" "}
+              before you apply, from eligibility and profile building to documents, university
+              selection and the mistakes that get applications rejected.
+            </p>
+            <p>
+              Whether you are planning for the 2027 intake or just starting your study abroad
+              journey, this session will walk you through the complete CSC application process.
+            </p>
+          </div>
+        </section>
 
-            <form onSubmit={handleSubmit} className="mx-auto mt-8 max-w-md space-y-4">
-              <div>
-                <label htmlFor="webinar-name" className="mb-1.5 block text-sm font-medium text-blue-100">
-                  Full Name
-                </label>
-                <input
-                  id="webinar-name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Your full name"
-                  className="w-full rounded-xl border border-white/30 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-white focus:ring-2 focus:ring-white/40"
-                />
-              </div>
+        {/* ---------- HOST ---------- */}
+        <section className="mx-auto mt-14 max-w-3xl px-4">
+          <div className="mx-auto max-w-xl rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+              Hosted by
+            </p>
+            <p className="mt-2 font-display text-2xl font-bold text-slate-900">
+              Gayathri Praveenkumar
+            </p>
+            <p className="mt-1 text-slate-600">Senior Mentor, 1% Abroad</p>
+          </div>
+        </section>
 
-              <div>
-                <label htmlFor="webinar-email" className="mb-1.5 block text-sm font-medium text-blue-100">
-                  Email
-                </label>
-                <input
-                  id="webinar-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="w-full rounded-xl border border-white/30 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-white focus:ring-2 focus:ring-white/40"
-                />
-              </div>
+        {/* ---------- AGENDA ---------- */}
+        <section className="mx-auto mt-14 max-w-3xl px-4">
+          <h2 className="text-center font-display text-2xl font-bold">What You&apos;ll Learn</h2>
+          <ul className="mx-auto mt-6 max-w-xl space-y-3">
+            {AGENDA.map((item) => (
+              <li
+                key={item}
+                className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+              >
+                <CheckIcon />
+                <span className="text-slate-800">{item}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
 
-              <div>
-                <label htmlFor="webinar-phone" className="mb-1.5 block text-sm font-medium text-blue-100">
-                  Phone Number
-                </label>
-                <div className="flex gap-2">
-                  <select
-                    value={countryCode}
-                    onChange={(e) => setCountryCode(e.target.value)}
-                    className="min-w-[100px] rounded-xl border border-white/30 bg-white px-3 py-3 text-sm text-slate-900 outline-none transition focus:border-white focus:ring-2 focus:ring-white/40"
-                  >
-                    {COUNTRY_CODES.map((cc) => (
-                      <option key={cc.code} value={cc.code}>
-                        {cc.label}
-                      </option>
-                    ))}
-                  </select>
-                  <input
-                    id="webinar-phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="Phone number"
-                    className="w-full rounded-xl border border-white/30 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-white focus:ring-2 focus:ring-white/40"
-                  />
+        {/* ---------- REGISTRATION FORM ---------- */}
+        <section id="register" className="mx-auto mt-14 mb-16 max-w-3xl scroll-mt-24 px-4">
+          <div className="rounded-2xl bg-gradient-to-br from-blue-700 to-blue-900 px-6 py-10 text-white sm:px-10">
+            {registered ? (
+              <div className="mx-auto max-w-md text-center">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white/15">
+                  <TickIcon />
+                </div>
+                <h2 className="mt-5 font-display text-2xl font-bold sm:text-3xl">
+                  You&apos;re registered
+                </h2>
+                <p className="mt-3 text-blue-100">
+                  Thanks, {name.trim().split(/\s+/)[0]}. Your seat for the CSC webinar on{" "}
+                  <span className="font-semibold text-white">7 August 2026 at 7:00 PM IST</span> is
+                  confirmed.
+                </p>
+                <a
+                  href={CALENDAR_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-7 py-4 text-base font-bold text-blue-800 shadow-lg transition hover:bg-blue-50 active:scale-[0.99]"
+                >
+                  <CalendarPlusIcon />
+                  Add to Google Calendar
+                </a>
+
+                <div className="mt-4 rounded-xl bg-white/10 px-5 py-4 text-left text-sm text-blue-100">
+                  <p className="font-semibold text-white">What happens next</p>
+                  <p className="mt-2">
+                    A confirmation email is on its way to{" "}
+                    <span className="font-semibold text-white">{email.trim().toLowerCase()}</span>{" "}
+                    with the joining link. We&apos;ll also send you a reminder an hour before the
+                    session starts.
+                  </p>
+                  <p className="mt-2">
+                    If you don&apos;t see it, check your spam or promotions folder.
+                  </p>
                 </div>
               </div>
-
-              {error && (
-                <p className="rounded-xl bg-red-500/20 px-4 py-2.5 text-center text-sm font-medium text-red-100">
-                  {error}
+            ) : (
+              <>
+                <h2 className="text-center font-display text-2xl font-bold sm:text-3xl">
+                  Reserve Your Spot
+                </h2>
+                <p className="mt-2 text-center text-blue-100">
+                  Seats are limited. Register now to attend for free and get your questions answered
+                  live by our mentor.
                 </p>
-              )}
 
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full rounded-xl bg-white px-7 py-4 text-lg font-bold text-blue-800 shadow-lg transition hover:bg-blue-50 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {submitting ? "Joining…" : "Join Webinar on Google Meet"}
-              </button>
+                <form onSubmit={handleSubmit} className="mx-auto mt-8 max-w-md space-y-4">
+                  <div>
+                    <label
+                      htmlFor="webinar-name"
+                      className="mb-1.5 block text-sm font-medium text-blue-100"
+                    >
+                      Full Name
+                    </label>
+                    <input
+                      id="webinar-name"
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Your full name"
+                      className="w-full rounded-xl border border-white/30 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-white focus:ring-2 focus:ring-white/40"
+                    />
+                  </div>
 
-              <p className="text-center text-xs text-blue-200">
-                You&apos;ll be redirected to the live Google Meet session right after you submit.
-              </p>
-            </form>
+                  <div>
+                    <label
+                      htmlFor="webinar-email"
+                      className="mb-1.5 block text-sm font-medium text-blue-100"
+                    >
+                      Email
+                    </label>
+                    <input
+                      id="webinar-email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      className="w-full rounded-xl border border-white/30 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-white focus:ring-2 focus:ring-white/40"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="webinar-phone"
+                      className="mb-1.5 block text-sm font-medium text-blue-100"
+                    >
+                      Phone Number
+                    </label>
+                    <div className="flex gap-2">
+                      <select
+                        value={countryCode}
+                        onChange={(e) => setCountryCode(e.target.value)}
+                        className="min-w-[100px] rounded-xl border border-white/30 bg-white px-3 py-3 text-sm text-slate-900 outline-none transition focus:border-white focus:ring-2 focus:ring-white/40"
+                      >
+                        {COUNTRY_CODES.map((cc) => (
+                          <option key={cc.code} value={cc.code}>
+                            {cc.label}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        id="webinar-phone"
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="Phone number"
+                        className="w-full rounded-xl border border-white/30 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-white focus:ring-2 focus:ring-white/40"
+                      />
+                    </div>
+                  </div>
+
+                  {error && (
+                    <p className="rounded-xl bg-red-500/20 px-4 py-2.5 text-center text-sm font-medium text-red-100">
+                      {error}
+                    </p>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full rounded-xl bg-white px-7 py-4 text-lg font-bold text-blue-800 shadow-lg transition hover:bg-blue-50 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {submitting ? "Registering…" : "Register for Free"}
+                  </button>
+
+                  <p className="text-center text-xs text-blue-200">
+                    We&apos;ll email you the joining link right after you register, plus a reminder
+                    before the session starts.
+                  </p>
+                </form>
+              </>
+            )}
           </div>
         </section>
       </main>
@@ -200,6 +342,27 @@ const DetailCard = ({ icon: Icon, label, value }: { icon: LucideIcon; label: str
     <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</p>
     <p className="text-sm font-bold text-slate-900 sm:text-base">{value}</p>
   </div>
+);
+
+const CheckIcon = () => (
+  <svg className="mt-0.5 shrink-0 text-blue-700" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <path d="m9 12 2 2 4-4" />
+  </svg>
+);
+
+const CalendarPlusIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M8 2v4M16 2v4M3 10h18" />
+    <path d="M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8" />
+    <path d="M16 19h6M19 16v6" />
+  </svg>
+);
+
+const TickIcon = () => (
+  <svg className="text-white" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 6 9 17l-5-5" />
+  </svg>
 );
 
 export default Webinar;

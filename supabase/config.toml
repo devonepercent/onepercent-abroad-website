@@ -17,3 +17,8 @@ verify_jwt = false
 
 [functions.send-sop-email]
 verify_jwt = true
+
+# Called by the DB trigger and cron jobs; guards itself by requiring the
+# service-role key in the Authorization header.
+[functions.send-webinar-email]
+verify_jwt = false
