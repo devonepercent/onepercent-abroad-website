@@ -15,25 +15,23 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const WEBINAR_NAME = "Chinese Government Scholarship (CSC) Webinar (7 August 2026)";
-const WEBINAR_TITLE = "Chinese Government Scholarship (CSC)";
-const WEBINAR_WHEN = "Friday, 7 August 2026 at 7:00 PM IST";
-const WEBINAR_HOST = "Gayathri Praveenkumar, Senior Mentor at 1% Abroad";
+const WEBINAR_NAME = "Commonwealth Scholarship Webinar (14 August 2026)";
+const WEBINAR_TITLE = "Commonwealth Scholarship";
+const WEBINAR_WHEN = "Friday, 14 August 2026 at 7:00 PM IST";
 // Overridable without a redeploy: supabase secrets set WEBINAR_JOIN_URL=...
 const JOIN_URL = Deno.env.get("WEBINAR_JOIN_URL") || "https://meet.google.com/bba-tewz-jpq";
 // UTC instants for the calendar link (7:00-8:00 PM IST = 13:30-14:30 UTC).
-const CAL_START = "20260807T133000Z";
-const CAL_END = "20260807T143000Z";
+const CAL_START = "20260814T133000Z";
+const CAL_END = "20260814T143000Z";
 
 const FROM = "OnePercent Abroad <noreply@notify.onepercentabroad.com>";
 const RESEND_BATCH_SIZE = 100;
 
 const AGENDA = [
-  "Who is eligible for the CSC Scholarship",
-  "How to build a winning scholarship profile",
-  "Required documents and the application process",
-  "Common mistakes that lead to rejection",
-  "University selection and CSC scholarship categories explained",
+  "What you should know about the Commonwealth Scholarship",
+  "Who is eligible",
+  "How the application works",
+  "What can make your profile stronger",
   "Live Q&A",
 ];
 
@@ -107,7 +105,6 @@ function confirmationEmail(name: string): { subject: string; html: string } {
         <div style="font-size:13px;color:#6B7A99;line-height:1.9;">
           <div><strong style="color:#040B2B;">When:</strong> ${WEBINAR_WHEN}</div>
           <div><strong style="color:#040B2B;">Where:</strong> Google Meet (link below)</div>
-          <div><strong style="color:#040B2B;">Host:</strong> ${WEBINAR_HOST}</div>
         </div>
       </div>
       ${joinButton("Join the webinar")}
@@ -117,7 +114,7 @@ function confirmationEmail(name: string): { subject: string; html: string } {
       <p style="font-size:13px;line-height:1.7;color:#6B7A99;margin:0;">We'll send you a reminder an hour before we go live. Save this email so you can find the joining link quickly.</p>`;
 
   return {
-    subject: `You're registered: ${WEBINAR_TITLE} webinar, 7 Aug, 7 PM IST`,
+    subject: `You're registered: ${WEBINAR_TITLE} webinar, 14 Aug, 7 PM IST`,
     html: shell(inner, "Registration confirmed"),
   };
 }
@@ -126,7 +123,7 @@ function hourReminderEmail(name: string): { subject: string; html: string } {
   const inner = `
       <p style="font-size:15px;line-height:1.7;color:#040B2B;margin:0 0 6px;font-weight:500;">Hi ${escapeHtml(firstName(name))},</p>
       <p style="font-size:14px;line-height:1.75;color:#6B7A99;margin:0 0 22px;">A quick reminder that the <strong style="color:#040B2B;">${WEBINAR_TITLE}</strong> webinar starts in about an hour, at <strong style="color:#040B2B;">7:00 PM IST</strong> today.</p>
-      <p style="font-size:14px;line-height:1.75;color:#6B7A99;margin:0 0 22px;">Bring your questions about eligibility, documents and university selection. There's a live Q&amp;A at the end.</p>
+      <p style="font-size:14px;line-height:1.75;color:#6B7A99;margin:0 0 22px;">Bring your questions about eligibility, the application process and what makes a profile stronger. There's a live Q&amp;A at the end.</p>
       ${joinButton("Join at 7:00 PM IST")}
       <p style="font-size:13px;line-height:1.7;color:#6B7A99;margin:18px 0 0;">See you there.</p>`;
 
@@ -139,7 +136,7 @@ function hourReminderEmail(name: string): { subject: string; html: string } {
 function startReminderEmail(name: string): { subject: string; html: string } {
   const inner = `
       <p style="font-size:15px;line-height:1.7;color:#040B2B;margin:0 0 6px;font-weight:500;">Hi ${escapeHtml(firstName(name))},</p>
-      <p style="font-size:14px;line-height:1.75;color:#6B7A99;margin:0 0 22px;">We're going live now. Join the <strong style="color:#040B2B;">${WEBINAR_TITLE}</strong> webinar with ${WEBINAR_HOST}.</p>
+      <p style="font-size:14px;line-height:1.75;color:#6B7A99;margin:0 0 22px;">We're going live now. Join the <strong style="color:#040B2B;">${WEBINAR_TITLE}</strong> webinar.</p>
       ${joinButton("Join the webinar now")}
       <p style="font-size:13px;line-height:1.7;color:#6B7A99;margin:18px 0 0;">If the link doesn't open, copy this into your browser:<br /><span style="color:#065DC7;word-break:break-all;">${JOIN_URL}</span></p>`;
 

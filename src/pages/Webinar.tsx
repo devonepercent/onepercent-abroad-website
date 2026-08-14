@@ -5,14 +5,14 @@ import { trackMetaEvent } from "@/lib/metaPixel";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-const WEBINAR_NAME = "Chinese Government Scholarship (CSC) Webinar (7 August 2026)";
+const WEBINAR_NAME = "Commonwealth Scholarship Webinar (14 August 2026)";
 const JOIN_URL = "https://meet.google.com/bba-tewz-jpq";
 
-// 7:00-8:00 PM IST on 7 Aug 2026, expressed in UTC for Google Calendar.
+// 7:00-8:00 PM IST on 14 Aug 2026, expressed in UTC for Google Calendar.
 const CALENDAR_URL = `https://calendar.google.com/calendar/render?${new URLSearchParams({
   action: "TEMPLATE",
-  text: "Chinese Government Scholarship (CSC) Webinar | 1% Abroad",
-  dates: "20260807T133000Z/20260807T143000Z",
+  text: "Commonwealth Scholarship Webinar | 1% Abroad",
+  dates: "20260814T133000Z/20260814T143000Z",
   details: `Join here: ${JOIN_URL}`,
   location: JOIN_URL,
 }).toString()}`;
@@ -33,11 +33,10 @@ const COUNTRY_CODES = [
 ];
 
 const AGENDA = [
-  "Who is eligible for the CSC Scholarship",
-  "How to build a winning scholarship profile",
-  "Required documents and the application process",
-  "Common mistakes that lead to rejection",
-  "University selection and CSC scholarship categories explained",
+  "What you should know about the Commonwealth Scholarship",
+  "Who is eligible",
+  "How the application works",
+  "What can make your profile stronger",
   "Live Q&A",
 ];
 
@@ -115,16 +114,20 @@ const Webinar = () => {
             </span>
 
             <h1 className="mt-5 font-display text-3xl font-bold leading-tight sm:text-5xl">
-              Chinese Government Scholarship (CSC)
+              Commonwealth Scholarship
             </h1>
 
+            <p className="mt-3 font-display text-lg font-semibold text-blue-700 sm:text-xl">
+              Fully funded study in the UK
+            </p>
+
             <p className="mx-auto mt-4 max-w-2xl text-base font-medium text-slate-600 sm:text-lg">
-              Everything you need to know before you apply. Planning to study in China with a fully
-              funded scholarship? Join us live.
+              Your chance to study in the UK with a fully funded Commonwealth Scholarship is worth
+              understanding properly. We go live today at 7 PM IST.
             </p>
 
             <div className="mx-auto mt-8 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
-              <DetailCard icon={Calendar} label="Date" value="7 August 2026" />
+              <DetailCard icon={Calendar} label="Date" value="14 August 2026" />
               <DetailCard icon={Clock} label="Time" value="7:00 PM IST" />
               <DetailCard icon={Monitor} label="Mode" value="Online" />
               <DetailCard icon={Ticket} label="Registration" value="Free" />
@@ -144,35 +147,19 @@ const Webinar = () => {
           <h2 className="text-center font-display text-2xl font-bold">About the Webinar</h2>
           <div className="mt-5 space-y-4 text-center text-slate-600">
             <p className="text-lg font-medium text-slate-800">
-              Planning to study in China with a fully funded scholarship?
+              Commonwealth Scholarship aspirants, this one is for you.
             </p>
             <p>
               Join this free live webinar by{" "}
-              <span className="font-semibold text-slate-800">1% Abroad</span> and learn everything
-              you need to know about the{" "}
-              <span className="font-semibold text-slate-800">
-                Chinese Government Scholarship (CSC)
-              </span>{" "}
-              before you apply, from eligibility and profile building to documents, university
-              selection and the mistakes that get applications rejected.
+              <span className="font-semibold text-slate-800">1% Abroad</span> for a dedicated
+              session on the{" "}
+              <span className="font-semibold text-slate-800">Commonwealth Scholarship</span>, from
+              who is eligible and how the application actually works to what can make your profile
+              stronger.
             </p>
-            <p>
-              Whether you are planning for the 2027 intake or just starting your study abroad
-              journey, this session will walk you through the complete CSC application process.
+            <p className="font-medium text-slate-800">
+              Set a reminder. Join live. Come prepared with your questions.
             </p>
-          </div>
-        </section>
-
-        {/* ---------- HOST ---------- */}
-        <section className="mx-auto mt-14 max-w-3xl px-4">
-          <div className="mx-auto max-w-xl rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Hosted by
-            </p>
-            <p className="mt-2 font-display text-2xl font-bold text-slate-900">
-              Gayathri Praveenkumar
-            </p>
-            <p className="mt-1 text-slate-600">Senior Mentor, 1% Abroad</p>
           </div>
         </section>
 
@@ -204,8 +191,9 @@ const Webinar = () => {
                   You&apos;re registered
                 </h2>
                 <p className="mt-3 text-blue-100">
-                  Thanks, {name.trim().split(/\s+/)[0]}. Your seat for the CSC webinar on{" "}
-                  <span className="font-semibold text-white">7 August 2026 at 7:00 PM IST</span> is
+                  Thanks, {name.trim().split(/\s+/)[0]}. Your seat for the Commonwealth Scholarship
+                  webinar on{" "}
+                  <span className="font-semibold text-white">14 August 2026 at 7:00 PM IST</span> is
                   confirmed.
                 </p>
                 <a
