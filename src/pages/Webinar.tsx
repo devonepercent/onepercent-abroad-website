@@ -1,14 +1,16 @@
-import { useState } from "react";
-import { Calendar, Clock, Monitor, Ticket, type LucideIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { trackMetaEvent } from "@/lib/metaPixel";
-import Header from "@/components/Header";
+import logoWhite from "@/assets/logo-white.png";
 import Footer from "@/components/Footer";
 
 const WEBINAR_NAME = "Commonwealth Scholarship Webinar (14 August 2026)";
 const JOIN_URL = "https://meet.google.com/bba-tewz-jpq";
 
-// 7:00-8:00 PM IST on 14 Aug 2026, expressed in UTC for Google Calendar.
+// 7:00-8:00 PM IST on 14 Aug 2026 = 13:30-14:30 UTC.
+const STARTS_AT = Date.UTC(2026, 7, 14, 13, 30, 0);
+
 const CALENDAR_URL = `https://calendar.google.com/calendar/render?${new URLSearchParams({
   action: "TEMPLATE",
   text: "Commonwealth Scholarship Webinar | 1% Abroad",
@@ -33,12 +35,61 @@ const COUNTRY_CODES = [
 ];
 
 const AGENDA = [
-  "What you should know about the Commonwealth Scholarship",
-  "Who is eligible",
-  "How the application works",
-  "What can make your profile stronger",
-  "Live Q&A",
+  {
+    title: "What you should know",
+    body: "What the Commonwealth Scholarship actually covers, and how it differs from every other UK funding route.",
+  },
+  {
+    title: "Who is eligible",
+    body: "The academic, nationality and work-experience criteria, and the quiet disqualifiers most applicants miss.",
+  },
+  {
+    title: "How the application works",
+    body: "The nomination route, the timeline, the documents, and where applications typically fall apart.",
+  },
+  {
+    title: "What can make your profile stronger",
+    body: "The parts of your profile that carry real weight with selectors, and what you can still fix this cycle.",
+  },
 ];
+
+const FAQS = [
+  {
+    q: "Is it really free?",
+    a: "Yes. The session is free to attend and there is nothing to buy on the call. Register and the joining link is emailed to you straight away.",
+  },
+  {
+    q: "Will there be a recording?",
+    a: "The session is built around a live Q&A, so attending live is where the value is. Register anyway and we will email you if a recording is made available.",
+  },
+  {
+    q: "I am not sure I am eligible. Should I still join?",
+    a: "Especially then. A large part of the session is spent on who qualifies, and on the criteria people wrongly assume rule them out.",
+  },
+  {
+    q: "How do I join on the day?",
+    a: "Your confirmation email carries the Google Meet link. We also send a reminder an hour before, and another the moment we go live.",
+  },
+  {
+    q: "Can I ask my own questions?",
+    a: "Yes. The session closes with a live Q&A, and you can put questions in the chat at any point.",
+  },
+];
+
+type TimeLeft = { days: number; hours: number; minutes: number; seconds: number; live: boolean };
+
+const readTimeLeft = (): TimeLeft => {
+  const diff = STARTS_AT - Date.now();
+  if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, live: true };
+  const s = Math.floor(diff / 1000);
+  return {
+    days: Math.floor(s / 86400),
+    hours: Math.floor((s % 86400) / 3600),
+    minutes: Math.floor((s % 3600) / 60),
+    seconds: s % 60,
+    live: false,
+  };
+};
 
 const Webinar = () => {
   const [name, setName] = useState("");
@@ -48,9 +99,35 @@ const Webinar = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [registered, setRegistered] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>(readTimeLeft);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const formRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    document.title = "Free Commonwealth Scholarship Webinar | 1% Abroad";
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => setTimeLeft(readTimeLeft()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  // The sticky bar would cover the form it points at, so it hides whenever the
+  // form is already on screen.
+  useEffect(() => {
+    const node = formRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowStickyBar(!entry.isIntersecting),
+      { threshold: 0.12 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [registered]);
 
   const scrollToForm = () => {
-    document.getElementById("register")?.scrollIntoView({ behavior: "smooth" });
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -100,242 +177,445 @@ const Webinar = () => {
     setRegistered(true);
   };
 
+  const inputClass =
+    "w-full rounded-xl border border-[#242424] bg-[#141414] px-4 py-3.5 text-[15px] text-white outline-none transition placeholder:text-white/25 focus:border-[#E8B44A] focus:ring-2 focus:ring-[#E8B44A]/20";
+
   return (
-    <div className="min-h-screen flex flex-col bg-white font-display text-slate-900">
-      <Header />
+    <div className="min-h-screen overflow-x-hidden bg-black font-display text-white antialiased">
+      {/* ---------- MINIMAL BAR ----------
+          Deliberately no site nav: this page has one job. */}
+      <header className="sticky top-0 z-40 border-b border-[#1A1A1A] bg-black/85 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5 sm:px-8">
+          <Link to="/" aria-label="1% Abroad home">
+            <img src={logoWhite} alt="1% Abroad" className="h-7 w-auto sm:h-8" />
+          </Link>
+          <button
+            onClick={scrollToForm}
+            className="rounded-lg bg-[#E8B44A] px-4 py-2 text-[13px] font-bold text-black transition hover:bg-[#F0C264] sm:px-5 sm:text-sm"
+          >
+            Register free
+          </button>
+        </div>
+      </header>
 
-      <main className="flex-1">
+      <main>
         {/* ---------- HERO ---------- */}
-        <section className="bg-gradient-to-b from-blue-50 to-white">
-          <div className="mx-auto max-w-3xl px-4 pb-14 pt-12 text-center sm:pt-16">
-            <span className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-blue-700">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-blue-600" />
-              Free Live Webinar
-            </span>
+        <section className="relative overflow-hidden">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -right-40 -top-32 h-[520px] w-[520px] rounded-full opacity-[0.18] blur-[130px]"
+            style={{ background: "radial-gradient(circle, #E8B44A 0%, transparent 70%)" }}
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -left-40 top-40 h-[460px] w-[460px] rounded-full opacity-[0.16] blur-[130px]"
+            style={{ background: "radial-gradient(circle, #61A2FE 0%, transparent 70%)" }}
+          />
 
-            <h1 className="mt-5 font-display text-3xl font-bold leading-tight sm:text-5xl">
-              Commonwealth Scholarship
-            </h1>
+          <div className="relative mx-auto grid max-w-6xl gap-11 px-5 pt-11 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:pt-16">
+            {/* --- Left: the pitch --- */}
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full border border-[#E8B44A]/25 bg-[#E8B44A]/[0.08] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#E8B44A]">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#E8B44A] opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[#E8B44A]" />
+                </span>
+                {timeLeft.live ? "Live now" : "Free live webinar · Today"}
+              </span>
 
-            <p className="mt-3 font-display text-lg font-semibold text-blue-700 sm:text-xl">
-              Fully funded study in the UK
-            </p>
+              <h1 className="mt-6 text-[2.1rem] font-bold leading-[1.07] tracking-[-0.02em] sm:text-5xl lg:text-[3.35rem]">
+                The Commonwealth
+                <br />
+                Scholarship,{" "}
+                <em className="font-serif text-[1.12em] font-semibold italic text-[#E8B44A]">
+                  explained properly
+                </em>
+              </h1>
 
-            <p className="mx-auto mt-4 max-w-2xl text-base font-medium text-slate-600 sm:text-lg">
-              Your chance to study in the UK with a fully funded Commonwealth Scholarship is worth
-              understanding properly. We go live today at 7 PM IST.
-            </p>
+              <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-white/55 sm:text-[17px]">
+                A fully funded route to a UK master&apos;s that most people rule themselves out of
+                before they understand how it works. One hour, live, with a Q&amp;A at the end.
+              </p>
 
-            <div className="mx-auto mt-8 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
-              <DetailCard icon={Calendar} label="Date" value="14 August 2026" />
-              <DetailCard icon={Clock} label="Time" value="7:00 PM IST" />
-              <DetailCard icon={Monitor} label="Mode" value="Online" />
-              <DetailCard icon={Ticket} label="Registration" value="Free" />
+              <div className="mt-7 flex flex-wrap gap-2.5">
+                <Chip label="Friday, 14 August" />
+                <Chip label="7:00 PM IST" />
+                <Chip label="Online" />
+                <Chip label="Free" accent />
+              </div>
+
+              <div className="mt-8">
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/30">
+                  {timeLeft.live ? "The session has started" : "Starts in"}
+                </p>
+                {timeLeft.live ? (
+                  <p className="mt-2.5 text-lg font-semibold text-[#E8B44A]">
+                    Register now and the joining link reaches you instantly.
+                  </p>
+                ) : (
+                  <div className="mt-2.5 flex flex-wrap gap-2.5">
+                    <TimeBox value={timeLeft.days} unit="days" />
+                    <TimeBox value={timeLeft.hours} unit="hrs" />
+                    <TimeBox value={timeLeft.minutes} unit="min" />
+                    <TimeBox value={timeLeft.seconds} unit="sec" />
+                  </div>
+                )}
+              </div>
             </div>
 
-            <button
-              onClick={scrollToForm}
-              className="mt-8 inline-flex items-center justify-center gap-2 rounded-xl bg-blue-700 px-8 py-4 text-lg font-bold text-white ring-4 ring-blue-200 transition hover:bg-blue-800 active:scale-[0.99]"
-            >
-              Register Now, It&apos;s Free
-            </button>
+            {/* --- Right: the form, above the fold --- */}
+            <div ref={formRef} className="lg:pt-1">
+              <div className="rounded-2xl border border-[#1F1F1F] bg-[#0B0B0B] p-6 shadow-[0_28px_80px_-24px_rgba(0,0,0,1)] sm:p-7">
+                {registered ? (
+                  <div className="text-center">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#E8B44A]/12">
+                      <TickIcon />
+                    </div>
+                    <h2 className="mt-5 font-display text-2xl font-bold">You&apos;re registered</h2>
+                    <p className="mt-3 text-[15px] leading-relaxed text-white/55">
+                      Thanks, {name.trim().split(/\s+/)[0]}. Your seat for{" "}
+                      <span className="font-semibold text-white">14 August, 7:00 PM IST</span> is
+                      confirmed.
+                    </p>
+
+                    <a
+                      href={CALENDAR_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#E8B44A] px-6 py-4 text-base font-bold text-black transition hover:bg-[#F0C264] active:scale-[0.99]"
+                    >
+                      <CalendarPlusIcon />
+                      Add to Google Calendar
+                    </a>
+
+                    <div className="mt-4 rounded-xl border border-[#1F1F1F] bg-[#101010] px-5 py-4 text-left">
+                      <p className="font-display text-sm font-semibold text-white">
+                        What happens next
+                      </p>
+                      <p className="mt-2 text-[13px] leading-relaxed text-white/50">
+                        A confirmation email is on its way to{" "}
+                        <span className="font-semibold text-white/80">
+                          {email.trim().toLowerCase()}
+                        </span>{" "}
+                        with the joining link. We&apos;ll also send a reminder an hour before we go
+                        live. If you don&apos;t see it, check spam or promotions.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <h2 className="font-display text-[1.4rem] font-bold leading-snug sm:text-2xl">
+                      Save your seat
+                    </h2>
+                    <p className="mt-2 text-[14px] leading-relaxed text-white/45">
+                      Free to attend. The joining link is emailed to you the moment you register.
+                    </p>
+
+                    <form onSubmit={handleSubmit} className="mt-6 space-y-3.5">
+                      <div>
+                        <label
+                          htmlFor="webinar-name"
+                          className="mb-1.5 block text-[13px] font-medium text-white/65"
+                        >
+                          Full name
+                        </label>
+                        <input
+                          id="webinar-name"
+                          type="text"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="Your full name"
+                          autoComplete="name"
+                          className={inputClass}
+                        />
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="webinar-email"
+                          className="mb-1.5 block text-[13px] font-medium text-white/65"
+                        >
+                          Email
+                        </label>
+                        <input
+                          id="webinar-email"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="you@example.com"
+                          autoComplete="email"
+                          className={inputClass}
+                        />
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="webinar-phone"
+                          className="mb-1.5 block text-[13px] font-medium text-white/65"
+                        >
+                          WhatsApp number
+                        </label>
+                        <div className="flex gap-2">
+                          <select
+                            value={countryCode}
+                            onChange={(e) => setCountryCode(e.target.value)}
+                            aria-label="Country code"
+                            className="w-[92px] shrink-0 rounded-xl border border-[#242424] bg-[#141414] px-2 py-3.5 text-[14px] text-white outline-none transition focus:border-[#E8B44A] focus:ring-2 focus:ring-[#E8B44A]/20"
+                          >
+                            {COUNTRY_CODES.map((cc) => (
+                              <option key={cc.code} value={cc.code} className="bg-[#141414]">
+                                {cc.label}
+                              </option>
+                            ))}
+                          </select>
+                          <input
+                            id="webinar-phone"
+                            type="tel"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            placeholder="Phone number"
+                            autoComplete="tel"
+                            className={`${inputClass} min-w-0 flex-1`}
+                          />
+                        </div>
+                      </div>
+
+                      {error && (
+                        <p
+                          role="alert"
+                          className="rounded-xl border border-red-500/25 bg-red-500/10 px-4 py-2.5 text-center text-[13px] font-medium text-red-300"
+                        >
+                          {error}
+                        </p>
+                      )}
+
+                      <button
+                        type="submit"
+                        disabled={submitting}
+                        className="w-full rounded-xl bg-[#E8B44A] px-6 py-4 text-[16px] font-bold text-black shadow-[0_12px_34px_-10px_rgba(232,180,74,0.55)] transition hover:bg-[#F0C264] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {submitting ? "Registering…" : "Register free"}
+                      </button>
+
+                      <p className="pt-0.5 text-center text-[12px] leading-relaxed text-white/30">
+                        No cost, no pitch. We&apos;ll send the link and a reminder, nothing else.
+                      </p>
+                    </form>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Graduates as the floor the hero stands on — masked so it dissolves
+              into the black rather than ending on a hard crop. */}
+          <div aria-hidden className="pointer-events-none relative mx-auto -mt-2 max-w-6xl px-5">
+            <div
+              className="absolute bottom-0 left-1/2 h-[75%] w-[min(1000px,100%)] -translate-x-1/2 rounded-[50%] opacity-[0.28] blur-[90px]"
+              style={{ background: "radial-gradient(ellipse at center, #61A2FE 0%, transparent 70%)" }}
+            />
+            <img
+              src="/graduates.webp"
+              alt=""
+              loading="lazy"
+              className="relative mx-auto block h-[195px] w-auto max-w-full object-contain sm:h-[270px] lg:h-[370px]"
+              style={{
+                WebkitMaskImage: "linear-gradient(to bottom, #000 72%, transparent 100%)",
+                maskImage: "linear-gradient(to bottom, #000 72%, transparent 100%)",
+              }}
+            />
           </div>
         </section>
 
         {/* ---------- ABOUT ---------- */}
-        <section className="mx-auto mt-14 max-w-3xl px-4">
-          <h2 className="text-center font-display text-2xl font-bold">About the Webinar</h2>
-          <div className="mt-5 space-y-4 text-center text-slate-600">
-            <p className="text-lg font-medium text-slate-800">
-              Commonwealth Scholarship aspirants, this one is for you.
+        <section className="border-t border-[#141414]">
+          <div className="mx-auto max-w-3xl px-5 py-16 text-center sm:px-8 lg:py-20">
+            <p className="font-display text-[11px] font-bold uppercase tracking-[0.18em] text-[#E8B44A]">
+              About the webinar
             </p>
-            <p>
-              Join this free live webinar by{" "}
-              <span className="font-semibold text-slate-800">1% Abroad</span> for a dedicated
-              session on the{" "}
-              <span className="font-semibold text-slate-800">Commonwealth Scholarship</span>, from
-              who is eligible and how the application actually works to what can make your profile
-              stronger.
+            <h2 className="mt-4 text-[1.7rem] font-bold leading-tight tracking-[-0.01em] sm:text-[2.3rem]">
+              Commonwealth Scholarship aspirants,
+              <br className="hidden sm:block" /> this one is for you
+            </h2>
+            <p className="mx-auto mt-5 max-w-2xl text-[15px] leading-relaxed text-white/55 sm:text-base">
+              Join this free live session by{" "}
+              <span className="font-semibold text-white">1% Abroad</span> for a dedicated hour on the
+              Commonwealth Scholarship: who is eligible, how the application actually works, and what
+              can make your profile stronger.
             </p>
-            <p className="font-medium text-slate-800">
+            <p className="mx-auto mt-5 max-w-2xl font-serif text-[1.35rem] italic text-white/75 sm:text-[1.6rem]">
               Set a reminder. Join live. Come prepared with your questions.
             </p>
           </div>
         </section>
 
         {/* ---------- AGENDA ---------- */}
-        <section className="mx-auto mt-14 max-w-3xl px-4">
-          <h2 className="text-center font-display text-2xl font-bold">What You&apos;ll Learn</h2>
-          <ul className="mx-auto mt-6 max-w-xl space-y-3">
-            {AGENDA.map((item) => (
-              <li
-                key={item}
-                className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-              >
-                <CheckIcon />
-                <span className="text-slate-800">{item}</span>
-              </li>
-            ))}
-          </ul>
+        <section className="border-t border-[#141414] bg-[#050505]">
+          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 lg:py-20">
+            <p className="font-display text-[11px] font-bold uppercase tracking-[0.18em] text-[#61A2FE]">
+              What you&apos;ll learn
+            </p>
+            <h2 className="mt-3 max-w-2xl text-[1.7rem] font-bold leading-tight tracking-[-0.01em] sm:text-[2.3rem]">
+              One hour, four things that decide the outcome
+            </h2>
+
+            <div className="mt-10 grid gap-4 sm:grid-cols-2">
+              {AGENDA.map((item, i) => (
+                <div
+                  key={item.title}
+                  className="group rounded-2xl border border-[#1A1A1A] bg-[#0B0B0B] p-6 transition hover:border-[#E8B44A]/30"
+                >
+                  <span className="font-serif text-[2rem] font-semibold leading-none text-[#E8B44A]/30 transition group-hover:text-[#E8B44A]/70">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <h3 className="mt-3 font-display text-[1.05rem] font-bold text-white">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-[14px] leading-relaxed text-white/45">{item.body}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-[#E8B44A]/20 bg-[#E8B44A]/[0.05] p-6">
+              <h3 className="font-display text-[1.05rem] font-bold text-[#E8B44A]">
+                Then, a live Q&amp;A
+              </h3>
+              <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-white/50">
+                Bring the question you can&apos;t find a straight answer to online. Come prepared and
+                you&apos;ll leave knowing exactly what your next step is.
+              </p>
+            </div>
+          </div>
         </section>
 
-        {/* ---------- REGISTRATION FORM ---------- */}
-        <section id="register" className="mx-auto mt-14 mb-16 max-w-3xl scroll-mt-24 px-4">
-          <div className="rounded-2xl bg-gradient-to-br from-blue-700 to-blue-900 px-6 py-10 text-white sm:px-10">
-            {registered ? (
-              <div className="mx-auto max-w-md text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white/15">
-                  <TickIcon />
-                </div>
-                <h2 className="mt-5 font-display text-2xl font-bold sm:text-3xl">
-                  You&apos;re registered
-                </h2>
-                <p className="mt-3 text-blue-100">
-                  Thanks, {name.trim().split(/\s+/)[0]}. Your seat for the Commonwealth Scholarship
-                  webinar on{" "}
-                  <span className="font-semibold text-white">14 August 2026 at 7:00 PM IST</span> is
-                  confirmed.
-                </p>
-                <a
-                  href={CALENDAR_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-7 py-4 text-base font-bold text-blue-800 shadow-lg transition hover:bg-blue-50 active:scale-[0.99]"
-                >
-                  <CalendarPlusIcon />
-                  Add to Google Calendar
-                </a>
+        {/* ---------- FAQ ---------- */}
+        <section className="border-t border-[#141414]">
+          <div className="mx-auto max-w-3xl px-5 py-16 sm:px-8 lg:py-20">
+            <h2 className="text-center text-[1.7rem] font-bold leading-tight tracking-[-0.01em] sm:text-[2.3rem]">
+              Before you register
+            </h2>
 
-                <div className="mt-4 rounded-xl bg-white/10 px-5 py-4 text-left text-sm text-blue-100">
-                  <p className="font-semibold text-white">What happens next</p>
-                  <p className="mt-2">
-                    A confirmation email is on its way to{" "}
-                    <span className="font-semibold text-white">{email.trim().toLowerCase()}</span>{" "}
-                    with the joining link. We&apos;ll also send you a reminder an hour before the
-                    session starts.
-                  </p>
-                  <p className="mt-2">
-                    If you don&apos;t see it, check your spam or promotions folder.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <>
-                <h2 className="text-center font-display text-2xl font-bold sm:text-3xl">
-                  Reserve Your Spot
-                </h2>
-                <p className="mt-2 text-center text-blue-100">
-                  Seats are limited. Register now to attend for free and get your questions answered
-                  live by our mentor.
-                </p>
-
-                <form onSubmit={handleSubmit} className="mx-auto mt-8 max-w-md space-y-4">
-                  <div>
-                    <label
-                      htmlFor="webinar-name"
-                      className="mb-1.5 block text-sm font-medium text-blue-100"
+            <div className="mt-10 divide-y divide-[#181818] border-y border-[#181818]">
+              {FAQS.map((faq, i) => {
+                const open = openFaq === i;
+                return (
+                  <div key={faq.q}>
+                    <button
+                      onClick={() => setOpenFaq(open ? null : i)}
+                      aria-expanded={open}
+                      className="flex w-full items-center justify-between gap-5 py-5 text-left transition hover:text-[#E8B44A]"
                     >
-                      Full Name
-                    </label>
-                    <input
-                      id="webinar-name"
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Your full name"
-                      className="w-full rounded-xl border border-white/30 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-white focus:ring-2 focus:ring-white/40"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="webinar-email"
-                      className="mb-1.5 block text-sm font-medium text-blue-100"
-                    >
-                      Email
-                    </label>
-                    <input
-                      id="webinar-email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@example.com"
-                      className="w-full rounded-xl border border-white/30 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-white focus:ring-2 focus:ring-white/40"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="webinar-phone"
-                      className="mb-1.5 block text-sm font-medium text-blue-100"
-                    >
-                      Phone Number
-                    </label>
-                    <div className="flex gap-2">
-                      <select
-                        value={countryCode}
-                        onChange={(e) => setCountryCode(e.target.value)}
-                        className="min-w-[100px] rounded-xl border border-white/30 bg-white px-3 py-3 text-sm text-slate-900 outline-none transition focus:border-white focus:ring-2 focus:ring-white/40"
+                      <span className="text-[15px] font-semibold sm:text-base">{faq.q}</span>
+                      <span
+                        className={`shrink-0 text-[#E8B44A] transition-transform duration-300 ${open ? "rotate-45" : ""}`}
+                        aria-hidden
                       >
-                        {COUNTRY_CODES.map((cc) => (
-                          <option key={cc.code} value={cc.code}>
-                            {cc.label}
-                          </option>
-                        ))}
-                      </select>
-                      <input
-                        id="webinar-phone"
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="Phone number"
-                        className="w-full rounded-xl border border-white/30 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-white focus:ring-2 focus:ring-white/40"
-                      />
+                        <PlusIcon />
+                      </span>
+                    </button>
+                    <div
+                      className={`grid transition-all duration-300 ease-out ${open ? "grid-rows-[1fr] pb-5" : "grid-rows-[0fr]"}`}
+                    >
+                      <div className="overflow-hidden">
+                        <p className="max-w-2xl pr-6 text-[14px] leading-relaxed text-white/50">
+                          {faq.a}
+                        </p>
+                      </div>
                     </div>
                   </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
 
-                  {error && (
-                    <p className="rounded-xl bg-red-500/20 px-4 py-2.5 text-center text-sm font-medium text-red-100">
-                      {error}
-                    </p>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="w-full rounded-xl bg-white px-7 py-4 text-lg font-bold text-blue-800 shadow-lg transition hover:bg-blue-50 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
-                  >
-                    {submitting ? "Registering…" : "Register for Free"}
-                  </button>
-
-                  <p className="text-center text-xs text-blue-200">
-                    We&apos;ll email you the joining link right after you register, plus a reminder
-                    before the session starts.
-                  </p>
-                </form>
-              </>
-            )}
+        {/* ---------- CLOSING CTA ----------
+            Fades from black into the footer's #050505 so the seam doesn't read
+            as a band. */}
+        <section
+          className="relative overflow-hidden border-t border-[#141414]"
+          style={{ background: "linear-gradient(to bottom, #000000 55%, #050505 100%)" }}
+        >
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-0 h-[380px] w-[min(700px,100%)] -translate-x-1/2 rounded-full opacity-[0.13] blur-[130px]"
+            style={{ background: "radial-gradient(circle, #E8B44A 0%, transparent 70%)" }}
+          />
+          <div className="relative mx-auto max-w-2xl px-5 py-20 text-center sm:px-8">
+            <h2 className="text-[1.85rem] font-bold leading-tight tracking-[-0.01em] sm:text-[2.5rem]">
+              Set a reminder. Join live.
+              <br />
+              <span className="text-[#E8B44A]">Come with questions.</span>
+            </h2>
+            <p className="mx-auto mt-5 max-w-lg text-[15px] leading-relaxed text-white/50">
+              Friday, 14 August at 7:00 PM IST. It costs nothing but an hour, and it may be the hour
+              that changes what you apply for.
+            </p>
+            <button
+              onClick={scrollToForm}
+              className="mt-8 rounded-xl bg-[#E8B44A] px-9 py-4 text-[16px] font-bold text-black shadow-[0_14px_40px_-10px_rgba(232,180,74,0.5)] transition hover:bg-[#F0C264] active:scale-[0.99]"
+            >
+              Register free
+            </button>
           </div>
         </section>
       </main>
 
       <Footer />
+
+      {/* ---------- MOBILE STICKY CTA ---------- */}
+      {!registered && (
+        <div
+          className={`fixed inset-x-0 bottom-0 z-50 border-t border-[#1F1F1F] bg-black/95 px-4 py-3 backdrop-blur-md transition-transform duration-300 lg:hidden ${
+            showStickyBar ? "translate-y-0" : "translate-y-full"
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[13px] font-bold text-white">
+                {timeLeft.live ? "Live now" : "Today, 7:00 PM IST"}
+              </p>
+              <p className="truncate text-[11px] text-white/40">Free · Commonwealth Scholarship</p>
+            </div>
+            <button
+              onClick={scrollToForm}
+              className="shrink-0 rounded-lg bg-[#E8B44A] px-5 py-3 text-[14px] font-bold text-black transition active:scale-[0.98]"
+            >
+              Register free
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-const DetailCard = ({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) => (
-  <div className="rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm">
-    <Icon className="mx-auto h-6 w-6 text-blue-700" strokeWidth={2} />
-    <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</p>
-    <p className="text-sm font-bold text-slate-900 sm:text-base">{value}</p>
+const Chip = ({ label, accent = false }: { label: string; accent?: boolean }) => (
+  <span
+    className={`rounded-lg border px-3.5 py-2 text-[13px] font-semibold ${
+      accent
+        ? "border-[#E8B44A]/30 bg-[#E8B44A]/[0.08] text-[#E8B44A]"
+        : "border-[#1F1F1F] bg-[#0D0D0D] text-white/65"
+    }`}
+  >
+    {label}
+  </span>
+);
+
+const TimeBox = ({ value, unit }: { value: number; unit: string }) => (
+  <div className="min-w-[60px] rounded-xl border border-[#1F1F1F] bg-[#0D0D0D] px-3 py-2.5 text-center">
+    <div className="font-serif text-[1.7rem] font-semibold leading-none tabular-nums text-white">
+      {String(value).padStart(2, "0")}
+    </div>
+    <div className="mt-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white/30">
+      {unit}
+    </div>
   </div>
 );
 
-const CheckIcon = () => (
-  <svg className="mt-0.5 shrink-0 text-blue-700" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" />
-    <path d="m9 12 2 2 4-4" />
+const PlusIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <path d="M12 5v14M5 12h14" />
   </svg>
 );
 
@@ -348,7 +628,7 @@ const CalendarPlusIcon = () => (
 );
 
 const TickIcon = () => (
-  <svg className="text-white" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg className="text-[#E8B44A]" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 6 9 17l-5-5" />
   </svg>
 );
