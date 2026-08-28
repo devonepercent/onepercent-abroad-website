@@ -5,16 +5,16 @@ import { trackMetaEvent } from "@/lib/metaPixel";
 import logoWhite from "@/assets/logo-white.png";
 import Footer from "@/components/Footer";
 
-const WEBINAR_NAME = "Commonwealth Scholarship Webinar (14 August 2026)";
+const WEBINAR_NAME = "Study in Australia Webinar (28 August 2026)";
 const JOIN_URL = "https://meet.google.com/bba-tewz-jpq";
 
-// 7:00-8:00 PM IST on 14 Aug 2026 = 13:30-14:30 UTC.
-const STARTS_AT = Date.UTC(2026, 7, 14, 13, 30, 0);
+// 7:00-8:00 PM IST on 28 Aug 2026 = 13:30-14:30 UTC.
+const STARTS_AT = Date.UTC(2026, 7, 28, 13, 30, 0);
 
 const CALENDAR_URL = `https://calendar.google.com/calendar/render?${new URLSearchParams({
   action: "TEMPLATE",
-  text: "Commonwealth Scholarship Webinar | 1% Abroad",
-  dates: "20260814T133000Z/20260814T143000Z",
+  text: "Study in Australia Webinar | 1% Abroad",
+  dates: "20260828T133000Z/20260828T143000Z",
   details: `Join here: ${JOIN_URL}`,
   location: JOIN_URL,
 }).toString()}`;
@@ -36,20 +36,20 @@ const COUNTRY_CODES = [
 
 const AGENDA = [
   {
-    title: "What you should know",
-    body: "What the Commonwealth Scholarship actually covers, and how it differs from every other UK funding route.",
+    title: "Your study options",
+    body: "Universities, courses and intakes across Australia, and how to read a course list without getting lost in rankings.",
   },
   {
-    title: "Who is eligible",
-    body: "The academic, nationality and work-experience criteria, and the quiet disqualifiers most applicants miss.",
+    title: "How the student visa works",
+    body: "The subclass 500, what the Genuine Student requirement is really testing, and where applications get refused.",
   },
   {
-    title: "How the application works",
-    body: "The nomination route, the timeline, the documents, and where applications typically fall apart.",
+    title: "What it actually costs",
+    body: "Tuition, living costs and the funds you have to evidence, with an honest picture of what scholarships do and don't cover.",
   },
   {
-    title: "What can make your profile stronger",
-    body: "The parts of your profile that carry real weight with selectors, and what you can still fix this cycle.",
+    title: "After you graduate",
+    body: "The 485 post-study work visa, how long it gives you, and the routes graduates actually take from there.",
   },
 ];
 
@@ -63,8 +63,8 @@ const FAQS = [
     a: "The session is built around a live Q&A, so attending live is where the value is. Register anyway and we will email you if a recording is made available.",
   },
   {
-    q: "I am not sure I am eligible. Should I still join?",
-    a: "Especially then. A large part of the session is spent on who qualifies, and on the criteria people wrongly assume rule them out.",
+    q: "I have not picked a course or university yet. Should I still join?",
+    a: "Especially then. A large part of the session is spent on how to choose, and on the decisions that are far harder to undo once you have applied.",
   },
   {
     q: "How do I join on the day?",
@@ -105,7 +105,7 @@ const Webinar = () => {
   const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    document.title = "Free Commonwealth Scholarship Webinar | 1% Abroad";
+    document.title = "Free Study in Australia Webinar | 1% Abroad";
   }, []);
 
   useEffect(() => {
@@ -224,21 +224,21 @@ const Webinar = () => {
               </span>
 
               <h1 className="mt-6 text-[2.1rem] font-bold leading-[1.07] tracking-[-0.02em] sm:text-5xl lg:text-[3.35rem]">
-                The Commonwealth
+                Studying in
                 <br />
-                Scholarship,{" "}
+                Australia,{" "}
                 <em className="font-serif text-[1.12em] font-semibold italic text-[#E8B44A]">
                   explained properly
                 </em>
               </h1>
 
               <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-white/55 sm:text-[17px]">
-                A fully funded route to a UK master&apos;s that most people rule themselves out of
-                before they understand how it works. One hour, live, with a Q&amp;A at the end.
+                Your course options, how the student visa really works, and what actually happens
+                after you graduate. One hour, live, with a Q&amp;A at the end.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-2.5">
-                <Chip label="Friday, 14 August" />
+                <Chip label="Friday, 28 August" />
                 <Chip label="7:00 PM IST" />
                 <Chip label="Online" />
                 <Chip label="Free" accent />
@@ -274,7 +274,7 @@ const Webinar = () => {
                     <h2 className="mt-5 font-display text-2xl font-bold">You&apos;re registered</h2>
                     <p className="mt-3 text-[15px] leading-relaxed text-white/55">
                       Thanks, {name.trim().split(/\s+/)[0]}. Your seat for{" "}
-                      <span className="font-semibold text-white">14 August, 7:00 PM IST</span> is
+                      <span className="font-semibold text-white">28 August, 7:00 PM IST</span> is
                       confirmed.
                     </p>
 
@@ -434,14 +434,14 @@ const Webinar = () => {
               About the webinar
             </p>
             <h2 className="mt-4 text-[1.7rem] font-bold leading-tight tracking-[-0.01em] sm:text-[2.3rem]">
-              Commonwealth Scholarship aspirants,
-              <br className="hidden sm:block" /> this one is for you
+              Thinking about Australia?
+              <br className="hidden sm:block" /> This one is for you
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-[15px] leading-relaxed text-white/55 sm:text-base">
               Join this free live session by{" "}
-              <span className="font-semibold text-white">1% Abroad</span> for a dedicated hour on the
-              Commonwealth Scholarship: who is eligible, how the application actually works, and what
-              can make your profile stronger.
+              <span className="font-semibold text-white">1% Abroad</span> for a dedicated hour on
+              studying in Australia: what your course options are, how the student visa actually
+              works, and what the post-study opportunities really look like.
             </p>
             <p className="mx-auto mt-5 max-w-2xl font-serif text-[1.35rem] italic text-white/75 sm:text-[1.6rem]">
               Set a reminder. Join live. Come prepared with your questions.
@@ -548,7 +548,7 @@ const Webinar = () => {
               <span className="text-[#E8B44A]">Come with questions.</span>
             </h2>
             <p className="mx-auto mt-5 max-w-lg text-[15px] leading-relaxed text-white/50">
-              Friday, 14 August at 7:00 PM IST. It costs nothing but an hour, and it may be the hour
+              Friday, 28 August at 7:00 PM IST. It costs nothing but an hour, and it may be the hour
               that changes what you apply for.
             </p>
             <button
@@ -575,7 +575,7 @@ const Webinar = () => {
               <p className="truncate text-[13px] font-bold text-white">
                 {timeLeft.live ? "Live now" : "Today, 7:00 PM IST"}
               </p>
-              <p className="truncate text-[11px] text-white/40">Free · Commonwealth Scholarship</p>
+              <p className="truncate text-[11px] text-white/40">Free · Study in Australia</p>
             </div>
             <button
               onClick={scrollToForm}
