@@ -162,7 +162,7 @@
 @media (min-width: 768px) {
   .erz-speaker-frame { background: #04122e url('/header-bg.avif') center / cover no-repeat; }
   .erz-speaker-frame::after { background: linear-gradient(180deg, #040b2bc7 0%, #040b2b91 55%, #040b2bb3 100%); }
-  .erz-hero-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 400px); column-gap: clamp(32px, 5vw, 80px); align-content: center; width: 100%; min-height: clamp(540px, 42vw, 720px); padding-block: 64px; }
+  .erz-hero-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 400px); column-gap: clamp(32px, 5vw, 80px); align-content: center; width: min(1160px, calc(100% - 48px)); min-height: clamp(540px, 42vw, 720px); padding-block: 64px; }
   .erz-hero-content { grid-column: 1; grid-row: 1; width: 100%; max-width: 560px; }
   .erz-hero-actions { grid-column: 1; grid-row: 2; width: 100%; max-width: 560px; }
   .erz-hero-actions .erz-primary { display: none; }
