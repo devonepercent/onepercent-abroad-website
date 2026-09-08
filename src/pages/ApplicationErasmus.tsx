@@ -10,22 +10,38 @@ import { inclusions, PRICE } from "@/lib/erasmusData";
 const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
 const programmesPath = "/application/erasmus/programs";
 
-const HeroSection = () => {
+const useIsDesktop = () => {
+  const [isDesktop, setIsDesktop] = useState(() => window.matchMedia("(min-width: 768px)").matches);
+  useEffect(() => {
+    const query = window.matchMedia("(min-width: 768px)");
+    const sync = () => setIsDesktop(query.matches);
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
+  return isDesktop;
+};
+
+// Desktop pairs the campus backdrop with the callback form; mobile keeps the
+// full-bleed video hero and its playback controls.
+const HeroSection = ({ isDesktop }: { isDesktop: boolean }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(true);
   const [videoFailed, setVideoFailed] = useState(false);
 
   useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
     const sync = () => {
-      if (preference.matches) videoRef.current?.pause();
-      else void videoRef.current?.play().catch(() => setPlaying(false));
+      if (preference.matches) video.pause();
+      else void video.play().catch(() => setPlaying(false));
     };
     sync();
     preference.addEventListener("change", sync);
     return () => preference.removeEventListener("change", sync);
-  }, []);
+  }, [isDesktop]);
 
   const togglePlayback = () => {
     const video = videoRef.current;
@@ -34,27 +50,36 @@ const HeroSection = () => {
     else video.pause();
   };
 
+  const toggleSound = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    const next = !video.muted;
+    video.muted = next;
+    setMuted(next);
+  };
+
   return <section className="erz-video-hero" aria-labelledby="erasmus-title">
+    <div className="erz-speaker-frame">
+      {!isDesktop && <video ref={videoRef} className="erz-hero-video" muted={muted} loop playsInline preload="metadata" poster="/erasmus-hero.jpg" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onVolumeChange={event => setMuted(event.currentTarget.muted)} onError={() => setVideoFailed(true)} aria-label="Erasmus study abroad film">
+        <source src="/erasmus-hero.mp4" type="video/mp4" onError={() => setVideoFailed(true)} />
+      </video>}
+    </div>
     <div className="erz-container erz-hero-layout">
     <div className="erz-hero-content">
       <span className="erz-eyebrow">YOUR NEXT CHAPTER</span>
       <h1 id="erasmus-title">Apply for an <em>Erasmus Mundus</em> master’s.</h1>
       <p>Get help with your shortlist, documents and application.</p>
     </div>
-    <div className="erz-speaker-frame">
-    <video ref={videoRef} className="erz-hero-video" muted={muted} loop playsInline preload="metadata" poster="/erasmus-hero.jpg" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onError={() => setVideoFailed(true)} aria-label="Erasmus study abroad film">
-      <source src="/erasmus-hero.mp4" type="video/mp4" onError={() => setVideoFailed(true)} />
-    </video>
-    {!videoFailed && <div className="erz-video-controls" aria-label="Video controls">
-      <button type="button" onClick={togglePlayback} aria-label={playing ? "Pause video" : "Play video"}>{playing ? <Pause size={18} /> : <Play size={18} />}</button>
-      <button type="button" onClick={() => setMuted(value => !value)} aria-label={muted ? "Unmute video" : "Mute video"} aria-pressed={!muted}>{muted ? <VolumeX size={18} /> : <Volume2 size={18} />}</button>
-    </div>}
-    </div>
     <div className="erz-hero-actions">
       <a className="erz-button erz-primary" href="#erasmus-form">Talk to an expert — free <ArrowRight size={18} /></a>
       <Link className="erz-hero-link" to={programmesPath}>Browse programmes <ArrowRight size={16} /></Link>
     </div>
+    {isDesktop && <FormSection variant="hero" />}
     </div>
+    {!isDesktop && !videoFailed && <div className="erz-video-controls" aria-label="Video controls">
+      <button type="button" onClick={togglePlayback} aria-label={playing ? "Pause video" : "Play video"}>{playing ? <Pause size={18} /> : <Play size={18} />}</button>
+      <button type="button" onClick={toggleSound} aria-label={muted ? "Unmute video" : "Mute video"} aria-pressed={!muted}>{muted ? <VolumeX size={18} /> : <Volume2 size={18} />}</button>
+    </div>}
   </section>;
 };
 
@@ -105,6 +130,7 @@ const faqs = [
 ];
 
 const ApplicationErasmus = () => {
+  const isDesktop = useIsDesktop();
   const [showMobileCta, setShowMobileCta] = useState(false);
   useEffect(() => {
     const previousTitle = document.title;
@@ -123,7 +149,7 @@ const ApplicationErasmus = () => {
     if (hero) observer.observe(hero);
     if (form) observer.observe(form);
     return () => { document.title = previousTitle; observer.disconnect(); };
-  }, []);
+  }, [isDesktop]);
 
   return <main className="erasmus-page">
     <header className="erz-header"><div className="erz-container">
@@ -131,10 +157,10 @@ const ApplicationErasmus = () => {
       <nav aria-label="Erasmus navigation"><a href="#stories">Student reviews</a><a href="#support">What’s included</a><a href="#FaqSection">FAQs</a></nav>
       <a className="erz-header-cta" href="#erasmus-form">Free consultation <ArrowRight size={16} /></a>
     </div></header>
-    <HeroSection />
+    <HeroSection isDesktop={isDesktop} />
     <ReviewsSection />
     <OfferSection />
-    <section className="erz-container erz-section erz-contact-section"><div className="erz-contact-copy"><span className="erz-label">LET’S TALK</span><h2>Not sure where<br />to start?</h2><p>Tell us a little about yourself.<br />Our team will call to discuss your options.</p><span className="erz-free-note"><CheckCircle2 size={18} /> Free consultation. No payment needed.</span></div><FormSection /></section>
+    {!isDesktop && <section className="erz-container erz-section erz-contact-section"><div className="erz-contact-copy"><span className="erz-label">LET’S TALK</span><h2>Not sure where<br />to start?</h2><p>Tell us a little about yourself.<br />Our team will call to discuss your options.</p><span className="erz-free-note"><CheckCircle2 size={18} /> Free consultation. No payment needed.</span></div><FormSection /></section>}
     <section id="FaqSection" className="erz-faq-section"><div className="erz-container erz-section erz-faq-layout"><div><span className="erz-label">A FEW QUICK ANSWERS</span><h2>Before you apply.</h2></div><div>{faqs.map(faq => <details className="erz-faq" key={faq.q}><summary>{faq.q}<ChevronDown size={19} /></summary><p>{faq.a}</p></details>)}</div></div></section>
     <Footer />
     {showMobileCta && <div className="erz-mobile-actions"><a href="#erasmus-form">Talk to an expert — free <ArrowRight size={18} /></a></div>}
@@ -143,7 +169,7 @@ const ApplicationErasmus = () => {
 
 export default ApplicationErasmus;
 
-const FormSection = () => {
+const FormSection = ({ variant = "section" }: { variant?: "section" | "hero" }) => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -168,7 +194,8 @@ const FormSection = () => {
       setError("We couldn't send your request. Please try again. Your details are still here.");
     } finally { setSubmitting(false); }
   };
-  return <aside className="erz-enquiry" id="erasmus-form" aria-labelledby="enquiry-title">
+  const heroVariant = variant === "hero";
+  return <aside className={heroVariant ? "erz-enquiry erz-enquiry-hero" : "erz-enquiry"} id="erasmus-form" aria-labelledby="enquiry-title">
     {submitted ? <div className="erz-success" role="status">
       <CheckCircle2 size={48} aria-hidden="true" />
       <h2 id="enquiry-title">You're on our callback list.</h2>
@@ -176,6 +203,7 @@ const FormSection = () => {
       <Link className="erz-form-submit" to="/application/erasmus/programs">Explore programmes <ArrowRight size={18} /></Link>
     </div> : <>
       <h2 id="enquiry-title">Request a free call</h2>
+      {heroVariant && <p className="erz-hero-note"><CheckCircle2 size={16} aria-hidden="true" /> Free consultation. No payment needed.</p>}
       <form onSubmit={handleSubmit} aria-busy={submitting}>
         <label htmlFor="erasmus-name">Your name</label>
         <input id="erasmus-name" name="name" value={name} onChange={e => setName(e.target.value)} placeholder="Full name" autoComplete="name" required maxLength={120} disabled={submitting} />
