@@ -1,0 +1,171 @@
+@font-face { font-family: 'Satoshi'; src: url('/fonts/erasmus/Satoshi-Bold.otf') format('opentype'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'General Sans'; src: url('/fonts/erasmus/GeneralSans-Medium.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'General Sans'; src: url('/fonts/erasmus/GeneralSans-Semibold.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
+
+.erasmus-page {
+  --erz-blue: #065dc7;
+  --erz-navy: #040b2b;
+  color: var(--erz-navy);
+  background: #fff;
+  font-family: 'General Sans', Arial, sans-serif;
+  font-weight: 500;
+  overflow-x: clip;
+}
+.erasmus-page * { box-sizing: border-box; }
+.erasmus-page [id] { scroll-margin-top: 96px; }
+.erasmus-page a:focus-visible, .erasmus-page button:focus-visible, .erasmus-page summary:focus-visible { outline: 3px solid #61a2fe; outline-offset: 5px; }
+.erz-container { width: min(1160px, calc(100% - 48px)); margin-inline: auto; }
+.erz-section { padding-block: 64px; }
+.erasmus-page h2 { font-size: clamp(28px, 3vw, 38px); font-weight: 600; line-height: 1.2; letter-spacing: -1px; margin: 12px 0 0; }
+.erz-label, .erz-eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 1.8px; }
+.erz-label { color: #065dc7; }
+.erz-header { position: sticky; top: 0; z-index: 80; background: #040b2b; border-bottom: 1px solid #ffffff25; }
+.erz-header > div { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.erz-header img { width: 150px; height: auto; }
+.erz-header nav { display: flex; gap: 28px; color: #d4e1f4; font-size: 14px; }
+.erz-header nav a:hover { color: white; }
+.erz-header-cta { display: inline-flex; gap: 10px; align-items: center; color: white; border: 1px solid #ffffff50; border-radius: 8px; padding: 11px 15px; font-size: 14px; }
+.erz-video-hero { position: relative; isolation: isolate; background: #040b2b; color: white; }
+.erz-hero-layout { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; width: calc(100% - 80px); min-height: clamp(700px, 65vw, 1250px); padding-block: 56px; }
+.erz-hero-content { width: min(30vw, 420px); }
+.erz-hero-actions { width: min(30vw, 420px); }
+.erz-speaker-frame { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; background: #d4d7d8 url('/erasmus-hero.jpg') center 72% / cover no-repeat; z-index: -1; }
+.erz-speaker-frame::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, #040b2bd9 0%, #040b2b99 22%, transparent 43%); }
+.erz-hero-video { display: block; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 72%; }
+.erz-hero-content { color: white; }
+.erz-eyebrow { color: #c3dbff; }
+.erz-hero-content h1 { font-family: 'Satoshi', Arial, sans-serif; font-size: clamp(34px, 3.6vw, 56px); line-height: 1.08; font-weight: 700; letter-spacing: -.04em; margin: 20px 0; }
+.erz-hero-content h1 em { color: #9cc6ff; font-weight: 700; font-style: normal; }
+.erz-hero-content > p { font-size: 17px; line-height: 1.7; max-width: 460px; color: #e1e9f7; margin-bottom: 25px; }
+.erz-button { display: inline-flex; justify-content: center; align-items: center; gap: 18px; min-height: 52px; padding: 14px 23px; border-radius: 10px; font-size: 16px; font-weight: 600; text-align: center; transition: background .2s; }
+.erz-primary { background: #065dc7; color: #fff; box-shadow: 0 4px 20px #0002; }
+.erz-primary:hover { background: #044da8; }
+.erz-dark { background: #040b2b; color: #fff; }
+.erz-dark:hover { background: #142457; }
+.erz-hero-link { width: fit-content; display: flex; align-items: center; gap: 9px; color: #fff; font-size: 14px; margin-top: 18px; padding-block: 5px; text-decoration: underline; text-underline-offset: 5px; }
+.erz-video-controls { position: absolute; z-index: 1; right: 24px; bottom: 24px; display: flex; gap: 10px; }
+.erz-video-controls button { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; color: white; background: #040b2b99; border: 1px solid #ffffff80; backdrop-filter: blur(8px); }
+.erz-video-controls button:hover { background: #040b2bdd; }
+.erz-mobile-break { display: none; }
+.erz-section-heading { margin-bottom: 28px; }
+.erz-review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+.erz-review { border: 1px solid #dbe5f3; padding: 28px; border-radius: 18px; background: #f7faff; }
+.erz-quote-icon { color: #065dc7; margin-bottom: 12px; }
+.erz-review blockquote { font-family: 'General Sans', Arial, sans-serif; font-weight: 500; font-size: 21px; line-height: 1.55; margin: 0 0 24px; min-height: 130px; }
+.erz-review-person { display: flex; gap: 14px; align-items: center; }
+.erz-review-person img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; object-position: top; flex-shrink: 0; }
+.erz-review-person h3 { font-size: 16px; font-weight: 600; }
+.erz-review-person p { font-size: 14px; line-height: 1.5; color: #52627b; margin-top: 3px; }
+.erz-review-person span { font-size: 12px; font-weight: 600; color: #065dc7; display: block; margin-top: 4px; }
+.erasmus-page summary { list-style: none; cursor: pointer; }
+.erasmus-page summary::-webkit-details-marker { display: none; }
+.erasmus-page summary svg { flex-shrink: 0; transition: transform .2s; }
+.erasmus-page details[open] > summary svg { transform: rotate(180deg); }
+.erz-full-review { margin-top: 20px; border-top: 1px solid #dbe5f3; padding-top: 15px; }
+.erz-full-review summary { display: flex; align-items: center; justify-content: space-between; color: #065dc7; font-size: 14px; font-weight: 500; min-height: 28px; }
+.erz-full-review p { font-size: 16px; line-height: 1.7; color: #52627b; margin-top: 14px; }
+.erz-read-less, .erz-full-review[open] .erz-read-more { display: none; }
+.erz-full-review[open] .erz-read-less { display: inline; }
+.erz-offer-section { background: #f0f5fc; border-block: 1px solid #e1eaf7; }
+.erz-offer-top { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 32px; }
+.erz-price { padding-left: 32px; border-left: 1px solid #c5d6ed; }
+.erz-price strong { display: block; font-size: clamp(38px, 4vw, 50px); line-height: 1.2; font-weight: 600; letter-spacing: -1.5px; }
+.erz-price span { display: block; margin-top: 7px; font-size: 14px; color: #52627b; }
+.erz-benefits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.erz-benefits article { background: #fff; border: 1px solid #dbe5f3; border-radius: 14px; padding: 24px; }
+.erz-benefits svg { color: #065dc7; margin-bottom: 18px; }
+.erz-benefits h3 { font-size: 18px; font-weight: 600; margin-bottom: 7px; }
+.erz-benefits p { font-size: 16px; color: #52627b; line-height: 1.6; }
+.erz-inclusions { border-bottom: 1px solid #cbd9eb; margin-top: 12px; }
+.erz-inclusions summary { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; font-size: 14px; font-weight: 600; }
+.erz-inclusions > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; padding-bottom: 24px; }
+.erz-inclusions h3 { font-size: 16px; font-weight: 600; margin-bottom: 5px; }
+.erz-inclusions p { font-size: 16px; line-height: 1.6; color: #52627b; }
+.erz-offer-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 24px; margin-top: 28px; }
+.erz-offer-actions p { font-size: 14px; color: #52627b; }
+.erz-offer-actions p a { color: #065dc7; text-decoration: underline; text-underline-offset: 3px; }
+.erz-contact-section { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center; }
+.erz-contact-copy > p { font-size: 17px; line-height: 1.75; margin-top: 20px; color: #52627b; }
+.erz-free-note { display: flex; align-items: center; gap: 8px; margin-top: 24px; font-size: 14px; color: #17603b; }
+.erz-enquiry { background: white; border: 1px solid #dbe5f3; box-shadow: 0 10px 36px #040b2b08; border-radius: 18px; padding: 28px; min-width: 0; }
+.erz-enquiry h2 { font-size: 24px; letter-spacing: -.5px; margin: 0 0 24px; }
+.erz-enquiry form { display: flex; flex-direction: column; }
+.erz-enquiry label { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+.erz-enquiry label span { font-size: 12px; font-weight: 500; color: #64748b; margin-left: 4px; }
+.erz-enquiry input { width: 100%; min-width: 0; border: 1px solid #bac8dc; border-radius: 8px; padding: 13px 14px; font-size: 16px; line-height: 24px; background: white; color: #040b2b; margin-bottom: 20px; }
+.erz-enquiry input:focus { outline: 3px solid #065dc725; border-color: #065dc7; }
+.erz-form-submit { display: flex; align-items: center; justify-content: center; gap: 12px; border-radius: 9px; padding: 15px; min-height: 52px; background: #065dc7; color: white; font-size: 16px; font-weight: 600; text-align: center; }
+.erz-form-submit:hover { background: #044da8; }
+.erz-form-submit:disabled { opacity: .65; cursor: wait; }
+.erz-consent { font-size: 12px; line-height: 1.7; color: #64748b; margin-top: 15px; }
+.erz-consent a { text-decoration: underline; text-underline-offset: 3px; }
+.erz-error { font-size: 14px; color: #b91c1c; line-height: 1.5; margin-bottom: 16px; }
+.erz-success > svg { color: #15803d; margin-bottom: 20px; }
+.erz-success p { font-size: 16px; line-height: 1.7; color: #52627b; margin-bottom: 24px; overflow-wrap: anywhere; }
+.erz-faq-section { background: #f7faff; border-top: 1px solid #e1eaf7; }
+.erz-faq-layout { display: grid; grid-template-columns: 1fr 1.3fr; gap: 64px; }
+.erz-faq { border-bottom: 1px solid #cbd9eb; }
+.erz-faq summary { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 20px 0; font-size: 16px; font-weight: 600; }
+.erz-faq:first-child summary { padding-top: 8px; }
+.erz-faq p { color: #52627b; font-size: 16px; line-height: 1.7; padding-bottom: 20px; }
+.erz-mobile-actions { display: none; }
+@media (max-width: 900px) {
+  .erz-header nav { gap: 16px; }
+  .erz-header nav a:last-child { display: none; }
+  .erz-contact-section, .erz-faq-layout { gap: 32px; }
+  .erz-benefits article { padding: 20px; }
+}
+@media (max-width: 767px) {
+  .erasmus-page { padding-bottom: calc(74px + env(safe-area-inset-bottom)); }
+  .erz-container { width: calc(100% - 40px); }
+  .erz-section { padding-block: 40px; }
+  .erz-header > div { min-height: 66px; gap: 12px; }
+  .erz-header img { width: 115px; }
+  .erz-header nav { display: none; }
+  .erz-header-cta { font-size: 12px; padding: 9px 10px; gap: 6px; }
+  .erz-hero-layout { width: 100%; min-height: max(780px, 180vw); justify-content: flex-start; gap: 0; padding: 28px 20px 0; }
+  .erz-hero-content { width: 100%; max-width: 430px; }
+  .erz-speaker-frame { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; background-position: center bottom; }
+  .erz-speaker-frame::after { background: linear-gradient(180deg, #040b2be6 0%, #040b2bb3 26%, transparent 48%); }
+  .erz-hero-actions { width: 100%; padding: 18px 0 0; max-width: 430px; }
+  .erz-hero-actions .erz-button { width: 100%; }
+  .erz-hero-actions .erz-hero-link { margin-inline: auto; }
+  .erz-hero-content { padding: 0; }
+  .erz-hero-content h1 { font-size: clamp(32px, 8vw, 42px); letter-spacing: -.04em; margin: 12px 0; }
+  .erz-hero-video { object-position: center bottom; }
+  .erz-hero-content > p { font-size: 16px; margin-bottom: 0; line-height: 1.6; }
+  .erz-mobile-break { display: inline; }
+  .erz-video-controls { right: 20px; bottom: 18px; }
+  .erz-hero-link { margin-top: 12px; }
+  .erz-review-grid, .erz-contact-section, .erz-faq-layout { grid-template-columns: 1fr; gap: 20px; }
+  .erz-review { padding: 22px; }
+  .erz-review blockquote { min-height: 0; font-size: 19px; margin-bottom: 20px; }
+  .erz-review-person img { width: 56px; height: 56px; }
+  .erz-offer-top { align-items: start; flex-direction: column; gap: 20px; }
+  .erz-price { padding: 0; border: 0; }
+  .erz-price strong { font-size: 42px; }
+  .erz-benefits { grid-template-columns: 1fr; gap: 10px; }
+  .erz-benefits article { display: grid; grid-template-columns: 30px 1fr; column-gap: 14px; padding: 18px; }
+  .erz-benefits article svg { grid-row: span 2; margin-top: 2px; margin-bottom: 0; }
+  .erz-benefits h3 { font-size: 16px; margin-bottom: 4px; }
+  .erz-inclusions > div { grid-template-columns: 1fr; gap: 18px; }
+  .erz-offer-actions { gap: 16px; }
+  .erz-offer-actions .erz-button { width: 100%; }
+  .erz-contact-section { gap: 26px; }
+  .erz-enquiry { padding: 22px; }
+  .erz-free-note { font-size: 13px; margin-top: 18px; }
+  .erz-faq:first-child summary { padding-top: 20px; }
+  .erz-mobile-actions { display: block; position: fixed; bottom: 0; left: 0; right: 0; z-index: 85; padding: 10px 20px calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid #dbe5f3; background: #fff; box-shadow: 0 -4px 20px #040b2b0d; }
+  .erz-mobile-actions a { display: flex; align-items: center; justify-content: center; gap: 18px; min-height: 48px; border-radius: 8px; background: #065dc7; color: #fff; font-size: 15px; font-weight: 600; }
+  .erasmus-page footer { padding-left: 24px !important; padding-right: 24px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .erasmus-page * { scroll-behavior: auto !important; transition: none !important; }
+}
+
+/* Brand typography scoped to the Erasmus landing page. */
+.erasmus-page h2, .erasmus-page h3, .erasmus-page h4, .erasmus-page .erz-price strong { font-family: 'Satoshi', Arial, sans-serif; font-weight: 700; letter-spacing: -.03em; }
+.erasmus-page button, .erasmus-page input { font-family: 'General Sans', Arial, sans-serif; }
+.erasmus-page input { font-weight: 500; }
+.erasmus-page footer { font-family: 'General Sans', Arial, sans-serif !important; }
+.erasmus-page footer h4 { font-weight: 700 !important; }
