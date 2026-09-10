@@ -24,19 +24,25 @@ const ensureFbq = () => {
   }
 };
 
-export const initMetaPixel = () => {
+// Re-initialising a live pixel re-fires PageView, and several pages call the
+// init helpers defensively after App has already booted. Track what is up so
+// those calls are no-ops rather than duplicate page views.
+const initialised = new Set<string>();
+
+const initPixel = (pixelId: string) => {
   if (typeof window === "undefined") return;
   ensureFbq();
-  window.fbq!("init", LEADS_PIXEL_ID);
-  window.fbq!("track", "PageView");
+  if (initialised.has(pixelId)) return;
+  initialised.add(pixelId);
+  window.fbq!("init", pixelId);
+  // trackSingle, not track: a plain track would also hit any pixel already
+  // initialised, giving the leads pixel a second PageView on hiring pages.
+  window.fbq!("trackSingle", pixelId, "PageView");
 };
 
-export const initHiringPixel = () => {
-  if (typeof window === "undefined") return;
-  ensureFbq();
-  window.fbq!("init", HIRING_PIXEL_ID);
-  window.fbq!("track", "PageView");
-};
+export const initMetaPixel = () => initPixel(LEADS_PIXEL_ID);
+
+export const initHiringPixel = () => initPixel(HIRING_PIXEL_ID);
 
 export const trackMetaEvent = (eventName: string, data?: Record<string, any>) => {
   if (typeof window === "undefined") return;

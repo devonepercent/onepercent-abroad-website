@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, Outlet } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Index from "./pages/Index";
 import Webinar from "./pages/Webinar";
 import AdminLogin from "./pages/AdminLogin";
@@ -43,13 +43,19 @@ const queryClient = new QueryClient();
 
 const AppRoutes = () => {
   const location = useLocation();
+  const bootPathname = useRef(true);
 
   useEffect(() => {
     initMetaPixel();
   }, []);
 
   useEffect(() => {
-    // Track a basic page view for each route change
+    // initMetaPixel already reports the first route; this effect exists for the
+    // client-side navigations after it, which load no new document.
+    if (bootPathname.current) {
+      bootPathname.current = false;
+      return;
+    }
     trackMetaEvent("PageView");
   }, [location.pathname]);
 
