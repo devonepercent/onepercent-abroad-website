@@ -6,6 +6,7 @@ import logoWhite from "@/assets/logo-white.png";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { inclusions, PRICE } from "@/lib/erasmusData";
+import { trackMetaEvent } from "@/lib/metaPixel";
 
 const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
 const programmesPath = "/application/erasmus/programs";
@@ -189,6 +190,13 @@ const FormSection = ({ variant = "section" }: { variant?: "section" | "hero" }) 
       const { error: insertError } = await supabase.from("erasmus_call_requests" as never)
         .insert({ name: name.trim(), phone: phone.trim(), source: "erasmus" } as never);
       if (insertError) throw insertError;
+      // Ads conversion. Parameterised so the Erasmus campaign can be optimised on
+      // its own custom conversion — /get-started fires a bare Lead on the same pixel.
+      trackMetaEvent("Lead", {
+        content_name: "Erasmus Callback Request",
+        content_category: "erasmus",
+        form_location: variant === "hero" ? "hero" : "section",
+      });
       setSubmitted(true);
     } catch {
       setError("We couldn't send your request. Please try again. Your details are still here.");
