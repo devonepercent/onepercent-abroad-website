@@ -5,16 +5,16 @@ import { trackMetaEvent } from "@/lib/metaPixel";
 import logoWhite from "@/assets/logo-white.png";
 import Footer from "@/components/Footer";
 
-const WEBINAR_NAME = "Study in Australia Webinar (28 August 2026)";
+const WEBINAR_NAME = "7 Reasons Brilliant Students Get Rejected Webinar (11 September 2026)";
 const JOIN_URL = "https://meet.google.com/bba-tewz-jpq";
 
-// 7:00-8:00 PM IST on 28 Aug 2026 = 13:30-14:30 UTC.
-const STARTS_AT = Date.UTC(2026, 7, 28, 13, 30, 0);
+// 7:00-8:00 PM IST on 11 Sep 2026 = 13:30-14:30 UTC.
+const STARTS_AT = Date.UTC(2026, 8, 11, 13, 30, 0);
 
 const CALENDAR_URL = `https://calendar.google.com/calendar/render?${new URLSearchParams({
   action: "TEMPLATE",
-  text: "Study in Australia Webinar | 1% Abroad",
-  dates: "20260828T133000Z/20260828T143000Z",
+  text: "The 7 Reasons Brilliant Students Get Rejected | 1% Abroad",
+  dates: "20260911T133000Z/20260911T143000Z",
   details: `Join here: ${JOIN_URL}`,
   location: JOIN_URL,
 }).toString()}`;
@@ -34,22 +34,34 @@ const COUNTRY_CODES = [
   { code: "+880", label: "🇧🇩 +880" },
 ];
 
-const AGENDA = [
+const REASONS = [
   {
-    title: "Your study options",
-    body: "Universities, courses and intakes across Australia, and how to read a course list without getting lost in rankings.",
+    title: "Choosing the wrong university fit",
+    body: "Picking by ranking rather than fit, and how an admissions reader spots an application that never really looked at the course.",
   },
   {
-    title: "How the student visa works",
-    body: "The subclass 500, what the Genuine Student requirement is really testing, and where applications get refused.",
+    title: "Writing a generic SOP",
+    body: "The statement that could have been sent anywhere, and what a reader is actually looking for in the opening paragraph.",
   },
   {
-    title: "What it actually costs",
-    body: "Tuition, living costs and the funds you have to evidence, with an honest picture of what scholarships do and don't cover.",
+    title: "Having a weak academic narrative",
+    body: "Grades and subject choices that never add up to a story, and how to build one out of what you already have.",
   },
   {
-    title: "After you graduate",
-    body: "The 485 post-study work visa, how long it gives you, and the routes graduates actually take from there.",
+    title: "Showing no clear evidence of subject interest",
+    body: "Claiming a subject you love versus proving it. Which kinds of evidence carry weight, and which get ignored.",
+  },
+  {
+    title: "Getting poor or ineffective recommendations",
+    body: "Who to ask, when to ask them, and why the most senior name often writes the weakest letter.",
+  },
+  {
+    title: "Applying too broadly without a strategy",
+    body: "Why a long, unfocused list quietly lowers your odds everywhere instead of spreading your risk.",
+  },
+  {
+    title: "Assuming marks alone are enough",
+    body: "The highest scorer in the room still gets rejected. We go through what the rest of the decision rests on.",
   },
 ];
 
@@ -64,7 +76,11 @@ const FAQS = [
   },
   {
     q: "I have not picked a course or university yet. Should I still join?",
-    a: "Especially then. A large part of the session is spent on how to choose, and on the decisions that are far harder to undo once you have applied.",
+    a: "Especially then. Several of the seven mistakes are made long before anything is submitted, and those are the ones that are hardest to undo later.",
+  },
+  {
+    q: "I have already sent my applications. Is it too late?",
+    a: "Not for the next round. Plenty of students on the call are reapplying, and understanding why the last attempt fell short is exactly the point of the hour.",
   },
   {
     q: "How do I join on the day?",
@@ -105,7 +121,7 @@ const Webinar = () => {
   const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    document.title = "Free Study in Australia Webinar | 1% Abroad";
+    document.title = "Free Webinar: Why Brilliant Students Get Rejected | 1% Abroad";
   }, []);
 
   useEffect(() => {
@@ -223,22 +239,22 @@ const Webinar = () => {
                 {timeLeft.live ? "Live now" : "Free live webinar · Today"}
               </span>
 
-              <h1 className="mt-6 text-[2.1rem] font-bold leading-[1.07] tracking-[-0.02em] sm:text-5xl lg:text-[3.35rem]">
-                Studying in
-                <br />
-                Australia,{" "}
-                <em className="font-serif text-[1.12em] font-semibold italic text-[#E8B44A]">
-                  explained properly
-                </em>
+              <h1 className="mt-6 text-[2rem] font-bold leading-[1.08] tracking-[-0.02em] sm:text-[2.85rem] lg:text-[3.1rem]">
+                The 7 reasons brilliant students{" "}
+                <em className="font-serif text-[1.1em] font-semibold italic text-[#E8B44A]">
+                  get rejected
+                </em>{" "}
+                by top universities
               </h1>
 
               <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-white/55 sm:text-[17px]">
-                Your course options, how the student visa really works, and what actually happens
-                after you graduate. One hour, live, with a Q&amp;A at the end.
+                Strong students with strong marks are turned down every year, and almost never for
+                the reason they assume. One hour on the seven mistakes behind it, live, with a
+                Q&amp;A at the end.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-2.5">
-                <Chip label="Friday, 28 August" />
+                <Chip label="Friday, 11 September" />
                 <Chip label="7:00 PM IST" />
                 <Chip label="Online" />
                 <Chip label="Free" accent />
@@ -274,7 +290,7 @@ const Webinar = () => {
                     <h2 className="mt-5 font-display text-2xl font-bold">You&apos;re registered</h2>
                     <p className="mt-3 text-[15px] leading-relaxed text-white/55">
                       Thanks, {name.trim().split(/\s+/)[0]}. Your seat for{" "}
-                      <span className="font-semibold text-white">28 August, 7:00 PM IST</span> is
+                      <span className="font-semibold text-white">11 September, 7:00 PM IST</span> is
                       confirmed.
                     </p>
 
@@ -434,14 +450,14 @@ const Webinar = () => {
               About the webinar
             </p>
             <h2 className="mt-4 text-[1.7rem] font-bold leading-tight tracking-[-0.01em] sm:text-[2.3rem]">
-              Thinking about Australia?
-              <br className="hidden sm:block" /> This one is for you
+              Good marks. Strong profile.
+              <br className="hidden sm:block" /> Rejected anyway.
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-[15px] leading-relaxed text-white/55 sm:text-base">
               Join this free live session by{" "}
-              <span className="font-semibold text-white">1% Abroad</span> for a dedicated hour on
-              studying in Australia: what your course options are, how the student visa actually
-              works, and what the post-study opportunities really look like.
+              <span className="font-semibold text-white">1% Abroad</span> for a dedicated hour on why
+              top universities turn down students who, on paper, look like they should have got in —
+              and what to do differently while there is still time to change it.
             </p>
             <p className="mx-auto mt-5 max-w-2xl font-serif text-[1.35rem] italic text-white/75 sm:text-[1.6rem]">
               Set a reminder. Join live. Come prepared with your questions.
@@ -449,18 +465,18 @@ const Webinar = () => {
           </div>
         </section>
 
-        {/* ---------- AGENDA ---------- */}
+        {/* ---------- THE SEVEN REASONS ---------- */}
         <section className="border-t border-[#141414] bg-[#050505]">
           <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 lg:py-20">
             <p className="font-display text-[11px] font-bold uppercase tracking-[0.18em] text-[#61A2FE]">
-              What you&apos;ll learn
+              What we&apos;ll cover
             </p>
             <h2 className="mt-3 max-w-2xl text-[1.7rem] font-bold leading-tight tracking-[-0.01em] sm:text-[2.3rem]">
-              One hour, four things that decide the outcome
+              Seven mistakes that decide the outcome
             </h2>
 
             <div className="mt-10 grid gap-4 sm:grid-cols-2">
-              {AGENDA.map((item, i) => (
+              {REASONS.map((item, i) => (
                 <div
                   key={item.title}
                   className="group rounded-2xl border border-[#1A1A1A] bg-[#0B0B0B] p-6 transition hover:border-[#E8B44A]/30"
@@ -481,8 +497,29 @@ const Webinar = () => {
                 Then, a live Q&amp;A
               </h3>
               <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-white/50">
-                Bring the question you can&apos;t find a straight answer to online. Come prepared and
-                you&apos;ll leave knowing exactly what your next step is.
+                Bring the part of your own application you are least sure about. Come prepared and
+                you&apos;ll leave knowing exactly what to fix first.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ---------- HOST ---------- */}
+        <section className="border-t border-[#141414]">
+          <div className="mx-auto max-w-3xl px-5 py-16 sm:px-8 lg:py-20">
+            <div className="rounded-2xl border border-[#1A1A1A] bg-[#0B0B0B] p-7 sm:p-9">
+              <p className="font-display text-[11px] font-bold uppercase tracking-[0.18em] text-[#E8B44A]">
+                Hosted by
+              </p>
+              <h2 className="mt-3 text-[1.55rem] font-bold leading-tight tracking-[-0.01em] sm:text-[1.9rem]">
+                Gayathri Praveenkumar
+              </h2>
+              <p className="mt-1.5 text-[14px] font-semibold text-white/45">
+                Senior Mentor, 1% Abroad
+              </p>
+              <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-white/55">
+                Gayathri mentors students through applications to top universities at 1% Abroad. She
+                takes the session herself and answers your questions live at the end.
               </p>
             </div>
           </div>
@@ -548,8 +585,8 @@ const Webinar = () => {
               <span className="text-[#E8B44A]">Come with questions.</span>
             </h2>
             <p className="mx-auto mt-5 max-w-lg text-[15px] leading-relaxed text-white/50">
-              Friday, 28 August at 7:00 PM IST. It costs nothing but an hour, and it may be the hour
-              that changes what you apply for.
+              Friday, 11 September at 7:00 PM IST. It costs nothing but an hour, and it may be the
+              hour that changes what you apply for.
             </p>
             <button
               onClick={scrollToForm}
@@ -575,7 +612,7 @@ const Webinar = () => {
               <p className="truncate text-[13px] font-bold text-white">
                 {timeLeft.live ? "Live now" : "Today, 7:00 PM IST"}
               </p>
-              <p className="truncate text-[11px] text-white/40">Free · Study in Australia</p>
+              <p className="truncate text-[11px] text-white/40">Free · Why students get rejected</p>
             </div>
             <button
               onClick={scrollToForm}
