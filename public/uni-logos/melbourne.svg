@@ -1,0 +1,14 @@
+<svg width="1256" height="1256" viewBox="0 0 1256 1256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- PLACEHOLDER. The University of Melbourne's coat of arms is available on
+       Wikipedia under a fair-use rationale only, which does not cover reuse on
+       a commercial site, so it was not shipped. Drop the real logo in over this
+       file (same name, same folder) and the globe picks it up automatically. -->
+  <circle cx="628" cy="628" r="560" fill="none" stroke="#0B1030" stroke-opacity=".28"
+          stroke-width="26" stroke-dasharray="54 38"/>
+  <text x="628" y="560" text-anchor="middle"
+        font-family="Outfit, Segoe UI, Helvetica, Arial, sans-serif"
+        font-size="150" font-weight="600" letter-spacing="6" fill="#454E6B">UNIVERSITY OF</text>
+  <text x="628" y="760" text-anchor="middle"
+        font-family="Outfit, Segoe UI, Helvetica, Arial, sans-serif"
+        font-size="232" font-weight="700" letter-spacing="-4" fill="#032F93">MELBOURNE</text>
+</svg>
