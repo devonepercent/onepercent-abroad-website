@@ -5,16 +5,16 @@ import { trackMetaEvent } from "@/lib/metaPixel";
 import logoWhite from "@/assets/logo-white.png";
 import Footer from "@/components/Footer";
 
-const WEBINAR_NAME = "7 Reasons Brilliant Students Get Rejected Webinar (11 September 2026)";
+const WEBINAR_NAME = "Erasmus Mundus Webinar (18 September 2026)";
 const JOIN_URL = "https://meet.google.com/bba-tewz-jpq";
 
-// 7:00-8:00 PM IST on 11 Sep 2026 = 13:30-14:30 UTC.
-const STARTS_AT = Date.UTC(2026, 8, 11, 13, 30, 0);
+// 7:30-8:30 PM IST on 18 Sep 2026 = 14:00-15:00 UTC.
+const STARTS_AT = Date.UTC(2026, 8, 18, 14, 0, 0);
 
 const CALENDAR_URL = `https://calendar.google.com/calendar/render?${new URLSearchParams({
   action: "TEMPLATE",
-  text: "The 7 Reasons Brilliant Students Get Rejected | 1% Abroad",
-  dates: "20260911T133000Z/20260911T143000Z",
+  text: "Erasmus Mundus Webinar | 1% Abroad",
+  dates: "20260918T140000Z/20260918T150000Z",
   details: `Join here: ${JOIN_URL}`,
   location: JOIN_URL,
 }).toString()}`;
@@ -34,34 +34,18 @@ const COUNTRY_CODES = [
   { code: "+880", label: "🇧🇩 +880" },
 ];
 
-const REASONS = [
+const TOPICS = [
   {
-    title: "Choosing the wrong university fit",
-    body: "Picking by ranking rather than fit, and how an admissions reader spots an application that never really looked at the course.",
+    title: "How Erasmus Mundus works",
+    body: "Understand the structure of an Erasmus Mundus Joint Master, from studying across multiple European universities to scholarships and mobility.",
   },
   {
-    title: "Writing a generic SOP",
-    body: "The statement that could have been sent anywhere, and what a reader is actually looking for in the opening paragraph.",
+    title: "How to choose the right programme",
+    body: "Learn how to compare programmes by academic fit, partner universities, mobility path, eligibility, and career direction.",
   },
   {
-    title: "Having a weak academic narrative",
-    body: "Grades and subject choices that never add up to a story, and how to build one out of what you already have.",
-  },
-  {
-    title: "Showing no clear evidence of subject interest",
-    body: "Claiming a subject you love versus proving it. Which kinds of evidence carry weight, and which get ignored.",
-  },
-  {
-    title: "Getting poor or ineffective recommendations",
-    body: "Who to ask, when to ask them, and why the most senior name often writes the weakest letter.",
-  },
-  {
-    title: "Applying too broadly without a strategy",
-    body: "Why a long, unfocused list quietly lowers your odds everywhere instead of spreading your risk.",
-  },
-  {
-    title: "Assuming marks alone are enough",
-    body: "The highest scorer in the room still gets rejected. We go through what the rest of the decision rests on.",
+    title: "How to strengthen your application",
+    body: "See what makes a focused application, including your academic story, motivation, experience, documents, and overall programme fit.",
   },
 ];
 
@@ -76,11 +60,11 @@ const FAQS = [
   },
   {
     q: "I have not picked a course or university yet. Should I still join?",
-    a: "Especially then. Several of the seven mistakes are made long before anything is submitted, and those are the ones that are hardest to undo later.",
+    a: "Yes. The session will help you understand how Erasmus Mundus programmes differ and what to look for before building your shortlist.",
   },
   {
-    q: "I have already sent my applications. Is it too late?",
-    a: "Not for the next round. Plenty of students on the call are reapplying, and understanding why the last attempt fell short is exactly the point of the hour.",
+    q: "Do I need to have an Erasmus Mundus programme shortlisted?",
+    a: "No. You can join whether you are beginning your research or already preparing an application.",
   },
   {
     q: "How do I join on the day?",
@@ -121,7 +105,7 @@ const Webinar = () => {
   const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    document.title = "Free Webinar: Why Brilliant Students Get Rejected | 1% Abroad";
+    document.title = "Erasmus Mundus Webinar — This Friday | 1% Abroad";
   }, []);
 
   useEffect(() => {
@@ -236,26 +220,24 @@ const Webinar = () => {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#E8B44A] opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-[#E8B44A]" />
                 </span>
-                {timeLeft.live ? "Live now" : "Free live webinar · Today"}
+                {timeLeft.live ? "Live now" : "Erasmus Mundus Webinar · This Friday"}
               </span>
 
               <h1 className="mt-6 text-[2rem] font-bold leading-[1.08] tracking-[-0.02em] sm:text-[2.85rem] lg:text-[3.1rem]">
-                The 7 reasons brilliant students{" "}
+                What if one Master&apos;s degree could take you to{" "}
                 <em className="font-serif text-[1.1em] font-semibold italic text-[#E8B44A]">
-                  get rejected
-                </em>{" "}
-                by top universities
+                  two or more European countries?
+                </em>
               </h1>
 
               <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-white/55 sm:text-[17px]">
-                Strong students with strong marks are turned down every year, and almost never for
-                the reason they assume. One hour on the seven mistakes behind it, live, with a
-                Q&amp;A at the end.
+                Join us to understand how Erasmus Mundus works, how to choose the right programme,
+                and how to strengthen your application.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-2.5">
-                <Chip label="Friday, 11 September" />
-                <Chip label="7:00 PM IST" />
+                <Chip label="Friday, 18 September 2026" />
+                <Chip label="7:30 PM – 8:30 PM IST" />
                 <Chip label="Online" />
                 <Chip label="Free" accent />
               </div>
@@ -290,7 +272,7 @@ const Webinar = () => {
                     <h2 className="mt-5 font-display text-2xl font-bold">You&apos;re registered</h2>
                     <p className="mt-3 text-[15px] leading-relaxed text-white/55">
                       Thanks, {name.trim().split(/\s+/)[0]}. Your seat for{" "}
-                      <span className="font-semibold text-white">11 September, 7:00 PM IST</span> is
+                      <span className="font-semibold text-white">18 September, 7:30 PM IST</span> is
                       confirmed.
                     </p>
 
@@ -450,14 +432,14 @@ const Webinar = () => {
               About the webinar
             </p>
             <h2 className="mt-4 text-[1.7rem] font-bold leading-tight tracking-[-0.01em] sm:text-[2.3rem]">
-              Good marks. Strong profile.
-              <br className="hidden sm:block" /> Rejected anyway.
+              One degree. Multiple countries.
+              <br className="hidden sm:block" /> A truly international Master&apos;s.
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-[15px] leading-relaxed text-white/55 sm:text-base">
               Join this free live session by{" "}
-              <span className="font-semibold text-white">1% Abroad</span> for a dedicated hour on why
-              top universities turn down students who, on paper, look like they should have got in —
-              and what to do differently while there is still time to change it.
+              <span className="font-semibold text-white">1% Abroad</span> to understand the Erasmus
+              Mundus journey, find programmes that fit your goals, and approach your application
+              with a clear strategy.
             </p>
             <p className="mx-auto mt-5 max-w-2xl font-serif text-[1.35rem] italic text-white/75 sm:text-[1.6rem]">
               Set a reminder. Join live. Come prepared with your questions.
@@ -465,18 +447,18 @@ const Webinar = () => {
           </div>
         </section>
 
-        {/* ---------- THE SEVEN REASONS ---------- */}
+        {/* ---------- SESSION TOPICS ---------- */}
         <section className="border-t border-[#141414] bg-[#050505]">
           <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 lg:py-20">
             <p className="font-display text-[11px] font-bold uppercase tracking-[0.18em] text-[#61A2FE]">
               What we&apos;ll cover
             </p>
             <h2 className="mt-3 max-w-2xl text-[1.7rem] font-bold leading-tight tracking-[-0.01em] sm:text-[2.3rem]">
-              Seven mistakes that decide the outcome
+              Make sense of Erasmus Mundus before you apply
             </h2>
 
             <div className="mt-10 grid gap-4 sm:grid-cols-2">
-              {REASONS.map((item, i) => (
+              {TOPICS.map((item, i) => (
                 <div
                   key={item.title}
                   className="group rounded-2xl border border-[#1A1A1A] bg-[#0B0B0B] p-6 transition hover:border-[#E8B44A]/30"
@@ -497,8 +479,8 @@ const Webinar = () => {
                 Then, a live Q&amp;A
               </h3>
               <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-white/50">
-                Bring the part of your own application you are least sure about. Come prepared and
-                you&apos;ll leave knowing exactly what to fix first.
+                Bring your questions about eligibility, programme selection, scholarships, or your
+                application. Lisa will answer them live at the end.
               </p>
             </div>
           </div>
@@ -512,14 +494,14 @@ const Webinar = () => {
                 Hosted by
               </p>
               <h2 className="mt-3 text-[1.55rem] font-bold leading-tight tracking-[-0.01em] sm:text-[1.9rem]">
-                Gayathri Praveenkumar
+                Lisa
               </h2>
               <p className="mt-1.5 text-[14px] font-semibold text-white/45">
-                Senior Mentor, 1% Abroad
+                Mentor, 1% Abroad
               </p>
               <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-white/55">
-                Gayathri mentors students through applications to top universities at 1% Abroad. She
-                takes the session herself and answers your questions live at the end.
+                Lisa mentors students through their study-abroad journey at 1% Abroad. She will walk
+                you through Erasmus Mundus and answer your questions live at the end.
               </p>
             </div>
           </div>
@@ -585,8 +567,8 @@ const Webinar = () => {
               <span className="text-[#E8B44A]">Come with questions.</span>
             </h2>
             <p className="mx-auto mt-5 max-w-lg text-[15px] leading-relaxed text-white/50">
-              Friday, 11 September at 7:00 PM IST. It costs nothing but an hour, and it may be the
-              hour that changes what you apply for.
+              Friday, 18 September 2026, from 7:30 PM to 8:30 PM IST. Join free and leave with a
+              clearer Erasmus Mundus plan.
             </p>
             <button
               onClick={scrollToForm}
@@ -610,9 +592,9 @@ const Webinar = () => {
           <div className="flex items-center gap-3">
             <div className="min-w-0 flex-1">
               <p className="truncate text-[13px] font-bold text-white">
-                {timeLeft.live ? "Live now" : "Today, 7:00 PM IST"}
+                {timeLeft.live ? "Live now" : "Friday, 7:30 PM IST"}
               </p>
-              <p className="truncate text-[11px] text-white/40">Free · Why students get rejected</p>
+              <p className="truncate text-[11px] text-white/40">Free · Erasmus Mundus webinar</p>
             </div>
             <button
               onClick={scrollToForm}
