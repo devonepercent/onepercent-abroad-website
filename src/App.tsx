@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, useLocation, Outlet } from "react-router-
 import { useEffect, useRef } from "react";
 import Index from "./pages/Index";
 import Webinar from "./pages/Webinar";
+import ErasmusWebinarJoin from "./pages/ErasmusWebinarJoin";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
@@ -63,6 +64,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/webinar" element={<Webinar />} />
+      <Route path="/erasmus" element={<ErasmusWebinarJoin />} />
       <Route path="/hiring" element={<HiringOverview />} />
       <Route path="/hiring/student-counsellor" element={<Hiring />} />
       <Route path="/hiring/student-mentor" element={<StudentMentorHiring />} />
