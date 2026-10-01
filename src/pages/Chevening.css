@@ -1,0 +1,46 @@
+.chevening-page{min-height:100svh;background:#070a0e;color:#f4f7fb;font-family:Outfit,sans-serif;overflow:hidden;display:flex;flex-direction:column}
+.chevening-header{position:relative;z-index:2;max-width:1440px;width:100%;margin:0 auto;padding:32px clamp(24px,5vw,76px)}
+.chevening-logo{display:block;width:162px;height:auto;object-fit:contain}
+.chevening-hero{position:relative;flex:1;display:grid;grid-template-columns:1.06fr .94fr;align-items:center;max-width:1440px;width:100%;min-height:660px;margin:0 auto;padding:0 clamp(24px,5vw,76px)}
+.chevening-copy{position:relative;z-index:2;padding:55px 0 90px}
+.chevening-eyebrow{display:inline-flex;align-items:center;gap:11px;color:#7fc0ff;font-size:11px;letter-spacing:.23em;font-weight:600}
+.chevening-eyebrow span{display:block;width:7px;height:7px;border-radius:50%;background:#7fc0ff;box-shadow:0 0 15px #7fc0ff}
+.chevening-copy h1{margin:27px 0 23px;font-family:Outfit,sans-serif;font-size:clamp(54px,6vw,88px);line-height:1.02;font-weight:600;letter-spacing:-.06em}
+.chevening-copy h1 em,.chevening-dialog h2 em{font-style:normal;font-weight:600;color:#7fc0ff}
+.chevening-description{max-width:480px;color:#aaa9a5;font-size:18px;line-height:1.7;font-weight:300}
+.chevening-cta-row{display:flex;align-items:center;gap:26px;margin-top:44px}
+.chevening-cta,.chevening-submit{border:0;background:#79bbff;color:#07131f;display:inline-flex;align-items:center;justify-content:center;gap:13px;padding:19px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s,transform .2s}
+.chevening-cta:hover,.chevening-submit:hover{background:#a5d3ff;transform:translateY(-2px)}
+.chevening-cta:focus-visible,.chevening-submit:focus-visible,.chevening-close:focus-visible{outline:2px solid white;outline-offset:3px}
+.chevening-pdf-note{display:inline-flex;gap:8px;align-items:center;color:#8b8e8a;font-size:13px;white-space:nowrap}
+.chevening-small-note{color:#777974;font-size:12px;margin-top:18px;letter-spacing:.02em}
+.chevening-art{position:relative;align-self:stretch;min-height:660px}
+.chevening-halo{position:absolute;width:min(42vw,600px);height:min(42vw,600px);border-radius:50%;top:10%;left:7%;background:radial-gradient(circle,#173252 0,#101d2d 48%,transparent 72%)}
+.chevening-outline{position:absolute;border:1px solid #7fc0ff33;border-radius:50%;width:580px;height:580px;top:6%;left:3%}
+.chevening-outline-two{width:700px;height:700px;top:-3%;left:-8%;border-color:#7fc0ff1c}
+.chevening-graduate{position:absolute;z-index:1;height:min(790px,103%);width:auto;max-width:none;bottom:0;left:50%;transform:translateX(-50%);object-fit:contain;object-position:bottom;filter:drop-shadow(0 20px 30px #0008)}
+.chevening-art-label{position:absolute;z-index:2;right:0;bottom:36px;display:flex;flex-direction:column;align-items:flex-end;gap:5px;font-size:10px;letter-spacing:.2em;color:#8ebfea}
+.chevening-footer-line{position:relative;z-index:2;display:flex;justify-content:space-between;gap:20px;border-top:1px solid #ffffff16;max-width:1288px;width:calc(100% - clamp(48px,10vw,152px));margin:0 auto;padding:19px 0 23px;color:#747773;font-size:10px;letter-spacing:.19em}
+.chevening-overlay{position:fixed;z-index:30;inset:0;background:#000b;backdrop-filter:blur(8px);display:grid;place-items:center;padding:20px}
+.chevening-dialog{position:relative;width:min(100%,480px);max-height:calc(100svh - 40px);overflow:auto;background:#10151c;border:1px solid #7fc0ff38;box-shadow:0 24px 100px #000b;padding:clamp(26px,4vw,44px)}
+.chevening-close{position:absolute;right:20px;top:20px;color:#a7a7a2;background:none;border:0;cursor:pointer;padding:5px}
+.chevening-dialog-kicker{color:#7fc0ff;font-size:10px;font-weight:600;letter-spacing:.22em}
+.chevening-dialog h2{font-family:Outfit,sans-serif;font-weight:600;letter-spacing:-.05em;line-height:1.08;font-size:42px;margin:18px 0 14px}
+.chevening-dialog>p{font-size:14px;color:#aaa9a5;line-height:1.6;margin:0 0 24px}
+.chevening-form{display:flex;flex-direction:column;gap:9px}
+.chevening-form label{font-size:12px;font-weight:500;color:#dedbd4;margin-top:7px}
+.chevening-form input{width:100%;background:transparent;border:0;border-bottom:1px solid #ffffff45;border-radius:0;color:#fff;padding:11px 0 12px;outline:none;font:inherit;font-size:14px;transition:border-color .2s}
+.chevening-form input::placeholder{color:#737670}
+.chevening-form input:focus{border-color:#7fc0ff}
+.chevening-error{color:#ffaaa2;font-size:12px;line-height:1.4;margin:5px 0 0}
+.chevening-submit{width:100%;margin-top:16px;padding:16px 18px;transform-origin:center;animation:chevening-button-wobble 3s ease-in-out infinite}
+.chevening-submit:disabled{opacity:.65;cursor:wait;transform:none;animation:none}
+@keyframes chevening-button-wobble{0%,72%,100%{transform:rotate(0)}78%{transform:rotate(-2deg)}84%{transform:rotate(2deg)}90%{transform:rotate(-1deg)}96%{transform:rotate(.5deg)}}
+@media(prefers-reduced-motion:reduce){.chevening-submit{animation:none}}
+.chevening-success{text-align:center;padding:22px 0 6px}
+.chevening-success-icon{margin:0 auto 20px;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:#79bbff;color:#07131f}
+.chevening-success h2{font-size:45px;margin-bottom:12px}
+.chevening-success p{color:#aaa9a5;font-size:14px;line-height:1.6}
+.chevening-success button{margin-top:22px;background:#79bbff;border:0;padding:12px 32px;font-weight:600;cursor:pointer}
+@media(max-width:800px){.chevening-page{height:100svh;min-height:0}.chevening-header{flex:none;padding:18px 24px}.chevening-logo{width:135px}.chevening-hero{display:flex;flex:1;flex-direction:column;min-height:0;padding:0 24px}.chevening-copy{flex:none;padding:38px 0 0;width:100%}.chevening-copy h1{font-size:clamp(58px,12vw,82px)}.chevening-description{font-size:16px;max-width:530px}.chevening-art{flex:1;width:100%;min-height:0;margin-top:12px;pointer-events:none}.chevening-graduate{height:100%;max-height:115%;left:50%}.chevening-halo{width:470px;height:470px;left:50%;top:0;transform:translateX(-50%)}.chevening-outline{width:460px;height:460px;left:50%;top:0;transform:translateX(-50%)}.chevening-outline-two{width:560px;height:560px;top:-10%}.chevening-art-label{bottom:20px}.chevening-footer-line{display:none}}
+@media(max-width:520px){.chevening-copy{padding-top:25px}.chevening-copy h1{font-size:clamp(46px,11.5vw,62px);margin-top:21px}.chevening-description{line-height:1.55}.chevening-cta-row{margin-top:26px;gap:14px}.chevening-cta{padding:16px;font-size:13px}.chevening-pdf-note{font-size:11px}.chevening-art-label{display:none}.chevening-dialog h2{font-size:38px}}

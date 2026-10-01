@@ -27,6 +27,7 @@ import LeadForm from "./pages/LeadForm";
 import MuhasinTask from "./pages/MuhasinTask";
 import OfferCardTool from "./pages/OfferCardTool";
 import Newsletter from "./pages/Newsletter";
+import Chevening from "./pages/Chevening";
 import SopVault from "./pages/SopVault";
 import SopVaultSuccess from "./pages/SopVaultSuccess";
 import SopVaultFeedback from "./pages/SopVaultFeedback";
@@ -84,6 +85,7 @@ const AppRoutes = () => {
       <Route path="/muhasinatask" element={<MuhasinTask />} />
       <Route path="/internal/offer-desk" element={<OfferCardTool />} />
       <Route path="/newsletter" element={<Newsletter />} />
+      <Route path="/chevening" element={<Chevening />} />
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/product/sop-vault" element={<SopVault />} />
       <Route path="/product/sop-vault/success" element={<SopVaultSuccess />} />

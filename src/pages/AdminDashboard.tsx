@@ -94,6 +94,14 @@ interface Lead {
   created_at: string;
 }
 
+interface CheveningLead {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  created_at: string;
+}
+
 interface NewsletterSubscriber {
   id: string;
   name: string;
@@ -501,6 +509,7 @@ const ATTENDED_SUFFIX = " - Attended";
 
 const ADMIN_TABS: { value: string; label: string }[] = [
   { value: "leads", label: "Get started leads" },
+  { value: "lead-magnet", label: "Lead Magnet" },
   { value: "program-enquiries", label: "Program enquiries" },
   { value: "webinar", label: "Webinar registrations" },
   { value: "webinar-attendees", label: "Webinar attendees" },
@@ -521,6 +530,7 @@ const AdminDashboard = () => {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [navOpen, setNavOpen] = useState(false);
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [cheveningLeads, setCheveningLeads] = useState<CheveningLead[]>([]);
   const [hiring, setHiring] = useState<HiringApplication[]>([]);
   const [salesEvaluations, setSalesEvaluations] = useState<SalesEvaluationAdmin[]>([]);
   const [billingCycles, setBillingCycles] = useState<BillingCycle[]>([]);
@@ -641,6 +651,7 @@ const AdminDashboard = () => {
         { data: feedbackData, error: feedbackError },
         { data: erasmusCallData, error: erasmusCallError },
         { data: erasmusPurchaseData, error: erasmusPurchaseError },
+        { data: cheveningData, error: cheveningError },
       ] = await Promise.all([
         supabase
           .from("webinar_registrations" as any)
@@ -695,6 +706,11 @@ const AdminDashboard = () => {
           .from("erasmus_purchases" as any)
           .select("*")
           .order("created_at", { ascending: false }),
+        supabase
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .from("chevening_leads" as any)
+          .select("id, name, email, phone, created_at")
+          .order("created_at", { ascending: false }),
       ]);
 
       if (webinarError) {
@@ -707,6 +723,12 @@ const AdminDashboard = () => {
         console.error("Error loading leads:", leadsError);
       } else {
         setLeads((leadsData as unknown as Lead[]) || []);
+      }
+
+      if (cheveningError) {
+        console.error("Error loading Chevening leads:", cheveningError);
+      } else {
+        setCheveningLeads((cheveningData as unknown as CheveningLead[]) || []);
       }
 
       if (hiringError) {
@@ -1317,6 +1339,34 @@ const AdminDashboard = () => {
                 </TableBody>
               </Table>
               <PaginationBar page={leadsPage} pageCount={leadsPageCount} onPage={setLeadsPage} />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="lead-magnet">
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold">Lead Magnet</h2>
+              <p className="text-sm text-muted-foreground mt-1">Chevening scholarship guide</p>
+            </div>
+            <div className="bg-card rounded-lg shadow border overflow-x-auto">
+              <div className="px-4 py-3 border-b flex items-center justify-between">
+                <h3 className="font-semibold">Chevening</h3>
+                <span className="text-sm text-muted-foreground">{cheveningLeads.length} leads</span>
+              </div>
+              <Table>
+                <TableHeader><TableRow><TableHead>Submitted</TableHead><TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>Phone</TableHead></TableRow></TableHeader>
+                <TableBody>
+                  {cheveningLeads.length === 0 ? (
+                    <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">No Chevening leads yet</TableCell></TableRow>
+                  ) : cheveningLeads.map(lead => (
+                    <TableRow key={lead.id}>
+                      <TableCell className="whitespace-nowrap">{new Date(lead.created_at).toLocaleString()}</TableCell>
+                      <TableCell className="whitespace-nowrap">{lead.name}</TableCell>
+                      <TableCell>{lead.email}</TableCell>
+                      <TableCell className="whitespace-nowrap">{lead.phone}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </TabsContent>
 
