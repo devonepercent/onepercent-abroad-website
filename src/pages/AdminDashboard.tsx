@@ -48,8 +48,10 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
+import { useRowSelection } from "@/hooks/use-row-selection";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { downloadCsv } from "@/lib/csv";
 import { CheckCircle2, ChevronDown, Clock, Download, Loader2, LogOut, Mail, Menu, Search, Send, Trash2, Upload, XCircle } from "lucide-react";
 import { ProjectView } from "@/components/tracker/ProjectView";
 
@@ -916,6 +918,35 @@ const AdminDashboard = () => {
   }, [leads, leadsFrom, leadsTo, leadsSearch]);
   const pagedLeads = filteredLeads.slice((leadsPage - 1) * PAGE_SIZE, leadsPage * PAGE_SIZE);
   const leadsPageCount = Math.max(1, Math.ceil(filteredLeads.length / PAGE_SIZE));
+  const leadSelection = useRowSelection(filteredLeads);
+  const cheveningSelection = useRowSelection(cheveningLeads);
+
+  const exportLeadsCSV = () => {
+    const rows = leadSelection.selectedRows.length > 0 ? leadSelection.selectedRows : filteredLeads;
+    if (rows.length === 0) return;
+    downloadCsv(
+      `leads-${new Date().toISOString().split("T")[0]}.csv`,
+      ["Timestamp", "Name", "Email", "Phone", "Degree", "Destinations", "Start Year", "Courses", "Academic Score", "Investment Budget", "UTM Source", "UTM Campaign", "UTM Medium"],
+      rows.map(lead => [
+        new Date(lead.created_at).toLocaleString(), lead.full_name, lead.email,
+        `${lead.country_code} ${lead.phone}`, lead.degree, (lead.destinations || []).join(", "),
+        lead.start_year, (lead.course_interests || []).join(", "), lead.academic_score,
+        lead.investment_budget, lead.utm_source, lead.utm_campaign, lead.utm_medium,
+      ]),
+    );
+    toast({ title: "Export successful", description: `${rows.length} leads exported as CSV.` });
+  };
+
+  const exportCheveningCSV = () => {
+    const rows = cheveningSelection.selectedRows.length > 0 ? cheveningSelection.selectedRows : cheveningLeads;
+    if (rows.length === 0) return;
+    downloadCsv(
+      `chevening-leads-${new Date().toISOString().split("T")[0]}.csv`,
+      ["Submitted", "Name", "Email", "Phone"],
+      rows.map(lead => [new Date(lead.created_at).toLocaleString(), lead.name, lead.email, lead.phone]),
+    );
+    toast({ title: "Export successful", description: `${rows.length} Chevening leads exported as CSV.` });
+  };
 
   const filteredHiring = useMemo(() => {
     const f = hiringFrom ? new Date(hiringFrom) : null;
@@ -1274,25 +1305,38 @@ const AdminDashboard = () => {
                 </div>
                 <Button variant="outline" size="sm" onClick={() => { setLeadsFrom(""); setLeadsTo(""); setLeadsSearch(""); }}>Clear</Button>
                 <Button
-                  onClick={() => {
-                    if (filteredLeads.length === 0) return;
-                    const headers = ["Timestamp","Name","Email","Phone","Degree","Destinations","Start Year","Courses","Academic Score","Investment Budget","UTM Source","UTM Campaign","UTM Medium"];
-                    const rows = filteredLeads.map(l => [new Date(l.created_at).toLocaleString(),`"${l.full_name}"`,l.email,`"${l.country_code} ${l.phone}"`,l.degree,`"${(l.destinations||[]).join(", ")}"`,l.start_year,`"${(l.course_interests||[]).join(", ")}"`,`"${l.academic_score}"`,`"${l.investment_budget}"`,l.utm_source||"",l.utm_campaign||"",l.utm_medium||""].join(","));
-                    const blob = new Blob([[headers.join(","),...rows].join("\n")],{type:"text/csv"});
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement("a"); a.href=url; a.download=`leads-${new Date().toISOString().split("T")[0]}.csv`; a.click(); window.URL.revokeObjectURL(url);
-                  }}
+                  onClick={exportLeadsCSV}
                   size="sm" variant="outline" disabled={filteredLeads.length === 0}
                 >
-                  <Download className="mr-2 h-4 w-4" />Export CSV
+                  <Download className="mr-2 h-4 w-4" />
+                  {leadSelection.selectedRows.length > 0 ? `Export selected (${leadSelection.selectedRows.length}) as CSV` : "Export all as CSV"}
                 </Button>
               </div>
             </div>
 
+            <div className="flex flex-wrap items-center gap-3 mb-3">
+              <Button variant="outline" size="sm" disabled={filteredLeads.length === 0} onClick={() => leadSelection.selectAll(!leadSelection.allSelected)}>
+                {leadSelection.allSelected ? "Deselect all" : "Select all"}
+              </Button>
+              <span className="text-sm text-muted-foreground" role="status">
+                {leadSelection.selectedRows.length} of {filteredLeads.length} selected across all pages
+              </span>
+              {leadSelection.selectedRows.length > 0 && (
+                <Button variant="ghost" size="sm" onClick={leadSelection.clearSelection}>Clear selection</Button>
+              )}
+            </div>
             <div className="bg-card rounded-lg shadow border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        aria-label="Select all filtered leads across all pages"
+                        checked={leadSelection.checkboxState}
+                        disabled={filteredLeads.length === 0}
+                        onCheckedChange={checked => leadSelection.selectAll(checked === true)}
+                      />
+                    </TableHead>
                     <TableHead>Timestamp</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
@@ -1310,13 +1354,20 @@ const AdminDashboard = () => {
                 <TableBody>
                   {pagedLeads.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={12} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={13} className="text-center py-8 text-muted-foreground">
                         No leads found
                       </TableCell>
                     </TableRow>
                   ) : (
                     pagedLeads.map((l) => (
-                      <TableRow key={l.id}>
+                      <TableRow key={l.id} data-state={leadSelection.selectedIds.has(l.id) ? "selected" : undefined}>
+                        <TableCell>
+                          <Checkbox
+                            aria-label={`Select lead ${l.full_name} (${l.email})`}
+                            checked={leadSelection.selectedIds.has(l.id)}
+                            onCheckedChange={checked => leadSelection.toggleRow(l.id, checked === true)}
+                          />
+                        </TableCell>
                         <TableCell className="whitespace-nowrap">{new Date(l.created_at).toLocaleString()}</TableCell>
                         <TableCell className="whitespace-nowrap">{l.full_name}</TableCell>
                         <TableCell>{l.email}</TableCell>
@@ -1343,9 +1394,26 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="lead-magnet">
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold">Lead Magnet</h2>
-              <p className="text-sm text-muted-foreground mt-1">Chevening scholarship guide</p>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+              <div>
+                <h2 className="text-xl font-semibold">Lead Magnet</h2>
+                <p className="text-sm text-muted-foreground mt-1">Chevening scholarship guide</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={exportCheveningCSV} disabled={cheveningLeads.length === 0}>
+                <Download className="mr-2 h-4 w-4" />
+                {cheveningSelection.selectedRows.length > 0 ? `Export selected (${cheveningSelection.selectedRows.length}) as CSV` : "Export all as CSV"}
+              </Button>
+            </div>
+            <div className="flex flex-wrap items-center gap-3 mb-3">
+              <Button variant="outline" size="sm" disabled={cheveningLeads.length === 0} onClick={() => cheveningSelection.selectAll(!cheveningSelection.allSelected)}>
+                {cheveningSelection.allSelected ? "Deselect all" : "Select all"}
+              </Button>
+              <span className="text-sm text-muted-foreground" role="status">
+                {cheveningSelection.selectedRows.length} of {cheveningLeads.length} selected
+              </span>
+              {cheveningSelection.selectedRows.length > 0 && (
+                <Button variant="ghost" size="sm" onClick={cheveningSelection.clearSelection}>Clear selection</Button>
+              )}
             </div>
             <div className="bg-card rounded-lg shadow border overflow-x-auto">
               <div className="px-4 py-3 border-b flex items-center justify-between">
@@ -1353,12 +1421,31 @@ const AdminDashboard = () => {
                 <span className="text-sm text-muted-foreground">{cheveningLeads.length} leads</span>
               </div>
               <Table>
-                <TableHeader><TableRow><TableHead>Submitted</TableHead><TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>Phone</TableHead></TableRow></TableHeader>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        aria-label="Select all Chevening leads"
+                        checked={cheveningSelection.checkboxState}
+                        disabled={cheveningLeads.length === 0}
+                        onCheckedChange={checked => cheveningSelection.selectAll(checked === true)}
+                      />
+                    </TableHead>
+                    <TableHead>Submitted</TableHead><TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>Phone</TableHead>
+                  </TableRow>
+                </TableHeader>
                 <TableBody>
                   {cheveningLeads.length === 0 ? (
-                    <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">No Chevening leads yet</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No Chevening leads yet</TableCell></TableRow>
                   ) : cheveningLeads.map(lead => (
-                    <TableRow key={lead.id}>
+                    <TableRow key={lead.id} data-state={cheveningSelection.selectedIds.has(lead.id) ? "selected" : undefined}>
+                      <TableCell>
+                        <Checkbox
+                          aria-label={`Select Chevening lead ${lead.name} (${lead.email})`}
+                          checked={cheveningSelection.selectedIds.has(lead.id)}
+                          onCheckedChange={checked => cheveningSelection.toggleRow(lead.id, checked === true)}
+                        />
+                      </TableCell>
                       <TableCell className="whitespace-nowrap">{new Date(lead.created_at).toLocaleString()}</TableCell>
                       <TableCell className="whitespace-nowrap">{lead.name}</TableCell>
                       <TableCell>{lead.email}</TableCell>
