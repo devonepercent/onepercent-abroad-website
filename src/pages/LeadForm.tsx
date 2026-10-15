@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { initMetaPixel, trackMetaEvent } from "@/lib/metaPixel";
+import { initMetaPixel, trackMetaEvent, getMetaMatchData } from "@/lib/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -172,6 +172,10 @@ const LeadForm = () => {
     setSubmitting(true);
 
     try {
+      // Shared by the Pixel Lead and the CRM row so Meta can dedupe the
+      // browser event against the server-side one sent later.
+      const metaEventId = crypto.randomUUID();
+
       const { error: dbError } = await supabase.from("leads" as any).insert({
         degree: form.degree,
         destinations: form.destinations,
@@ -191,6 +195,8 @@ const LeadForm = () => {
         utm_ad: utmData.utm_ad || null,
         utm_medium: utmData.utm_medium || null,
         step_reached: 4,
+        ...getMetaMatchData(),
+        meta_event_id: metaEventId,
       } as any);
 
       if (dbError) {
@@ -262,7 +268,7 @@ const LeadForm = () => {
       }
 
       initMetaPixel();
-      trackMetaEvent("Lead");
+      trackMetaEvent("Lead", undefined, { eventID: metaEventId });
 
       window.location.href = "https://whatsapp.com/channel/0029VbBitCgDZ4LTysQAwx2z";
     } catch (error) {

@@ -44,9 +44,55 @@ export const initMetaPixel = () => initPixel(LEADS_PIXEL_ID);
 
 export const initHiringPixel = () => initPixel(HIRING_PIXEL_ID);
 
-export const trackMetaEvent = (eventName: string, data?: Record<string, any>) => {
+export const trackMetaEvent = (
+  eventName: string,
+  data?: Record<string, any>,
+  options?: { eventID?: string }
+) => {
   if (typeof window === "undefined") return;
   if (!window.fbq) return;
-  window.fbq("track", eventName, data);
+  if (options?.eventID) {
+    window.fbq("track", eventName, data ?? {}, { eventID: options.eventID });
+  } else {
+    window.fbq("track", eventName, data);
+  }
+};
+
+// --- Conversions API matching ---------------------------------------------
+// The CRM later sends server-side events to Meta for leads that turn out to be
+// Interested; these identifiers let Meta tie those back to the ad click.
+
+const FBC_STORAGE_KEY = "op_fbc";
+
+const readCookie = (name: string) => {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+};
+
+// Save a landing ?fbclid= as an fbc value, for when the Pixel's own _fbc
+// cookie isn't there (blocked, or not yet written) by the time the form submits.
+export const captureFbclid = () => {
+  if (typeof window === "undefined") return;
+  try {
+    const fbclid = new URLSearchParams(window.location.search).get("fbclid");
+    if (fbclid) localStorage.setItem(FBC_STORAGE_KEY, `fb.1.${Date.now()}.${fbclid}`);
+  } catch {
+    // Storage unavailable (private mode etc.) — the _fbc cookie is still tried.
+  }
+};
+
+export const getMetaMatchData = () => {
+  let storedFbc: string | null = null;
+  try {
+    storedFbc = localStorage.getItem(FBC_STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+  return {
+    fbc: readCookie("_fbc") || storedFbc || null,
+    fbp: readCookie("_fbp"),
+    client_user_agent: typeof navigator !== "undefined" ? navigator.userAgent : null,
+  };
 };
 
