@@ -226,39 +226,18 @@ const LeadForm = () => {
         console.error("Lead alert broadcast failed (non-blocking):", e);
       }
 
-      // Fire both integrations in parallel; neither failure blocks the redirect
-      await Promise.allSettled([
-        supabase.functions.invoke("leadsquared-create-lead", {
-          body: {
-            name: form.fullName.trim(),
-            email: form.email.trim().toLowerCase(),
-            phoneNumber: form.phone.trim(),
-            countryCode: form.countryCode,
-            degree: form.degree,
-            destinations: form.destinations.join(", "),
-            startYear: form.startYear,
-            courseInterests: form.courseInterests.join(", "),
-            academicScore: form.academicScore,
-            investmentBudget: form.investmentBudget,
-            city: form.city,
-            state: form.state,
-            ...utmData,
-          },
-        }),
-        supabase.functions.invoke("send-whatsapp-greeting", {
+      // CRM picks the lead up via a database webhook on `leads`; WhatsApp failure doesn't block the redirect
+      try {
+        await supabase.functions.invoke("send-whatsapp-greeting", {
           body: {
             fullName: form.fullName.trim(),
             phoneNumber: form.phone.trim(),
             countryCode: form.countryCode,
           },
-        }),
-      ]).then((results) => {
-        results.forEach((result, i) => {
-          if (result.status === "rejected") {
-            console.error(`Integration ${i === 0 ? "LeadSquared" : "WhatsApp"} error (non-blocking):`, result.reason);
-          }
         });
-      });
+      } catch (e) {
+        console.error("WhatsApp greeting error (non-blocking):", e);
+      }
 
       if (typeof window !== "undefined" && (window as any).gtag) {
         (window as any).gtag("event", "form_submitted", {
