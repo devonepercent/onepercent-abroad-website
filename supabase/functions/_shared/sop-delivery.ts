@@ -1,7 +1,8 @@
 // Shared SOP Vault delivery logic.
 //
-// Both the live PayU browser callback (handle-payu-callback) and the
-// scheduled reconciler (reconcile-payu-payments) deliver the exact same way:
+// Every confirmation path — the Razorpay checkout handler
+// (verify-razorpay-payment), the Razorpay webhook, the scheduled reconciler,
+// and the legacy PayU callback/webhook — delivers the exact same way:
 // generate signed download links, email the buyer + admins, and record the
 // outcome. Keeping this in one place means a paid student is delivered the
 // same PDFs whether they returned to the browser or not.
@@ -46,6 +47,34 @@ export async function sha512(str: string): Promise<string> {
     .join("");
 }
 
+// ── Razorpay ──────────────────────────────────────────────────────────────
+
+export async function hmacSha256Hex(secret: string, message: string): Promise<string> {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"],
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(message));
+  return Array.from(new Uint8Array(sig))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/** Constant-time string comparison for signature checks. */
+export function safeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+export function razorpayAuthHeader(): string {
+  const keyId = Deno.env.get("RAZORPAY_KEY_ID");
+  const keySecret = Deno.env.get("RAZORPAY_KEY_SECRET");
+  if (!keyId || !keySecret) throw new Error("Razorpay credentials not configured");
+  return `Basic ${btoa(`${keyId}:${keySecret}`)}`;
+}
+
 interface SopPurchase {
   id: string;
   email: string;
@@ -54,6 +83,8 @@ interface SopPurchase {
   selected_sop_ids: number[] | null;
   payu_txnid: string | null;
   payu_mihpayid: string | null;
+  razorpay_order_id?: string | null;
+  razorpay_payment_id?: string | null;
   amount: number;
   email_sent: boolean | null;
 }
@@ -132,8 +163,14 @@ function buildAdminEmail(purchase: SopPurchase, label: string, reconciled: boole
     hour: "2-digit", minute: "2-digit", hour12: true,
   });
 
+  const refRow = (k: string, v: string | null | undefined) =>
+    `<tr><td style="padding:8px 0;color:#6B7A99;vertical-align:top;">${k}</td><td style="padding:8px 0;color:#040B2B;font-family:monospace;font-size:12px;">${v ?? "—"}</td></tr>`;
+  const paymentRefRows = purchase.razorpay_order_id
+    ? refRow("Razorpay order ID", purchase.razorpay_order_id) + refRow("Razorpay payment ID", purchase.razorpay_payment_id)
+    : refRow("PayU txn ID", purchase.payu_txnid) + refRow("PayU mihpayid", purchase.payu_mihpayid);
+
   const reconciledBadge = reconciled
-    ? `<div style="margin-top:14px;padding:10px 14px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;font-size:12px;color:#9A3412;line-height:1.5;">Recovered by auto-reconciliation — the buyer did not return to the browser after paying, so this sale was confirmed directly with PayU and the PDFs were delivered automatically.</div>`
+    ? `<div style="margin-top:14px;padding:10px 14px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;font-size:12px;color:#9A3412;line-height:1.5;">Recovered by auto-reconciliation — the buyer did not return to the browser after paying, so this sale was confirmed directly with the payment gateway and the PDFs were delivered automatically.</div>`
     : "";
 
   return `<!DOCTYPE html>
@@ -152,8 +189,7 @@ function buildAdminEmail(purchase: SopPurchase, label: string, reconciled: boole
         <tr><td style="padding:8px 0;color:#6B7A99;vertical-align:top;">Plan</td><td style="padding:8px 0;color:#040B2B;font-weight:600;">${label}</td></tr>
         <tr><td style="padding:8px 0;color:#6B7A99;vertical-align:top;">SOPs purchased</td><td style="padding:8px 0;color:#040B2B;font-weight:600;line-height:1.6;">${sopsList}</td></tr>
         <tr><td style="padding:8px 0;color:#6B7A99;vertical-align:top;">Amount</td><td style="padding:8px 0;color:#040B2B;font-weight:600;">₹${purchase.amount}</td></tr>
-        <tr><td style="padding:8px 0;color:#6B7A99;vertical-align:top;">PayU txn ID</td><td style="padding:8px 0;color:#040B2B;font-family:monospace;font-size:12px;">${purchase.payu_txnid ?? "—"}</td></tr>
-        <tr><td style="padding:8px 0;color:#6B7A99;vertical-align:top;">PayU mihpayid</td><td style="padding:8px 0;color:#040B2B;font-family:monospace;font-size:12px;">${purchase.payu_mihpayid ?? "—"}</td></tr>
+        ${paymentRefRows}
         <tr><td style="padding:8px 0;color:#6B7A99;vertical-align:top;">Time (IST)</td><td style="padding:8px 0;color:#040B2B;font-weight:600;">${istTime}</td></tr>
       </table>
       ${reconciledBadge}
@@ -165,19 +201,31 @@ function buildAdminEmail(purchase: SopPurchase, label: string, reconciled: boole
 </body></html>`;
 }
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+// Resend allows 2 requests/second per account. The buyer + admin emails go
+// out back to back, and the checkout handler and webhook can confirm the same
+// payment at the same moment, so a 429 here is expected — wait and retry
+// instead of recording the buyer email as failed.
 async function sendResend(resendKey: string, payload: Record<string, unknown>): Promise<{ ok: boolean; id: string | null; error: string | null }> {
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: FROM, ...payload }),
-    });
-    const body = await res.json().catch(() => ({}));
-    if (res.ok) return { ok: true, id: body?.id ?? null, error: null };
-    return { ok: false, id: null, error: body?.message || `Resend HTTP ${res.status}` };
-  } catch (err: unknown) {
-    return { ok: false, id: null, error: err instanceof Error ? err.message : "Unknown send error" };
+  let lastError = "Unknown send error";
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ from: FROM, ...payload }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (res.ok) return { ok: true, id: body?.id ?? null, error: null };
+      lastError = body?.message || `Resend HTTP ${res.status}`;
+      if (res.status !== 429 && res.status < 500) break;
+    } catch (err: unknown) {
+      lastError = err instanceof Error ? err.message : "Unknown send error";
+    }
+    await sleep(700 * (attempt + 1));
   }
+  return { ok: false, id: null, error: lastError };
 }
 
 /**
@@ -212,6 +260,18 @@ export async function deliverPurchase(
     return { delivered: false, error: "RESEND_API_KEY not configured" };
   }
 
+  // Atomically claim delivery. A claim older than 2 minutes is treated as
+  // abandoned (the sender crashed) and can be taken over.
+  const staleBefore = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+  const { data: claimed } = await supabase
+    .from("sop_purchases")
+    .update({ delivery_claimed_at: new Date().toISOString() })
+    .eq("id", purchase.id)
+    .eq("email_sent", false)
+    .or(`delivery_claimed_at.is.null,delivery_claimed_at.lt.${staleBefore}`)
+    .select("id");
+  if (!claimed || claimed.length === 0) return { delivered: false, skipped: true };
+
   const label = planLabel(purchase.plan);
   const links = await generateLinks(supabase, sopIdsFor(purchase));
 
@@ -239,6 +299,7 @@ export async function deliverPurchase(
     await supabase.from("sop_purchases").update({
       email_sent: false,
       email_error: buyer.error,
+      delivery_claimed_at: null,
     }).eq("id", purchase.id);
     await supabase.from("sop_events").insert({
       purchase_id: purchase.id,

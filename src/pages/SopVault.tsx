@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { initMetaPixel, trackMetaEvent } from "@/lib/metaPixel";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
@@ -7,6 +7,25 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as strin
 
 const PRICE = 199;
 const OLD_PRICE = 799;
+
+// Razorpay Checkout is loaded on demand so the page doesn't pay for it up front.
+type RazorpayInstance = { open: () => void; on: (event: string, cb: (res: unknown) => void) => void };
+declare global {
+  interface Window { Razorpay?: new (options: Record<string, unknown>) => RazorpayInstance }
+}
+
+let razorpayScript: Promise<void> | null = null;
+const loadRazorpay = () => {
+  if (window.Razorpay) return Promise.resolve();
+  razorpayScript ??= new Promise<void>((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = "https://checkout.razorpay.com/v1/checkout.js";
+    s.onload = () => resolve();
+    s.onerror = () => { razorpayScript = null; reject(new Error("Could not load the payment window. Check your connection and try again.")); };
+    document.body.appendChild(s);
+  });
+  return razorpayScript;
+};
 
 const img = (id: string, ext = "jpg") => `/sop-vault/${id}.${ext}`;
 
@@ -39,7 +58,7 @@ const faqs = [
   },
   {
     q: "How do I receive the files?",
-    a: "The PDFs are emailed to you as soon as your PayU payment clears. No account, no login. Links stay live for 7 days, so save the PDFs to your device.",
+    a: "The PDFs are emailed to you as soon as your payment clears. No account, no login. Links stay live for 7 days, so save the PDFs to your device.",
   },
   {
     q: "Is there a refund policy?",
@@ -226,6 +245,7 @@ const SopVault = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const navigate = useNavigate();
   const [payError, setPayError] = useState("");
 
   useEffect(() => {
@@ -248,13 +268,6 @@ const SopVault = () => {
       value: PRICE,
       currency: "INR",
     });
-  }, []);
-
-  // Coming back from PayU with the browser back button restores the page from cache
-  useEffect(() => {
-    const onShow = () => setIsProcessing(false);
-    window.addEventListener("pageshow", onShow);
-    return () => window.removeEventListener("pageshow", onShow);
   }, []);
 
   const openBuyModal = () => {
@@ -288,44 +301,45 @@ const SopVault = () => {
     });
 
     try {
-      const hashRes = await fetch(`${SUPABASE_URL}/functions/v1/generate-payu-hash`, {
+      const orderRes = await fetch(`${SUPABASE_URL}/functions/v1/create-razorpay-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
-        body: JSON.stringify({
-          email: cleanEmail,
-          phone: cleanPhone,
-          plan: "full",
-          selected_sop_ids: [],
-          amount: PRICE,
-        }),
+        body: JSON.stringify({ email: cleanEmail, phone: cleanPhone, plan: "full" }),
       });
-      const hashData = await hashRes.json();
-      if (!hashData.success) throw new Error(hashData.error || "Payment initialisation failed");
+      const order = await orderRes.json();
+      if (!order.success) throw new Error(order.error || "Payment initialisation failed");
 
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = "https://secure.payu.in/_payment";
-      const fields: Record<string, string> = {
-        key: hashData.key,
-        txnid: hashData.txnid,
-        amount: hashData.amount,
-        productinfo: hashData.productinfo,
-        firstname: hashData.firstname,
-        email: hashData.email,
-        phone: hashData.phone,
-        surl: hashData.surl,
-        furl: hashData.furl,
-        hash: hashData.hash,
-      };
-      for (const [name, value] of Object.entries(fields)) {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = name;
-        input.value = value;
-        form.appendChild(input);
-      }
-      document.body.appendChild(form);
-      form.submit();
+      await loadRazorpay();
+      if (!window.Razorpay) throw new Error("Could not load the payment window. Please try again.");
+
+      const rzp = new window.Razorpay({
+        key: order.key,
+        order_id: order.order_id,
+        amount: order.amount,
+        currency: order.currency,
+        name: "OnePercent Abroad",
+        description: order.description,
+        prefill: { email: order.email, contact: order.phone },
+        theme: { color: "#040B2B" },
+        handler: async (res: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
+          // Even if this call fails, the money is captured and razorpay-webhook
+          // delivers the PDFs, so the buyer always lands on "check your email".
+          try {
+            await fetch(`${SUPABASE_URL}/functions/v1/verify-razorpay-payment`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+              body: JSON.stringify(res),
+            });
+          } finally {
+            navigate("/product/sop-vault/success");
+          }
+        },
+        modal: { ondismiss: () => setIsProcessing(false) },
+      });
+      rzp.on("payment.failed", () => {
+        setPayError("Payment didn't go through. Please try again. If money was deducted, your bank refunds it automatically.");
+      });
+      rzp.open();
     } catch (error) {
       setPayError(error instanceof Error ? error.message : "Failed to initialise payment. Please try again.");
       setIsProcessing(false);
@@ -554,12 +568,12 @@ const SopVault = () => {
             <div className="methods" aria-label="Payment methods"><span>UPI</span><span>Cards</span><span>Net banking</span></div>
 
             <button type="submit" className="cta beam" disabled={isProcessing}>
-              {isProcessing ? "Redirecting to PayU…" : `Pay ₹${PRICE} and get the PDFs`}
+              {isProcessing ? "Opening secure checkout…" : `Pay ₹${PRICE} and get the PDFs`}
             </button>
             {payError && <div className="pay-error" role="alert">{payError}</div>}
 
             <div className="muted" style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center", textAlign: "center", fontSize: 12, lineHeight: "18px" }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 6 }}><LockIcon color="#4a5272" size={14} />Secured by PayU · Safe and encrypted</span>
+              <span style={{ display: "flex", alignItems: "center", gap: 6 }}><LockIcon color="#4a5272" size={14} />Secured by Razorpay · UPI, cards, netbanking</span>
               <span>By paying you agree to the <button type="button" className="linkbtn" style={{ fontSize: 12 }} onClick={() => setTermsOpen(true)}>usage terms</button>.</span>
             </div>
           </form>

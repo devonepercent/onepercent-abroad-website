@@ -9,10 +9,14 @@
 // stuck pending purchase, whether the payment actually succeeded, then marks
 // it and delivers the PDFs. Delivery is idempotent, so a payment confirmed by
 // both the live callback and this reconciler is only ever emailed once.
+//
+// Razorpay purchases (the SOP Vault's current gateway) are reconciled the same
+// way, by asking Razorpay for a captured payment on the order.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { sha512, deliverPurchase } from "../_shared/sop-delivery.ts";
+import { completeRazorpayPurchase, findCapturedPayment } from "../_shared/sop-razorpay.ts";
 
 // PayU "verify_payment" status values, normalised.
 const SUCCESS_STATES = new Set(["success", "captured"]);
@@ -63,9 +67,9 @@ serve(async (req) => {
       return json({ success: false, error: "Unauthorized" }, 401);
     }
 
+    // PayU credentials are only needed for legacy pending PayU rows.
     const key  = Deno.env.get("PAYU_MERCHANT_KEY");
     const salt = Deno.env.get("PAYU_MERCHANT_SALT");
-    if (!key || !salt) return json({ success: false, error: "PayU credentials not configured" }, 500);
 
     const resendKey = Deno.env.get("RESEND_API_KEY");
     const supabase = createClient(supabaseUrl, serviceKey);
@@ -106,7 +110,7 @@ serve(async (req) => {
       .from("sop_purchases")
       .select("*")
       .eq("status", "completed")
-      .eq("source", "payu")
+      .in("source", ["payu", "razorpay"])
       .eq("email_sent", false)
       .lt("created_at", olderThan)
       .gt("created_at", emailRetryFrom)
@@ -114,10 +118,46 @@ serve(async (req) => {
       .limit(50);
     if (unsentErr) throw unsentErr;
 
+    // Case 3 — Razorpay order still pending (buyer never came back and the
+    // webhook has not landed). Razorpay keeps order history, so the same
+    // 14-day window is plenty.
+    const { data: rzpRows, error: rzpErr } = await supabase
+      .from("sop_purchases")
+      .select("*")
+      .eq("status", "pending")
+      .eq("source", "razorpay")
+      .eq("email_sent", false)
+      .not("razorpay_order_id", "is", null)
+      .lt("created_at", olderThan)
+      .gt("created_at", payuVerifyFrom)
+      .order("created_at", { ascending: true })
+      .limit(50);
+    if (rzpErr) throw rzpErr;
+
     const summary = { checked: 0, delivered: 0, failed: 0, stillPending: 0, errors: 0 };
 
+    for (const purchase of rzpRows ?? []) {
+      summary.checked++;
+      try {
+        const paymentId = await findCapturedPayment(purchase.razorpay_order_id as string);
+        if (!paymentId) {
+          // Abandoned or still in progress; leave pending, it ages out.
+          summary.stillPending++;
+          continue;
+        }
+        const result = await completeRazorpayPurchase(
+          supabase, purchase.razorpay_order_id as string, paymentId, "reconciler",
+        );
+        if (result.delivered) summary.delivered++;
+      } catch (e) {
+        summary.errors++;
+        console.error(`razorpay reconcile failed for ${purchase.razorpay_order_id}:`, e instanceof Error ? e.message : e);
+      }
+    }
+
     // Deliver-only rows first (cheap, no PayU), then the verify path.
-    for (const purchase of [...(unsentRows ?? []), ...(pendingRows ?? [])]) {
+    const payuPending = key && salt ? (pendingRows ?? []) : [];
+    for (const purchase of [...(unsentRows ?? []), ...payuPending]) {
       summary.checked++;
 
       // Payment already confirmed, only the email failed — deliver straight
@@ -136,7 +176,7 @@ serve(async (req) => {
 
       let detail: PayuTxnDetail | null;
       try {
-        detail = await verifyTxn(key, salt, txnid);
+        detail = await verifyTxn(key!, salt!, txnid);
       } catch (e) {
         summary.errors++;
         console.error(`verify failed for ${txnid}:`, e instanceof Error ? e.message : e);
