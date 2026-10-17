@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import { ErasmusLoader, PhotoCollage, StarRing } from "@/components/ErasmusHeroBackdrop";
 import { supabase } from "@/integrations/supabase/client";
 import { inclusions, PRICE, successStories, SuccessStory } from "@/lib/erasmusData";
-import { trackMetaEvent } from "@/lib/metaPixel";
+import { getMetaMatchData, trackMetaEvent } from "@/lib/metaPixel";
 
 const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
 const programmesPath = "/application/erasmus/programs";
@@ -396,8 +396,26 @@ const FormSection = ({ variant = "section" }: { variant?: "section" | "hero" }) 
     }
     setSubmitting(true);
     try {
+      // The row is forwarded to the CRM, so carry the ad attribution with it: the
+      // utm_* tags from the ad's landing URL, plus the Meta ids the CRM later uses
+      // to report Interested leads back (meta_event_id dedups against the Pixel Lead).
+      const params = new URLSearchParams(window.location.search);
+      const utm = (k: string) => params.get(k)?.trim() || null;
+      const metaEventId = crypto.randomUUID();
       const { error: insertError } = await supabase.from("erasmus_call_requests" as never)
-        .insert({ name: name.trim(), phone: phone.trim(), source: "erasmus" } as never);
+        .insert({
+          name: name.trim(),
+          phone: phone.trim(),
+          source: "erasmus",
+          form_location: variant === "hero" ? "hero" : "section",
+          utm_source: utm("utm_source"),
+          utm_medium: utm("utm_medium"),
+          utm_campaign: utm("utm_campaign"),
+          utm_adset: utm("utm_adset"),
+          utm_ad: utm("utm_ad"),
+          ...getMetaMatchData(),
+          meta_event_id: metaEventId,
+        } as never);
       if (insertError) throw insertError;
       // Ads conversion. Parameterised so the Erasmus campaign can be optimised on
       // its own custom conversion — /get-started fires a bare Lead on the same pixel.
@@ -405,7 +423,7 @@ const FormSection = ({ variant = "section" }: { variant?: "section" | "hero" }) 
         content_name: "Erasmus Callback Request",
         content_category: "erasmus",
         form_location: variant === "hero" ? "hero" : "section",
-      });
+      }, { eventID: metaEventId });
       setSubmitted(true);
     } catch {
       setError("We couldn't send your request. Please try again. Your details are still here.");
