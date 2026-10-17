@@ -1,6 +1,6 @@
 // Initiates an Erasmus application checkout: validates the cart server-side,
 // creates a pending erasmus_purchases row and returns signed PayU form fields.
-// The amount is ALWAYS computed here (items × PRICE) — never trusted from the client.
+// The amount is ALWAYS computed here (flat PRICE) — never trusted from the client.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -9,8 +9,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const PRICE = 9900; // flat fee per application, INR
-const MAX_ITEMS = 10;
+const PRICE = 60000; // flat mentorship package fee (up to MAX_ITEMS applications), INR
+const MAX_ITEMS = 3;
 
 async function sha512(str: string): Promise<string> {
   const data = new TextEncoder().encode(str);
@@ -69,11 +69,11 @@ serve(async (req) => {
     );
 
     const numItems = cleanItems.length;
-    const amount = numItems * PRICE; // server-side price — client value ignored
+    const amount = PRICE; // server-side price — client value ignored
     const amountStr = amount.toFixed(2);
 
     const txnid = `erz_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    const productinfo = `Erasmus Application Filing x ${numItems}`;
+    const productinfo = `Erasmus Mentorship Package x ${numItems}`;
     const firstname =
       (String(name ?? "").replace(/[^a-zA-Z0-9 ]/g, "").trim().slice(0, 40)) ||
       (email.split("@")[0].replace(/[^a-zA-Z0-9]/g, "").slice(0, 20)) ||

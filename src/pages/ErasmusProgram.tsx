@@ -1,12 +1,12 @@
 import { useEffect } from "react";
-import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import Footer from "@/components/Footer";
 import ErasmusTopBar from "@/components/ErasmusTopBar";
-import { findProgram, inclusions, suggestionsFor, PRICE } from "@/lib/erasmusData";
+import { findProgram, inclusions, suggestionsFor, PRICE, MAX_PROGRAMS } from "@/lib/erasmusData";
 import { styleFor } from "@/lib/erasmusIcons";
-import { useErasmusCart } from "@/lib/erasmusCart";
 
 const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
+const COUNSELLOR_PATH = "/application/erasmus#erasmus-form";
 
 const PAGE_CSS = `
 .font-poppins { font-family: Poppins, sans-serif; }
@@ -23,8 +23,6 @@ const GreenTick = () => (
 
 const ErasmusProgram = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { has, add } = useErasmusCart();
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -45,7 +43,6 @@ const ErasmusProgram = () => {
   if (!prog) return <Navigate to="/application/erasmus/programs" replace />;
 
   const { Icon, color, bg } = styleFor(prog.category);
-  const inCart = has(prog.id);
   const related = suggestionsFor(prog, 4);
 
   return (
@@ -95,32 +92,18 @@ const ErasmusProgram = () => {
           <div className="md:sticky md:top-20 h-fit bg-white border border-[#DCE7F6] rounded-2xl p-6">
             <div className="flex items-baseline gap-2">
               <span className="font-inter font-bold text-[34px] tracking-tight">{inr(PRICE)}</span>
-              <span className="font-inter text-[13px] text-[#6B7A99]">per application</span>
+              <span className="font-inter text-[13px] text-[#6B7A99]">mentorship package</span>
             </div>
             <div className="font-inter text-[13px] text-[#6B7A99] mt-1 mb-5">
-              All-inclusive · agencies charge <span className="line-through">₹25,000+</span>
+              Covers up to {MAX_PROGRAMS} programme applications · no payment needed to get started
             </div>
 
-            {inCart ? (
-              <>
-                <div className="w-full text-center font-poppins font-semibold text-[15px] text-[#065DC7] border-2 border-[#065DC7] rounded-[56px] py-4 mb-3 bg-[#EBF2FF]">
-                  ✓ In your cart
-                </div>
-                <button
-                  onClick={() => navigate("/application/erasmus/checkout")}
-                  className="w-full bg-37 text-white font-poppins font-semibold text-[15px] rounded-[56px] py-4"
-                >
-                  Go to Cart →
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={() => add(prog)}
-                className="w-full bg-37 text-white font-poppins font-semibold text-[15px] rounded-[56px] py-4"
-              >
-                Add to Cart
-              </button>
-            )}
+            <Link
+              to={COUNSELLOR_PATH}
+              className="block w-full text-center bg-37 text-white font-poppins font-semibold text-[15px] rounded-[56px] py-4"
+            >
+              Talk to a counsellor — free
+            </Link>
 
             <p className="font-inter text-[12px] text-[#6B7A99] text-center mt-4 leading-5">
               The EU allows scholarship applications to a maximum of 3 programmes per intake.

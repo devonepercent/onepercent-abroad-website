@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, CheckCircle2, ChevronDown, FileCheck2, FilePenLine, Headphones, Pause, Play, Quote, Volume2, VolumeX } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, ChevronDown, FileCheck2, FilePenLine, Headphones, Quote, UserRound } from "lucide-react";
 import "./ApplicationErasmus.css";
 import logoWhite from "@/assets/logo-white.png";
 import Footer from "@/components/Footer";
+import { ErasmusLoader, PhotoCollage, StarRing } from "@/components/ErasmusHeroBackdrop";
 import { supabase } from "@/integrations/supabase/client";
-import { inclusions, PRICE } from "@/lib/erasmusData";
+import { inclusions, PRICE, successStories, SuccessStory } from "@/lib/erasmusData";
 import { trackMetaEvent } from "@/lib/metaPixel";
 
 const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
@@ -23,80 +24,40 @@ const useIsDesktop = () => {
   return isDesktop;
 };
 
-// Desktop pairs the campus backdrop with the callback form; mobile keeps the
-// full-bleed video hero and its playback controls.
-const HeroSection = ({ isDesktop }: { isDesktop: boolean }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [playing, setPlaying] = useState(false);
-  const [muted, setMuted] = useState(true);
-  const [videoFailed, setVideoFailed] = useState(false);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const sync = () => {
-      if (preference.matches) video.pause();
-      else void video.play().catch(() => setPlaying(false));
-    };
-    sync();
-    preference.addEventListener("change", sync);
-    return () => preference.removeEventListener("change", sync);
-  }, [isDesktop]);
-
-  const togglePlayback = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (video.paused) void video.play().catch(() => setPlaying(false));
-    else video.pause();
-  };
-
-  const toggleSound = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    const next = !video.muted;
-    video.muted = next;
-    setMuted(next);
-  };
-
-  return <section className="erz-video-hero" aria-labelledby="erasmus-title">
-    <div className="erz-speaker-frame">
-      {!isDesktop && <video ref={videoRef} className="erz-hero-video" muted={muted} loop playsInline preload="metadata" poster="/erasmus-hero.jpg" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onVolumeChange={event => setMuted(event.currentTarget.muted)} onError={() => setVideoFailed(true)} aria-label="Erasmus study abroad film">
-        <source src="/erasmus-hero.mp4" type="video/mp4" onError={() => setVideoFailed(true)} />
-      </video>}
-    </div>
-    <div className="erz-container erz-hero-layout">
+// EU-blue hero: a shifting collage of admitted students behind a twinkling
+// twelve-star ring. Desktop adds the callback form on the right.
+const HeroSection = ({ isDesktop }: { isDesktop: boolean }) => <section className="erz-video-hero" aria-labelledby="erasmus-title">
+  <div className="erz-speaker-frame"><PhotoCollage /></div>
+  <div className="erz-container erz-hero-layout">
+    <div className="erz-hero-copy">
+    <StarRing />
     <div className="erz-hero-content">
       <span className="erz-eyebrow">YOUR NEXT CHAPTER</span>
       <h1 id="erasmus-title">Apply for an <em>Erasmus Mundus</em> master’s.</h1>
-      <p>Get help with your shortlist, documents and application.</p>
+      <p>A dedicated <strong className="erz-hero-mentor">1:1 mentor</strong> guides your shortlist, documents and applications.</p>
     </div>
     <div className="erz-hero-actions">
       <a className="erz-button erz-primary" href="#erasmus-form">Talk to an expert — free <ArrowRight size={18} /></a>
       <Link className="erz-hero-link" to={programmesPath}>Browse programmes <ArrowRight size={16} /></Link>
     </div>
-    {isDesktop && <FormSection variant="hero" />}
     </div>
-    {!isDesktop && !videoFailed && <div className="erz-video-controls" aria-label="Video controls">
-      <button type="button" onClick={togglePlayback} aria-label={playing ? "Pause video" : "Play video"}>{playing ? <Pause size={18} /> : <Play size={18} />}</button>
-      <button type="button" onClick={toggleSound} aria-label={muted ? "Unmute video" : "Mute video"} aria-pressed={!muted}>{muted ? <VolumeX size={18} /> : <Volume2 size={18} />}</button>
-    </div>}
-  </section>;
-};
+    {isDesktop && <FormSection variant="hero" />}
+  </div>
+</section>;
 
 // Exact excerpts and full reviews from the site's existing student testimonials.
 const reviews = [
   {
     name: "Sisa Maria Sunny",
     programme: "Journalism, Media and Globalization",
-    image: "/images/testimonials/SISA MARIA SUNNY.png",
+    image: "/images/erasmus-stories/sisa-mariya.webp",
     excerpt: "They helped me with my confidence and cleared my self-doubts in all stages, it has been very helpful.",
     full: "I never thought that I could achieve this. I have approached many agencies, and I finally came to 1%abroad. They helped me with my confidence and cleared my self-doubts in all stages, it has been very helpful.",
   },
   {
     name: "Amaresh",
     programme: "EMINENT",
-    image: "/images/testimonials/AMARESH.png",
+    image: "/images/erasmus-stories/amaresh.webp",
     excerpt: "They also helped in practical ways and kept me clocked in with the deadlines.",
     full: "Mentorship helped me in shortlisting courses, to understand what is realistically possible for me to achieve. They also helped in practical ways and kept me clocked in with the deadlines.",
   },
@@ -112,12 +73,211 @@ const ReviewsSection = () => <section id="stories" className="erz-reviews erz-co
   </article>)}</div>
 </section>;
 
+const initials = (name: string) => name.split(" ").filter(Boolean).slice(0, 2).map(w => w[0]).join("").toUpperCase();
+
+// Headline numbers derived from the stories themselves, so they never drift.
+const stats = [
+  { value: successStories.length, label: "students selected" },
+  { value: new Set(successStories.map(s => s.code ?? s.programme)).size, label: "Erasmus programmes" },
+  { value: successStories.filter(s => /scholarship/i.test(s.achievement)).length, label: "with scholarships" },
+];
+
+const AUTO_SPEED = 32; // px per second the results row drifts
+const AUTO_RESUME = 2500; // ms after the last interaction before drifting again
+const DRAG_START = 6; // px of sideways movement before a touch becomes a drag
+
+const StoryCard = ({ story, clone }: { story: SuccessStory; clone?: boolean }) => <article className="erz-story" role={clone ? undefined : "listitem"} aria-hidden={clone || undefined}>
+  <div className="erz-story-photo">
+    {story.image ? <img src={story.image} alt={clone ? "" : story.name} width="320" height="320" draggable={false} /> : <span className="erz-story-initials" aria-hidden="true">{initials(story.name)}</span>}
+    {story.code && <span className="erz-story-code">{story.code}</span>}
+  </div>
+  <div className="erz-story-body">
+    <span className="erz-story-chip">{story.achievement}</span>
+    <h3>{story.name}</h3>
+    <p>{story.programme}</p>
+  </div>
+</article>;
+
+// Mobile-first: a photo row that drifts on its own and loops forever.
+// The row is moved with a GPU transform (sub-pixel smooth) rather than by
+// scrolling. The cards are rendered twice and the offset wraps by one set
+// width, which is invisible because both sets look identical. Visitors can
+// drag or swipe it (with momentum); touch, hover or focus pauses the drift.
+const StoriesSection = () => {
+  const viewport = useRef<HTMLDivElement>(null);
+  const track = useRef<HTMLDivElement>(null);
+  const motion = useRef({ offset: 0, velocity: 0, target: null as number | null, pausedUntil: 0, hover: false, step: 0 });
+  const pause = () => { motion.current.pausedUntil = Date.now() + AUTO_RESUME; };
+
+  // Arrow buttons glide roughly one screen of cards, landing on a card edge.
+  const page = (dir: number) => {
+    const m = motion.current;
+    const vp = viewport.current;
+    if (!vp || !m.step) return;
+    pause();
+    m.velocity = 0;
+    const cards = Math.max(1, Math.floor((vp.clientWidth * 0.8) / m.step));
+    m.target = Math.round((m.target ?? m.offset) / m.step) * m.step + dir * cards * m.step;
+  };
+
+  useEffect(() => {
+    const vp = viewport.current;
+    const tr = track.current;
+    if (!vp || !tr) return;
+    const m = motion.current;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let setWidth = 0;
+    const measure = () => {
+      const first = tr.children[0] as HTMLElement | undefined;
+      const clone = tr.children[successStories.length] as HTMLElement | undefined;
+      setWidth = first && clone ? clone.offsetLeft - first.offsetLeft : 0;
+      m.step = setWidth / successStories.length;
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(tr);
+    let onScreen = false;
+    const io = new IntersectionObserver(([entry]) => { onScreen = entry.isIntersecting; });
+    io.observe(vp);
+
+    // Dragging and swiping. touch-action: pan-y leaves vertical page scrolling to the browser.
+    let drag: { id: number; x: number; y: number; offset: number; lastX: number; lastT: number; active: boolean } | null = null;
+    const down = (e: PointerEvent) => {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      drag = { id: e.pointerId, x: e.clientX, y: e.clientY, offset: m.offset, lastX: e.clientX, lastT: performance.now(), active: false };
+      m.velocity = 0;
+      m.target = null;
+      pause();
+    };
+    const move = (e: PointerEvent) => {
+      if (e.pointerType === "mouse") m.hover = true;
+      if (!drag || e.pointerId !== drag.id) return;
+      const dx = e.clientX - drag.x;
+      if (!drag.active) {
+        if (Math.abs(dx) < DRAG_START || Math.abs(dx) < Math.abs(e.clientY - drag.y)) return;
+        drag.active = true;
+        vp.setPointerCapture(e.pointerId);
+        vp.classList.add("is-dragging");
+      }
+      const now = performance.now();
+      const dt = Math.max(now - drag.lastT, 1);
+      m.velocity = 0.8 * (-(e.clientX - drag.lastX) / dt) * 1000 + 0.2 * m.velocity;
+      drag.lastX = e.clientX;
+      drag.lastT = now;
+      m.offset = drag.offset - dx;
+      pause();
+    };
+    const up = (e: PointerEvent) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      if (!drag.active || performance.now() - drag.lastT > 80) m.velocity = 0;
+      drag = null;
+      vp.classList.remove("is-dragging");
+      pause();
+    };
+    const leave = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse") return;
+      m.hover = false;
+      m.pausedUntil = Math.min(m.pausedUntil, Date.now() + 600);
+    };
+    // Trackpad sideways swipes move the row; plain vertical wheel still scrolls the page.
+    const wheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      m.target = null;
+      m.velocity = 0;
+      m.offset += e.deltaX;
+      pause();
+    };
+    vp.addEventListener("pointerdown", down);
+    vp.addEventListener("pointermove", move);
+    vp.addEventListener("pointerup", up);
+    vp.addEventListener("pointercancel", up);
+    vp.addEventListener("pointerleave", leave);
+    vp.addEventListener("wheel", wheel, { passive: false });
+    vp.addEventListener("focusin", pause);
+
+    let raf = 0;
+    let last = performance.now();
+    let drawn = NaN;
+    const tick = (now: number) => {
+      const dt = Math.min(now - last, 50) / 1000;
+      last = now;
+      if (!drag?.active) {
+        if (m.target !== null) {
+          // Ease towards the arrow-button target.
+          const d = m.target - m.offset;
+          m.offset += d * Math.min(1, dt * 9);
+          if (Math.abs(d) < 0.5) { m.offset = m.target; m.target = null; }
+        } else if (Math.abs(m.velocity) > 8) {
+          // Momentum after a swipe, decaying smoothly.
+          m.offset += m.velocity * dt;
+          m.velocity *= Math.pow(0.03, dt);
+        } else if (!reduced && onScreen && !document.hidden && !m.hover && Date.now() > m.pausedUntil) {
+          m.velocity = 0;
+          m.offset += AUTO_SPEED * dt;
+        }
+      }
+      // Keep the offset inside one set; shift drag and target references with it.
+      if (setWidth && (m.offset >= setWidth || m.offset < 0)) {
+        const shift = Math.floor(m.offset / setWidth) * setWidth;
+        m.offset -= shift;
+        if (m.target !== null) m.target -= shift;
+        if (drag) drag.offset -= shift;
+      }
+      if (m.offset !== drawn) {
+        tr.style.transform = `translate3d(${-m.offset}px, 0, 0)`;
+        drawn = m.offset;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      io.disconnect();
+      vp.removeEventListener("pointerdown", down);
+      vp.removeEventListener("pointermove", move);
+      vp.removeEventListener("pointerup", up);
+      vp.removeEventListener("pointercancel", up);
+      vp.removeEventListener("pointerleave", leave);
+      vp.removeEventListener("wheel", wheel);
+      vp.removeEventListener("focusin", pause);
+    };
+  }, []);
+
+  return <section id="results" className="erz-results erz-section">
+    <div className="erz-container erz-results-head">
+      <div><span className="erz-label">ERASMUS MUNDUS RESULTS</span><h2>Our students, selected.</h2></div>
+      <div className="erz-carousel-nav">
+        <button type="button" onClick={() => page(-1)} aria-label="Previous students"><ArrowLeft size={18} /></button>
+        <button type="button" onClick={() => page(1)} aria-label="Next students"><ArrowRight size={18} /></button>
+      </div>
+    </div>
+    <dl className="erz-container erz-stats">{stats.map(stat => <div key={stat.label}><dt>{stat.label}</dt><dd>{stat.value}</dd></div>)}</dl>
+    <div className="erz-story-viewport" ref={viewport}>
+      <div className="erz-story-track" ref={track} role="list" aria-label="Erasmus Mundus success stories">
+        {successStories.map(story => <StoryCard story={story} key={story.name} />)}
+        {successStories.map(story => <StoryCard story={story} clone key={`${story.name}-clone`} />)}
+      </div>
+    </div>
+    <p className="erz-container erz-swipe-hint" aria-hidden="true">Swipe to see more <ArrowRight size={14} /></p>
+  </section>;
+};
+
 const OfferSection = () => <section id="support" className="erz-offer-section"><div className="erz-container erz-section">
-  <div className="erz-offer-top"><div><span className="erz-label">APPLICATION SUPPORT</span><h2>Less paperwork.<br />More support.</h2></div><div className="erz-price"><strong>{inr(PRICE)}</strong><span>per programme application</span></div></div>
+  <div className="erz-offer-top"><div><span className="erz-label">APPLICATION SUPPORT</span><h2>Less paperwork.<br />More support.</h2></div><div className="erz-price"><strong>{inr(PRICE)}</strong><span>mentorship + up to 3 programme applications</span></div></div>
+  <article className="erz-mentor">
+    <span className="erz-mentor-icon"><UserRound size={28} aria-hidden="true" /></span>
+    <div>
+      <span className="erz-mentor-tag">At the heart of the package</span>
+      <h3>Your own 1:1 mentor</h3>
+      <p>One mentor works with you personally from shortlisting programmes to submitting every application, so you always know what to do next.</p>
+    </div>
+  </article>
   <div className="erz-benefits">{[
     { Icon: FilePenLine, title: "Tell your story", copy: "SOP and recommendation-letter support" },
     { Icon: FileCheck2, title: "Get application-ready", copy: "Document checks and application filing" },
-    { Icon: Headphones, title: "Stay on track", copy: "Deadline tracking and mentor support" },
+    { Icon: Headphones, title: "Stay on track", copy: "Every intake and deadline tracked for you" },
   ].map(({ Icon, title, copy }) => <article key={title}><Icon size={25} aria-hidden="true" /><h3>{title}</h3><p>{copy}</p></article>)}</div>
   <details className="erz-inclusions"><summary>See everything included <ChevronDown size={18} /></summary><div>{inclusions.map(item => <article key={item.title}><h3>{item.title}</h3><p>{item.desc}</p></article>)}</div></details>
   <div className="erz-offer-actions"><Link to={programmesPath} className="erz-button erz-dark">Choose your programmes <ArrowRight size={18} /></Link><p>Need help choosing? <a href="#erasmus-form">Talk to us for free.</a></p></div>
@@ -125,7 +285,7 @@ const OfferSection = () => <section id="support" className="erz-offer-section"><
 
 const faqs = [
   { q: "Am I eligible?", a: "Each programme has its own degree, subject and English-language requirements. Talk to us about your background so we can help you check your options." },
-  { q: `What does ${inr(PRICE)} include?`, a: "Support for one application: your SOP, recommendation letters, document checklist, filing, deadline tracking and a dedicated mentor. Each additional programme is a separate application." },
+  { q: `What does ${inr(PRICE)} include?`, a: "One mentorship package covering up to 3 programme applications (the maximum the EU allows per intake): a dedicated mentor, SOPs, recommendation letters, document checklists, filing and deadline tracking for each programme." },
   { q: "When should I apply?", a: "Deadlines vary by programme and intake. Our team can help you check the dates and plan your documents for the programmes you choose." },
   { q: "Is a scholarship guaranteed?", a: "No. We help you prepare and submit your application. Each programme makes its own admission and scholarship decisions." },
 ];
@@ -147,18 +307,22 @@ const ApplicationErasmus = () => {
       }
       setShowMobileCta(!heroVisible && !formVisible);
     });
+    // Arriving from a programme page's "Talk to a counsellor" link.
+    if (window.location.hash === "#erasmus-form") form?.scrollIntoView({ block: "center" });
     if (hero) observer.observe(hero);
     if (form) observer.observe(form);
     return () => { document.title = previousTitle; observer.disconnect(); };
   }, [isDesktop]);
 
   return <main className="erasmus-page">
+    <ErasmusLoader />
     <header className="erz-header"><div className="erz-container">
       <Link to="/" aria-label="OnePercent Abroad home"><img src={logoWhite} alt="OnePercent Abroad" width="150" height="40" /></Link>
-      <nav aria-label="Erasmus navigation"><a href="#stories">Student reviews</a><a href="#support">What’s included</a><a href="#FaqSection">FAQs</a></nav>
+      <nav aria-label="Erasmus navigation"><a href="#results">Results</a><a href="#stories">Student reviews</a><a href="#support">What’s included</a><a href="#FaqSection">FAQs</a></nav>
       <a className="erz-header-cta" href="#erasmus-form">Free consultation <ArrowRight size={16} /></a>
     </div></header>
     <HeroSection isDesktop={isDesktop} />
+    <StoriesSection />
     <ReviewsSection />
     <OfferSection />
     {!isDesktop && <section className="erz-container erz-section erz-contact-section"><div className="erz-contact-copy"><span className="erz-label">LET’S TALK</span><h2>Not sure where<br />to start?</h2><p>Tell us a little about yourself.<br />Our team will call to discuss your options.</p><span className="erz-free-note"><CheckCircle2 size={18} /> Free consultation. No payment needed.</span></div><FormSection /></section>}

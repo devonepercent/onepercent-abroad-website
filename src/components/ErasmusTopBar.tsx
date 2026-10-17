@@ -1,16 +1,14 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, ShoppingCart } from "lucide-react";
+import { ArrowLeft, PhoneCall } from "lucide-react";
 import logoBlue from "@/assets/logo-blue.png";
-import { useErasmusCart } from "@/lib/erasmusCart";
 
 interface Props {
-  /** When set, a back button replaces the logo (course / cart pages). */
+  /** When set, a back button replaces the logo (programme pages). */
   back?: { to: string; label?: string };
 }
 
-// Shared top bar for the erasmus browse / programme / cart pages.
+// Shared top bar for the erasmus browse / programme pages.
 const ErasmusTopBar = ({ back }: Props) => {
-  const { count } = useErasmusCart();
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-[#DCE7F6] px-4 md:px-8 py-3 flex items-center justify-between">
       {back ? (
@@ -28,23 +26,19 @@ const ErasmusTopBar = ({ back }: Props) => {
           </Link>
           <Link
             to="/application/erasmus"
-            className="hidden sm:block text-[13px] font-inter font-medium text-[#6B7A99] hover:text-[#065DC7]"
+            className="hidden sm:inline-flex items-center gap-1 text-[13px] font-inter font-medium text-[#6B7A99] hover:text-[#065DC7]"
           >
-            ← Erasmus Home
+            <ArrowLeft size={14} />
+            Erasmus Home
           </Link>
         </div>
       )}
       <Link
-        to="/application/erasmus/checkout"
-        className="relative inline-flex items-center gap-2 bg-[#040B2B] text-white font-inter font-semibold text-[14px] px-5 py-2.5 rounded-full"
+        to="/application/erasmus#erasmus-form"
+        className="inline-flex items-center gap-2 bg-[#040B2B] text-white font-inter font-semibold text-[14px] px-5 py-2.5 rounded-full"
       >
-        <ShoppingCart size={16} />
-        Cart
-        {count > 0 && (
-          <span className="min-w-[20px] h-5 px-1 rounded-full bg-white text-[#040B2B] text-[11px] font-bold flex items-center justify-center">
-            {count}
-          </span>
-        )}
+        <PhoneCall size={16} />
+        Talk to a counsellor
       </Link>
     </header>
   );

@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import Index from "./pages/Index";
 import Webinar from "./pages/Webinar";
@@ -33,12 +33,8 @@ import SopVaultSuccess from "./pages/SopVaultSuccess";
 import SopVaultFeedback from "./pages/SopVaultFeedback";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ApplicationErasmus from "./pages/ApplicationErasmus";
-import ErasmusCheckout from "./pages/ErasmusCheckout";
-import ErasmusCheckoutSuccess from "./pages/ErasmusCheckoutSuccess";
-import ErasmusCheckoutFailure from "./pages/ErasmusCheckoutFailure";
 import ErasmusPrograms from "./pages/ErasmusPrograms";
 import ErasmusProgram from "./pages/ErasmusProgram";
-import { ErasmusCartProvider } from "./lib/erasmusCart";
 import { initMetaPixel, trackMetaEvent } from "./lib/metaPixel";
 
 const queryClient = new QueryClient();
@@ -90,20 +86,11 @@ const AppRoutes = () => {
       <Route path="/product/sop-vault" element={<SopVault />} />
       <Route path="/product/sop-vault/success" element={<SopVaultSuccess />} />
       <Route path="/product/sop-vault/feedback" element={<SopVaultFeedback />} />
-      <Route
-        element={
-          <ErasmusCartProvider>
-            <Outlet />
-          </ErasmusCartProvider>
-        }
-      >
-        <Route path="/application/erasmus" element={<ApplicationErasmus />} />
-        <Route path="/application/erasmus/programs" element={<ErasmusPrograms />} />
-        <Route path="/application/erasmus/program/:id" element={<ErasmusProgram />} />
-        <Route path="/application/erasmus/checkout" element={<ErasmusCheckout />} />
-        <Route path="/application/erasmus/checkout/success" element={<ErasmusCheckoutSuccess />} />
-        <Route path="/application/erasmus/checkout/failure" element={<ErasmusCheckoutFailure />} />
-      </Route>
+      <Route path="/application/erasmus" element={<ApplicationErasmus />} />
+      <Route path="/application/erasmus/programs" element={<ErasmusPrograms />} />
+      <Route path="/application/erasmus/program/:id" element={<ErasmusProgram />} />
+      {/* Payment was removed — old checkout links go to the counsellor form. */}
+      <Route path="/application/erasmus/checkout/*" element={<Navigate to="/application/erasmus#erasmus-form" replace />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

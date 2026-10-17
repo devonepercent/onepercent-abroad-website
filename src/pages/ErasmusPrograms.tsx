@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import Footer from "@/components/Footer";
 import ErasmusTopBar from "@/components/ErasmusTopBar";
 import { programCategories, PRICE, Program } from "@/lib/erasmusData";
@@ -32,8 +33,8 @@ const ProgramCard = ({ prog }: { prog: Program }) => {
         <div className="font-inter text-[13px] text-[#6B7A99] leading-5 mt-1">{prog.name}</div>
       </div>
       <div className="flex items-center justify-between pt-2 border-t border-[#EFF4FB]">
-        <span className="font-inter font-semibold text-[14px] text-[#040B2B]">{inr(PRICE)}</span>
-        <span className="font-inter font-semibold text-[13px] text-[#065DC7]">View →</span>
+        <span className="font-inter font-semibold text-[14px] text-[#040B2B]">Included in package</span>
+        <span className="inline-flex items-center gap-1 font-inter font-semibold text-[13px] text-[#065DC7]">View <ArrowRight size={14} /></span>
       </div>
     </Link>
   );
@@ -75,7 +76,7 @@ const ErasmusPrograms = () => {
           Browse Erasmus Mundus Programmes
         </h1>
         <p className="font-inter text-[14px] md:text-[16px] text-[#6B7A99] mb-8">
-          Flat {inr(PRICE)} per application. SOP, LORs, filing and deadline tracking all included.
+          One {inr(PRICE)} mentorship package covers up to 3 applications. SOPs, LORs, filing and deadline tracking all included.
         </p>
 
         {/* Search */}

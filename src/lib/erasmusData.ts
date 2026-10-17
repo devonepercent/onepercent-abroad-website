@@ -1,7 +1,9 @@
 // Erasmus Mundus application catalogue + checkout recommendations.
-// Single flat price per application (UI prototype — no payment wired yet).
+// One flat-priced mentorship package covering up to MAX_PROGRAMS applications
+// (the EU caps scholarship applications at 3 programmes per intake).
 
-export const PRICE = 9900;
+export const PRICE = 60000;
+export const MAX_PROGRAMS = 3;
 
 export interface Program {
   /** stable id used by the cart (unique per distinct product) */
@@ -243,28 +245,37 @@ export interface Inclusion {
 }
 
 export const inclusions: Inclusion[] = [
+  { title: "1:1 Mentor Support", desc: "A dedicated mentor, start to finish" },
   { title: "Application Filing", desc: "End-to-end submission, handled for you" },
   { title: "SOP", desc: "Statement of Purpose tailored per programme" },
   { title: "LORs", desc: "Recommendation letters drafted & managed" },
   { title: "Requirements Mapping", desc: "Eligibility & document checklist" },
   { title: "Deadline Tracking", desc: "Every intake & deadline monitored" },
-  { title: "1:1 Student Support", desc: "A dedicated mentor throughout" },
 ];
 
-// ── Winners marquee (placeholder content — swap images/names later) ──
-export interface Winner {
+// ── Erasmus Mundus success stories (source: "Success stories" PDF) ──
+// `image` is optional — cards without one fall back to the student's initials.
+export interface SuccessStory {
   name: string;
-  program: string;   // subtitle
-  scholarship: string;
+  /** programme abbreviation, when the programme has one */
+  code?: string;
+  programme: string;
+  achievement: string;
+  image?: string;
 }
 
-export const winners: Winner[] = [
-  { name: "Aarav Menon", program: "EMAI — Artificial Intelligence", scholarship: "Full Erasmus Mundus Scholarship" },
-  { name: "Sneha Pillai", program: "MESPOM — Environmental Policy", scholarship: "€49,000 Scholarship" },
-  { name: "Rohan Das", program: "JEMARO — Advanced Robotics", scholarship: "Full Tuition + Stipend" },
-  { name: "Fatima Noor", program: "IMBRSea — Marine Biology", scholarship: "Full Erasmus Mundus Scholarship" },
-  { name: "Karthik Iyer", program: "Mundus MAPP — Public Policy", scholarship: "€47,000 Scholarship" },
-  { name: "Ananya Rao", program: "NANOMED — Nanomedicine", scholarship: "Full Tuition Waiver" },
-  { name: "Vivek Sharma", program: "EMECS — Embedded Computing", scholarship: "Full Erasmus Mundus Scholarship" },
-  { name: "Meera Krishnan", program: "Global MINDS — Psychology", scholarship: "€46,000 Scholarship" },
+export const successStories: SuccessStory[] = [
+  { name: "Amaresh", code: "EMINENT", programme: "Embedded Intelligence Nanosystems Engineering", achievement: "Fully funded Erasmus Mundus scholarship", image: "/images/erasmus-stories/amaresh.webp" },
+  { name: "Archana A. Nair", code: "ACES Star", programme: "Erasmus Mundus ACES Star Programme · also offered IMBRSea", achievement: "Partial scholarship worth ₹15 lakhs", image: "/images/erasmus-stories/archana-a-nair.webp" },
+  { name: "Jinsa Jobe", programme: "Sustainable Food Processing, Circular Food Systems and Future Foods", achievement: "Admitted with a 50% scholarship", image: "/images/erasmus-stories/jinsa-jobe.webp" },
+  { name: "Layan Razak", code: "EMM-NANO", programme: "Nanoscience and Nanotechnology", achievement: "Admitted with a scholarship" },
+  { name: "Anjana Sunanda", code: "GLODEP", programme: "Global Development Policy · Palacký University Olomouc", achievement: "Admitted to an Erasmus Mundus Joint Master's", image: "/images/erasmus-stories/anjana-sunanda.webp" },
+  { name: "Tanab Mehraj", code: "IMBRSea", programme: "Marine Biological Resources", achievement: "Selected for the 2026 cohort", image: "/images/erasmus-stories/tanab-mehraj.webp" },
+  { name: "Sisa Maria Sunny", programme: "Journalism, Media and Globalisation", achievement: "Selected for an Erasmus Mundus Joint Master's", image: "/images/erasmus-stories/sisa-mariya.webp" },
+  { name: "Aiswarya Raj", code: "DENSYS", programme: "Decentralised Smart Energy Systems", achievement: "Selected for an Erasmus Mundus Joint Master's", image: "/images/erasmus-stories/aiswarya-raj.webp" },
+  { name: "Fathima Lamshana K K", code: "IMBRSea", programme: "Marine Biological Resources", achievement: "Selected for an Erasmus Mundus Joint Master's", image: "/images/erasmus-stories/fathima-lamshana-k-k.webp" },
+  { name: "Supratesh", code: "IMBRSea", programme: "Marine Biological Resources", achievement: "Selected for the 2026 cohort" },
+  { name: "Anjima Divakar", code: "EMMIR", programme: "Migration and Intercultural Relations", achievement: "Selected for an Erasmus Mundus Master's", image: "/images/erasmus-stories/anjima-divakar.webp" },
+  { name: "Nidhishree", programme: "International Humanitarian Action", achievement: "Selected for an Erasmus Mundus Joint Master's" },
+  { name: "Shabnam", code: "MERGED", programme: "Erasmus Mundus Joint Master's Programme", achievement: "Selected for an Erasmus Mundus Joint Master's" },
 ];

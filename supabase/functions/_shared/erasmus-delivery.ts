@@ -70,8 +70,8 @@ function buyerEmailHtml(p: ErasmusPurchase): string {
       <p style="font-size:15px;line-height:1.6;">Hi ${first},</p>
       <p style="font-size:15px;line-height:1.6;">
         Thanks for choosing OnePercent Abroad. We've received your payment of
-        <strong>${inr(p.amount)}</strong> for <strong>${p.num_items}</strong>
-        Erasmus Mundus application${p.num_items === 1 ? "" : "s"}:
+        <strong>${inr(p.amount)}</strong> for the Erasmus Mundus mentorship package
+        (up to 3 programme applications). Programmes chosen so far:
       </p>
       <table style="width:100%;border-collapse:collapse;font-size:14px;margin:16px 0;">${itemsRows(items)}</table>
       <p style="font-size:15px;line-height:1.6;">
@@ -126,7 +126,7 @@ export async function deliverErasmusPurchase(
 
   const buyerOk = await sendEmail(opts.resendKey, {
     to: purchase.email,
-    subject: `Payment received — ${purchase.num_items} Erasmus application${purchase.num_items === 1 ? "" : "s"}`,
+    subject: "Payment received — Erasmus Mundus mentorship package",
     html: buyerEmailHtml(purchase),
   });
 
