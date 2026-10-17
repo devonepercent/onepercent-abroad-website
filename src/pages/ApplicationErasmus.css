@@ -97,6 +97,14 @@
 .erz-carousel-nav button:hover { background: #003399; color: #fff; border-color: #003399; }
 /* Acceptance-rate comparison */
 .erz-odds { display: grid; gap: 24px; }
+/* "10x": counts up with the blue bar, then pops as a gold highlighter stroke draws in */
+.erz-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.erz-tenx { position: relative; display: inline-block; min-width: 2.6ch; color: #003399; font-variant-numeric: tabular-nums; isolation: isolate; }
+.erz-tenx::before { content: ""; position: absolute; z-index: -1; left: -.08em; right: -.08em; bottom: .06em; height: .38em; background: #ffcc00; border-radius: .08em; transform: scaleX(0) skewX(-8deg); transform-origin: left; transition: transform .5s cubic-bezier(.22,.8,.24,1); }
+.erz-tenx.is-done { animation: erz-tenx-pop .55s cubic-bezier(.3,1.6,.5,1); }
+.erz-tenx.is-done::before { transform: scaleX(1) skewX(-8deg); }
+@keyframes erz-tenx-pop { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .erz-tenx.is-done { animation: none; } }
 .erz-odds-copy p { font-size: 16px; line-height: 1.65; color: #52627b; margin-top: 12px; max-width: 440px; }
 .erz-odds-card { background: #fff; border: 1px solid #dbe5f3; border-radius: 16px; padding: 8px 20px; box-shadow: 0 8px 24px #00339910; }
 .erz-odds-row { display: grid; grid-template-columns: 1fr auto; align-items: baseline; column-gap: 16px; row-gap: 10px; padding: 18px 0; }
@@ -109,7 +117,7 @@
 .erz-odds-bar span { display: block; height: 100%; min-width: 10px; border-radius: inherit; background: #b5c1d4; transform: scaleX(0); transform-origin: left; transition: transform 1.4s cubic-bezier(.22,.8,.24,1); }
 .is-ours .erz-odds-bar span { background: #003399; }
 .is-ours .erz-odds-bar span { transition-delay: .25s; transition-duration: 1.8s; }
-.erz-odds-card.is-shown .erz-odds-bar span { transform: scaleX(1); }
+.erz-odds.is-shown .erz-odds-bar span { transform: scaleX(1); }
 .erz-story-viewport { overflow: hidden; touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
 .erz-story-viewport.is-dragging { cursor: grabbing; }
 .erz-story-track { display: flex; gap: 12px; padding: 4px 20px 16px; will-change: transform; }

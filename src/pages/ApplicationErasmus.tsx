@@ -80,12 +80,14 @@ const odds = [
   { label: "Our acceptance rate", value: "30-40%", fill: 35 / 40, ours: true },
 ];
 
-// The bars fill like a loading bar the first time the card scrolls into view.
-const OddsCard = () => {
-  const card = useRef<HTMLDListElement>(null);
+// The comparison plays once, the first time it scrolls into view: the bars
+// fill like loading bars while the headline's multiplier counts up to 10x.
+const OddsSection = () => {
+  const wrap = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState(false);
+  const [multiplier, setMultiplier] = useState(1);
   useEffect(() => {
-    const el = card.current;
+    const el = wrap.current;
     if (!el) return;
     const io = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) { setShown(true); io.disconnect(); }
@@ -93,13 +95,36 @@ const OddsCard = () => {
     io.observe(el);
     return () => io.disconnect();
   }, []);
-  return <dl className={shown ? "erz-odds-card is-shown" : "erz-odds-card"} ref={card}>
-    {odds.map(row => <div key={row.label} className={row.ours ? "erz-odds-row is-ours" : "erz-odds-row"}>
-      <dt>{row.label}</dt>
-      <dd>{row.value}</dd>
-      <span className="erz-odds-bar" aria-hidden="true"><span style={{ width: `${row.fill * 100}%` }} /></span>
-    </div>)}
-  </dl>;
+  useEffect(() => {
+    if (!shown) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setMultiplier(10); return; }
+    // Timed to match the blue bar: .25s delay, 1.8s ease-out fill.
+    const DELAY = 250, DURATION = 1800;
+    const begin = performance.now() + DELAY;
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(Math.max((now - begin) / DURATION, 0), 1);
+      setMultiplier(Math.max(1, Math.round(10 * (1 - Math.pow(1 - t, 3)))));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [shown]);
+  const done = multiplier === 10;
+  return <div className={shown ? "erz-container erz-odds is-shown" : "erz-container erz-odds"} ref={wrap}>
+    <div className="erz-odds-copy">
+      <span className="erz-label">ERASMUS MUNDUS RESULTS</span>
+      <h2>Improve your chances <span className={done ? "erz-tenx is-done" : "erz-tenx"}><span className="erz-sr">10x</span><span aria-hidden="true">{multiplier}x</span></span></h2>
+      <p>Erasmus Mundus is one of the most competitive scholarship programmes in the world. A dedicated mentor changes the odds.</p>
+    </div>
+    <dl className="erz-odds-card">
+      {odds.map(row => <div key={row.label} className={row.ours ? "erz-odds-row is-ours" : "erz-odds-row"}>
+        <dt>{row.label}</dt>
+        <dd>{row.value}</dd>
+        <span className="erz-odds-bar" aria-hidden="true"><span style={{ width: `${row.fill * 100}%` }} /></span>
+      </div>)}
+    </dl>
+  </div>;
 };
 
 const AUTO_SPEED = 32; // px per second the results row drifts
@@ -266,14 +291,7 @@ const StoriesSection = () => {
   }, []);
 
   return <section id="results" className="erz-results erz-section">
-    <div className="erz-container erz-odds">
-      <div className="erz-odds-copy">
-        <span className="erz-label">ERASMUS MUNDUS RESULTS</span>
-        <h2>Improve your chances 10x</h2>
-        <p>Erasmus Mundus is one of the most competitive scholarship programmes in the world. A dedicated mentor changes the odds.</p>
-      </div>
-      <OddsCard />
-    </div>
+    <OddsSection />
     <div className="erz-container erz-results-head">
       <h3>Students we have helped</h3>
       <div className="erz-carousel-nav">
