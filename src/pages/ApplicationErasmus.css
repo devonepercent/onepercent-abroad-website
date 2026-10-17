@@ -18,8 +18,7 @@
 .erz-section { padding-block: 64px; }
 .erasmus-page h2 { font-size: clamp(28px, 3vw, 38px); font-weight: 600; line-height: 1.2; letter-spacing: -1px; margin: 12px 0 0; }
 .erz-label, .erz-eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 1.8px; }
-.erz-label { color: #065dc7; display: inline-flex; align-items: center; gap: 8px; }
-.erz-label::before { content: ""; width: 11px; height: 11px; flex-shrink: 0; background: #ffcc00; clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+.erz-label { color: #065dc7; display: inline-block; }
 .erz-header { position: sticky; top: 0; z-index: 80; background: #040b2b; border-bottom: 1px solid #ffffff25; }
 .erz-header > div { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .erz-header img { width: 150px; height: auto; }
@@ -83,7 +82,6 @@
 .erz-section-heading { margin-bottom: 28px; }
 .erz-review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
 .erz-review { border: 1px solid #dbe5f3; padding: 28px; border-radius: 18px; background: #f7faff; }
-.erz-quote-icon { color: #065dc7; margin-bottom: 12px; }
 .erz-review blockquote { font-family: 'General Sans', Arial, sans-serif; font-weight: 500; font-size: 21px; line-height: 1.55; margin: 0 0 24px; min-height: 130px; }
 .erz-review-person { display: flex; gap: 14px; align-items: center; }
 .erz-review-person img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; object-position: top; flex-shrink: 0; }
@@ -92,14 +90,26 @@
 .erz-review-person span { font-size: 12px; font-weight: 600; color: #065dc7; display: block; margin-top: 4px; }
 /* ── Results carousel (mobile-first) ── */
 .erz-results { background: #f3f7ff; border-block: 1px solid #e1eaf7; }
-.erz-results-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.erz-results-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 40px auto 16px; }
+.erasmus-page .erz-results-head h3 { font-size: 18px; }
 .erz-carousel-nav { display: none; gap: 10px; }
-.erz-carousel-nav button { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid #c5d6ed; background: #fff; color: #040b2b; cursor: pointer; transition: background .2s, color .2s; }
+.erz-carousel-nav button { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid #c5d6ed; background: #fff; color: #040b2b; cursor: pointer; transition: background .2s, color .2s; }
 .erz-carousel-nav button:hover { background: #003399; color: #fff; border-color: #003399; }
-.erz-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 20px; margin-bottom: 20px; }
-.erz-stats div { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 4px; background: #003399; color: #fff; border-radius: 14px; padding: 14px 12px; }
-.erz-stats dd { font-family: 'Satoshi', Arial, sans-serif; font-size: 30px; line-height: 1; font-weight: 700; color: #ffcc00; margin: 0; }
-.erz-stats dt { font-size: 12px; line-height: 1.35; color: #d6e2ff; }
+/* Acceptance-rate comparison */
+.erz-odds { display: grid; gap: 24px; }
+.erz-odds-copy p { font-size: 16px; line-height: 1.65; color: #52627b; margin-top: 12px; max-width: 440px; }
+.erz-odds-card { background: #fff; border: 1px solid #dbe5f3; border-radius: 16px; padding: 8px 20px; box-shadow: 0 8px 24px #00339910; }
+.erz-odds-row { display: grid; grid-template-columns: 1fr auto; align-items: baseline; column-gap: 16px; row-gap: 10px; padding: 18px 0; }
+.erz-odds-row + .erz-odds-row { border-top: 1px solid #e6edf7; }
+.erz-odds-row dt { font-size: 14px; color: #52627b; }
+.erz-odds-row dd { margin: 0; font-family: 'Satoshi', Arial, sans-serif; font-size: 28px; font-weight: 700; line-height: 1; letter-spacing: -.02em; color: #8a96ad; font-variant-numeric: tabular-nums; }
+.erz-odds-row.is-ours dt { color: #040b2b; font-weight: 600; }
+.erz-odds-row.is-ours dd { color: #003399; }
+.erz-odds-bar { grid-column: 1 / -1; height: 10px; border-radius: 999px; background: #edf2f9; overflow: hidden; }
+.erz-odds-bar span { display: block; height: 100%; min-width: 10px; border-radius: inherit; background: #b5c1d4; transform: scaleX(0); transform-origin: left; transition: transform 1.4s cubic-bezier(.22,.8,.24,1); }
+.is-ours .erz-odds-bar span { background: #003399; }
+.is-ours .erz-odds-bar span { transition-delay: .25s; transition-duration: 1.8s; }
+.erz-odds-card.is-shown .erz-odds-bar span { transform: scaleX(1); }
 .erz-story-viewport { overflow: hidden; touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
 .erz-story-viewport.is-dragging { cursor: grabbing; }
 .erz-story-track { display: flex; gap: 12px; padding: 4px 20px 16px; will-change: transform; }
@@ -117,10 +127,13 @@
 @media (min-width: 768px) {
   .erz-carousel-nav { display: flex; }
   .erz-swipe-hint { display: none; }
-  .erz-stats { gap: 16px; margin-top: 28px; margin-bottom: 28px; }
-  .erz-stats div { padding: 20px 22px; }
-  .erz-stats dd { font-size: 40px; }
-  .erz-stats dt { font-size: 14px; }
+  .erz-odds { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 64px; align-items: center; }
+  .erz-odds-card { padding: 12px 32px; }
+  .erz-odds-row { padding: 24px 0; }
+  .erz-odds-row dt { font-size: 15px; }
+  .erz-odds-row dd { font-size: 40px; }
+  .erz-odds-bar { height: 12px; }
+  .erz-results-head { margin-top: 56px; }
   .erz-story-track { gap: 16px; padding-inline: max(24px, calc((100% - 1160px) / 2)); }
   .erz-story { flex-basis: 260px; }
 }

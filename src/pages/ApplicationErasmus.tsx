@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ArrowRight, CheckCircle2, ChevronDown, FileCheck2, FilePenLine, Headphones, Quote, UserRound } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, ChevronDown, FileCheck2, FilePenLine, Headphones, UserRound } from "lucide-react";
 import "./ApplicationErasmus.css";
 import logoWhite from "@/assets/logo-white.png";
 import Footer from "@/components/Footer";
@@ -66,7 +66,6 @@ const reviews = [
 const ReviewsSection = () => <section id="stories" className="erz-reviews erz-container erz-section">
   <div className="erz-section-heading"><span className="erz-label">ERASMUS STUDENT REVIEWS</span><h2>Hear it from our students.</h2></div>
   <div className="erz-review-grid">{reviews.map(review => <article className="erz-review" key={review.name}>
-    <Quote className="erz-quote-icon" size={28} aria-hidden="true" />
     <blockquote>“{review.excerpt}”</blockquote>
     <div className="erz-review-person"><img src={review.image} alt={review.name} width="64" height="64" loading="lazy" /><div><h3>{review.name}</h3><p>{review.programme}</p><span>Erasmus Mundus</span></div></div>
     <details className="erz-full-review"><summary><span className="erz-read-more">Read full review</span><span className="erz-read-less">Close full review</span><ChevronDown size={16} /></summary><p>“{review.full}”</p></details>
@@ -75,12 +74,33 @@ const ReviewsSection = () => <section id="stories" className="erz-reviews erz-co
 
 const initials = (name: string) => name.split(" ").filter(Boolean).slice(0, 2).map(w => w[0]).join("").toUpperCase();
 
-// Headline numbers derived from the stories themselves, so they never drift.
-const stats = [
-  { value: successStories.length, label: "students selected" },
-  { value: new Set(successStories.map(s => s.code ?? s.programme)).size, label: "Erasmus programmes" },
-  { value: successStories.filter(s => /scholarship/i.test(s.achievement)).length, label: "with scholarships" },
+// Bars share one 0–40% scale so their lengths keep the real 10x ratio.
+const odds = [
+  { label: "Usual acceptance rate", value: "3-4%", fill: 3.5 / 40 },
+  { label: "Our acceptance rate", value: "30-40%", fill: 35 / 40, ours: true },
 ];
+
+// The bars fill like a loading bar the first time the card scrolls into view.
+const OddsCard = () => {
+  const card = useRef<HTMLDListElement>(null);
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const el = card.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setShown(true); io.disconnect(); }
+    }, { threshold: 0.4 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return <dl className={shown ? "erz-odds-card is-shown" : "erz-odds-card"} ref={card}>
+    {odds.map(row => <div key={row.label} className={row.ours ? "erz-odds-row is-ours" : "erz-odds-row"}>
+      <dt>{row.label}</dt>
+      <dd>{row.value}</dd>
+      <span className="erz-odds-bar" aria-hidden="true"><span style={{ width: `${row.fill * 100}%` }} /></span>
+    </div>)}
+  </dl>;
+};
 
 const AUTO_SPEED = 32; // px per second the results row drifts
 const AUTO_RESUME = 2500; // ms after the last interaction before drifting again
@@ -246,14 +266,21 @@ const StoriesSection = () => {
   }, []);
 
   return <section id="results" className="erz-results erz-section">
+    <div className="erz-container erz-odds">
+      <div className="erz-odds-copy">
+        <span className="erz-label">ERASMUS MUNDUS RESULTS</span>
+        <h2>Improve your chances 10x</h2>
+        <p>Erasmus Mundus is one of the most competitive scholarship programmes in the world. A dedicated mentor changes the odds.</p>
+      </div>
+      <OddsCard />
+    </div>
     <div className="erz-container erz-results-head">
-      <div><span className="erz-label">ERASMUS MUNDUS RESULTS</span><h2>Our students, selected.</h2></div>
+      <h3>Students we have helped</h3>
       <div className="erz-carousel-nav">
         <button type="button" onClick={() => page(-1)} aria-label="Previous students"><ArrowLeft size={18} /></button>
         <button type="button" onClick={() => page(1)} aria-label="Next students"><ArrowRight size={18} /></button>
       </div>
     </div>
-    <dl className="erz-container erz-stats">{stats.map(stat => <div key={stat.label}><dt>{stat.label}</dt><dd>{stat.value}</dd></div>)}</dl>
     <div className="erz-story-viewport" ref={viewport}>
       <div className="erz-story-track" ref={track} role="list" aria-label="Erasmus Mundus success stories">
         {successStories.map(story => <StoryCard story={story} key={story.name} />)}
