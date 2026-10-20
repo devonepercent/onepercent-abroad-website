@@ -380,9 +380,25 @@ const ApplicationErasmus = () => {
 
 export default ApplicationErasmus;
 
+// Same labels as /get-started, so the CRM groups both forms' budgets together.
+const BUDGET_OPTIONS = ["5 to 15 Lakhs", "15 to 40 L", "40 to 70 L", "70+ L"];
+const HELP_OPTIONS = ["Free guidance on my profile", "Choosing the right programmes", "SOP / document review only", "Scholarship & funding advice", "Something else"];
+
+const ChoiceGroup = ({ legend, name, options, value, onChange, disabled }: { legend: string; name: string; options: string[]; value: string; onChange: (v: string) => void; disabled: boolean }) =>
+  <fieldset className="erz-choices">
+    <legend>{legend}</legend>
+    <div>{options.map(opt => <label key={opt} className={value === opt ? "is-selected" : undefined}>
+      <input type="radio" name={name} value={opt} checked={value === opt} onChange={() => onChange(opt)} disabled={disabled} required />{opt}
+    </label>)}</div>
+  </fieldset>;
+
 const FormSection = ({ variant = "section" }: { variant?: "section" | "hero" }) => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [cgpa, setCgpa] = useState("");
+  const [budget, setBudget] = useState("");
+  const [wantsPackage, setWantsPackage] = useState("");
+  const [helpNeeded, setHelpNeeded] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -395,6 +411,10 @@ const FormSection = ({ variant = "section" }: { variant?: "section" | "hero" }) 
     if (!/^[+\d\s().-]+$/.test(phone) || digits.length < 7 || digits.length > 15) {
       setError("Enter a valid phone number, including your country code."); return;
     }
+    if (!cgpa.trim()) { setError("Please enter your CGPA or percentage."); return; }
+    if (!budget) { setError("Please pick your budget range."); return; }
+    if (!wantsPackage) { setError("Let us know if you're looking for the mentorship package."); return; }
+    if (wantsPackage === "No" && !helpNeeded) { setError("Tell us what you'd like help with."); return; }
     setSubmitting(true);
     try {
       // The row is forwarded to the CRM, so carry the ad attribution with it: the
@@ -407,6 +427,12 @@ const FormSection = ({ variant = "section" }: { variant?: "section" | "hero" }) 
           phone: phone.trim(),
           source: "erasmus",
           form_location: variant === "hero" ? "hero" : "section",
+          // academic_score / investment_budget / investment_readiness are the CRM's
+          // own lead columns, so these land on the lead as-is.
+          academic_score: cgpa.trim(),
+          investment_budget: budget,
+          investment_readiness: wantsPackage === "Yes" ? `Wants mentorship package (${inr(PRICE)})` : "Not looking for the package",
+          help_needed: wantsPackage === "No" ? helpNeeded : null,
           ...getUtms(),
           ...getMetaMatchData(),
           meta_event_id: metaEventId,
@@ -439,7 +465,13 @@ const FormSection = ({ variant = "section" }: { variant?: "section" | "hero" }) 
         <input id="erasmus-name" name="name" value={name} onChange={e => setName(e.target.value)} placeholder="Full name" autoComplete="name" required maxLength={120} disabled={submitting} />
         <label htmlFor="erasmus-phone">Phone number <span>with country code</span></label>
         <input id="erasmus-phone" name="phone" value={phone} onChange={e => { setPhone(e.target.value); setError(""); }} placeholder="+91 98765 43210" type="tel" inputMode="tel" autoComplete="tel" required maxLength={25} disabled={submitting} aria-describedby={error ? "erasmus-error" : undefined} />
-        {error && <p id="erasmus-error" className="erz-error" role="alert">{error}</p>}
+        <label htmlFor={`erasmus-cgpa-${variant}`}>Your CGPA <span>or percentage</span></label>
+        <input id={`erasmus-cgpa-${variant}`} name="cgpa" value={cgpa} onChange={e => { setCgpa(e.target.value); setError(""); }} placeholder="e.g. 8.2 / 10 or 78%" required maxLength={40} disabled={submitting} />
+        <ChoiceGroup legend="Your budget range" name={`budget-${variant}`} options={BUDGET_OPTIONS} value={budget} onChange={v => { setBudget(v); setError(""); }} disabled={submitting} />
+        <ChoiceGroup legend="Are you looking for our Erasmus Mundus mentorship package?" name={`package-${variant}`} options={["Yes", "No"]} value={wantsPackage} onChange={v => { setWantsPackage(v); setError(""); }} disabled={submitting} />
+        {wantsPackage === "Yes" && <p className="erz-package-note"><CheckCircle2 size={16} aria-hidden="true" /> Our mentorship package is <strong>{inr(PRICE)}</strong>: a dedicated mentor, SOPs, LORs and filing for up to 3 programmes. The call itself is free.</p>}
+        {wantsPackage === "No" && <ChoiceGroup legend="What would you like help with?" name={`help-${variant}`} options={HELP_OPTIONS} value={helpNeeded} onChange={v => { setHelpNeeded(v); setError(""); }} disabled={submitting} />}
+        {error &&<p id="erasmus-error" className="erz-error" role="alert">{error}</p>}
         <button className="erz-form-submit" type="submit" disabled={submitting}>{submitting ? "Sending your request..." : "Request a free call"}{!submitting && <ArrowRight size={18} aria-hidden="true" />}</button>
         <p className="erz-consent">By submitting, you agree to be contacted about your Erasmus enquiry. Read our <Link to="/privacy-policy">Privacy Policy</Link>.</p>
       </form>

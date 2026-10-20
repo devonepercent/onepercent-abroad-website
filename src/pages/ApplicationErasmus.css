@@ -205,6 +205,16 @@
 .erz-consent { font-size: 12px; line-height: 1.7; color: #64748b; margin-top: 15px; }
 .erz-consent a { text-decoration: underline; text-underline-offset: 3px; }
 .erz-error { font-size: 14px; color: #b91c1c; line-height: 1.5; margin-bottom: 16px; }
+.erz-choices { border: 0; padding: 0; margin: 0 0 20px; min-width: 0; }
+.erz-choices legend { font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 8px; padding: 0; }
+.erz-choices > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.erz-enquiry .erz-choices label { position: relative; display: inline-flex; align-items: center; min-height: 40px; margin: 0; padding: 8px 14px; border: 1px solid #bac8dc; border-radius: 999px; font-size: 14px; font-weight: 500; cursor: pointer; transition: border-color .15s, background-color .15s; }
+.erz-enquiry .erz-choices label:hover { border-color: #065dc7; }
+.erz-enquiry .erz-choices label.is-selected { border-color: #065dc7; background: #065dc712; color: #044da8; font-weight: 600; }
+.erz-enquiry .erz-choices input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; opacity: 0; cursor: pointer; }
+.erz-enquiry .erz-choices label:has(input:focus-visible) { outline: 3px solid #065dc740; outline-offset: 2px; }
+.erz-package-note { display: flex; gap: 8px; align-items: flex-start; margin: -8px 0 20px; padding: 12px 14px; border-radius: 10px; background: #e9f7ef; color: #17603b; font-size: 13px; line-height: 1.55; }
+.erz-package-note svg { flex: none; margin-top: 2px; }
 .erz-success > svg { color: #15803d; margin-bottom: 20px; }
 .erz-success p { font-size: 16px; line-height: 1.7; color: #52627b; margin-bottom: 24px; overflow-wrap: anywhere; }
 .erz-faq-section { background: #f7faff; border-top: 1px solid #e1eaf7; }
