@@ -8,6 +8,7 @@ import { ErasmusLoader, PhotoCollage, StarRing } from "@/components/ErasmusHeroB
 import { supabase } from "@/integrations/supabase/client";
 import { inclusions, PRICE, successStories, SuccessStory } from "@/lib/erasmusData";
 import { getMetaMatchData, trackMetaEvent } from "@/lib/metaPixel";
+import { getUtms } from "@/lib/utm";
 
 const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
 const programmesPath = "/application/erasmus/programs";
@@ -397,10 +398,8 @@ const FormSection = ({ variant = "section" }: { variant?: "section" | "hero" }) 
     setSubmitting(true);
     try {
       // The row is forwarded to the CRM, so carry the ad attribution with it: the
-      // utm_* tags from the ad's landing URL, plus the Meta ids the CRM later uses
-      // to report Interested leads back (meta_event_id dedups against the Pixel Lead).
-      const params = new URLSearchParams(window.location.search);
-      const utm = (k: string) => params.get(k)?.trim() || null;
+      // utm_* tags from the ad or collab landing URL, plus the Meta ids the CRM later
+      // uses to report Interested leads back (meta_event_id dedups against the Pixel Lead).
       const metaEventId = crypto.randomUUID();
       const { error: insertError } = await supabase.from("erasmus_call_requests" as never)
         .insert({
@@ -408,11 +407,7 @@ const FormSection = ({ variant = "section" }: { variant?: "section" | "hero" }) 
           phone: phone.trim(),
           source: "erasmus",
           form_location: variant === "hero" ? "hero" : "section",
-          utm_source: utm("utm_source"),
-          utm_medium: utm("utm_medium"),
-          utm_campaign: utm("utm_campaign"),
-          utm_adset: utm("utm_adset"),
-          utm_ad: utm("utm_ad"),
+          ...getUtms(),
           ...getMetaMatchData(),
           meta_event_id: metaEventId,
         } as never);
