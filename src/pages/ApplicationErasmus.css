@@ -234,6 +234,15 @@
 .erz-enquiry .erz-choices label:has(input:focus-visible) { outline: 3px solid #065dc740; outline-offset: 2px; }
 .erz-package-note { display: flex; gap: 8px; align-items: flex-start; margin: -8px 0 20px; padding: 12px 14px; border-radius: 10px; background: #e9f7ef; color: #17603b; font-size: 13px; line-height: 1.55; }
 .erz-package-note svg { flex: none; margin-top: 2px; }
+/* The package pitch the "Are you interested?" question sits under */
+.erz-package-pitch { margin: 4px 0 14px; padding: 14px 16px; border-radius: 12px; background: #003399; color: #d6e2ff; font-size: 13px; line-height: 1.5; }
+.erz-package-pitch-title { font-family: 'Satoshi', Arial, sans-serif; font-size: 17px; font-weight: 700; line-height: 1.3; letter-spacing: -.01em; color: #fff; margin-bottom: 2px; }
+.erz-package-pitch-title strong { color: #ffcc00; }
+.erz-package-pitch ul { list-style: none; padding: 0; margin: 10px 0; display: grid; gap: 5px; color: #fff; }
+.erz-package-pitch li { display: flex; align-items: center; gap: 7px; }
+.erz-package-pitch li svg { flex: none; color: #ffcc00; }
+.erz-package-pitch-price { padding-top: 9px; border-top: 1px solid #ffffff26; }
+.erz-package-pitch-price strong { color: #ffcc00; font-size: 15px; font-weight: 600; }
 .erz-enquiry h2#enquiry-title { margin-bottom: 10px; }
 .erz-hero-note { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; font-size: 13px; color: #17603b; }
 /* Eligibility check: three-segment progress, then one step of questions at a time */

@@ -447,6 +447,7 @@ const FormSection = ({ variant = "section" }: { variant?: "section" | "hero" }) 
   const [helpNeeded, setHelpNeeded] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -475,6 +476,7 @@ const FormSection = ({ variant = "section" }: { variant?: "section" | "hero" }) 
       const digits = phone.replace(/\D/g, "");
       if (!name.trim()) return "Please enter your name.";
       if (!/^[+\d\s().-]+$/.test(phone) || digits.length < 7 || digits.length > 15) return "Enter a valid phone number, including your country code.";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return "Enter a valid email address.";
     }
     return "";
   };
@@ -497,6 +499,7 @@ const FormSection = ({ variant = "section" }: { variant?: "section" | "hero" }) 
         .insert({
           name: name.trim(),
           phone: phone.trim(),
+          email: email.trim().toLowerCase(),
           source: "erasmus",
           form_location: variant === "hero" ? "hero" : "section",
           // academic_score / investment_budget / investment_readiness are the CRM's
@@ -563,8 +566,18 @@ const FormSection = ({ variant = "section" }: { variant?: "section" | "hero" }) 
         {step === 1 && <>
           <ChoiceGroup legend="When do you want to start your master's?" name={`start-${variant}`} options={START_OPTIONS} value={start} onChange={pick(setStart)} disabled={submitting} />
           <ChoiceGroup legend="Your total study budget" name={`budget-${variant}`} options={BUDGET_OPTIONS} value={budget} onChange={pick(setBudget)} disabled={submitting} />
-          <ChoiceGroup legend={`Are you looking for our ${inr(PRICE)} mentorship package?`} name={`package-${variant}`} options={["Yes", "No"]} value={wantsPackage} onChange={pick(setWantsPackage)} disabled={submitting} />
-          {wantsPackage === "Yes" && <p className="erz-package-note"><CheckCircle2 size={16} aria-hidden="true" /> A dedicated mentor, SOPs, LORs and filing for up to 3 programmes. The call itself is free.</p>}
+          <div className="erz-package-pitch">
+            <p className="erz-package-pitch-title"><strong>10x</strong> your chances with Erasmus Mundus</p>
+            <p>30–40% of our students get in, vs 3–4% overall.</p>
+            <ul>
+              <li><CheckCircle2 size={15} aria-hidden="true" /> Your own 1:1 mentor</li>
+              <li><CheckCircle2 size={15} aria-hidden="true" /> SOPs and LORs written with you</li>
+              <li><CheckCircle2 size={15} aria-hidden="true" /> Filing for up to 3 programmes</li>
+            </ul>
+            <p className="erz-package-pitch-price"><strong>{inr(PRICE)}</strong> full package</p>
+          </div>
+          <ChoiceGroup legend="Are you interested in our Erasmus Mundus package?" name={`package-${variant}`} options={["Yes", "No"]} value={wantsPackage} onChange={pick(setWantsPackage)} disabled={submitting} />
+          {wantsPackage === "Yes" && <p className="erz-package-note"><CheckCircle2 size={16} aria-hidden="true" /> Great. We’ll walk you through the package on your free call.</p>}
           {wantsPackage === "No" && <ChoiceGroup legend="What would you like help with?" name={`help-${variant}`} options={HELP_OPTIONS} value={helpNeeded} onChange={pick(setHelpNeeded)} disabled={submitting} />}
         </>}
         {lastStep && <>
@@ -572,6 +585,8 @@ const FormSection = ({ variant = "section" }: { variant?: "section" | "hero" }) 
           <input id={`erasmus-name-${variant}`} name="name" value={name} onChange={e => pick(setName)(e.target.value)} placeholder="Full name" autoComplete="name" maxLength={120} disabled={submitting} />
           <label htmlFor={`erasmus-phone-${variant}`}>Phone number <span>with country code</span></label>
           <input id={`erasmus-phone-${variant}`} name="phone" value={phone} onChange={e => pick(setPhone)(e.target.value)} placeholder="+91 98765 43210" type="tel" inputMode="tel" autoComplete="tel" maxLength={25} disabled={submitting} aria-describedby={error ? "erasmus-error" : undefined} />
+          <label htmlFor={`erasmus-email-${variant}`}>Email</label>
+          <input id={`erasmus-email-${variant}`} name="email" value={email} onChange={e => pick(setEmail)(e.target.value)} placeholder="you@example.com" type="email" inputMode="email" autoComplete="email" maxLength={160} disabled={submitting} aria-describedby={error ? "erasmus-error" : undefined} />
         </>}
         {error && <p id="erasmus-error" className="erz-error" role="alert">{error}</p>}
         <div className="erz-form-nav">
