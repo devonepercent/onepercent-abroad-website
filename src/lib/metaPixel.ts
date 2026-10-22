@@ -58,6 +58,13 @@ export const trackMetaEvent = (
   }
 };
 
+// Non-standard event names must go through trackCustom; Meta flags them under track.
+export const trackMetaCustomEvent = (eventName: string, data?: Record<string, any>) => {
+  if (typeof window === "undefined") return;
+  if (!window.fbq) return;
+  window.fbq("trackCustom", eventName, data ?? {});
+};
+
 // --- Conversions API matching ---------------------------------------------
 // The CRM later sends server-side events to Meta for leads that turn out to be
 // Interested; these identifiers let Meta tie those back to the ad click.

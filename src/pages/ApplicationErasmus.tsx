@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ArrowRight, CheckCircle2, ChevronDown, FileCheck2, FilePenLine, Headphones, UserRound } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarClock, CheckCircle2, ChevronDown, FileCheck2, FilePenLine, Headphones, UserRound, XCircle } from "lucide-react";
 import "./ApplicationErasmus.css";
 import logoWhite from "@/assets/logo-white.png";
 import Footer from "@/components/Footer";
 import { ErasmusLoader, PhotoCollage, StarRing } from "@/components/ErasmusHeroBackdrop";
 import { supabase } from "@/integrations/supabase/client";
 import { inclusions, PRICE, successStories, SuccessStory } from "@/lib/erasmusData";
-import { getMetaMatchData, trackMetaEvent } from "@/lib/metaPixel";
+import { getMetaMatchData, trackMetaCustomEvent, trackMetaEvent } from "@/lib/metaPixel";
 import { getUtms } from "@/lib/utm";
 
 const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
@@ -33,12 +33,16 @@ const HeroSection = ({ isDesktop }: { isDesktop: boolean }) => <section classNam
     <div className="erz-hero-copy">
     <StarRing />
     <div className="erz-hero-content">
-      <span className="erz-eyebrow">YOUR NEXT CHAPTER</span>
+      <span className="erz-intake"><span aria-hidden="true" /> September 2027 intake · applications open</span>
       <h1 id="erasmus-title">Apply for an <em>Erasmus Mundus</em> master’s.</h1>
-      <p>A dedicated <strong className="erz-hero-mentor">1:1 mentor</strong> guides your shortlist, documents and applications.</p>
+      <p>A dedicated <strong className="erz-hero-mentor">1:1 mentor</strong> guides your shortlist, SOPs, LORs and applications for up to 3 programmes.</p>
+      <ul className="erz-hero-proof">
+        <li><strong>30–40%</strong> of our students get in, vs 3–4% overall</li>
+        <li><strong>{inr(PRICE)}</strong> full package · first call free</li>
+      </ul>
     </div>
     <div className="erz-hero-actions">
-      <a className="erz-button erz-primary" href="#erasmus-form">Talk to an expert — free <ArrowRight size={18} /></a>
+      <a className="erz-button erz-primary" href="#erasmus-form">Book a free call <ArrowRight size={18} /></a>
       <Link className="erz-hero-link" to={programmesPath}>Browse programmes <ArrowRight size={16} /></Link>
     </div>
     </div>
@@ -329,7 +333,34 @@ const OfferSection = () => <section id="support" className="erz-offer-section"><
   <div className="erz-offer-actions"><Link to={programmesPath} className="erz-button erz-dark">Choose your programmes <ArrowRight size={18} /></Link><p>Need help choosing? <a href="#erasmus-form">Talk to us for free.</a></p></div>
 </div></section>;
 
+// Spells out who the paid package suits, so the people who still ask for a
+// call already know the price and the bar.
+const fit = {
+  yes: [
+    "You have a bachelor’s, or will finish one by mid-2027",
+    "You’re aiming for the September 2027 or 2028 intake",
+    "You want an expert beside you for SOPs, LORs and filing",
+    `You’re ready to invest ${inr(PRICE)} in getting it right`,
+  ],
+  no: [
+    "You’re more than a year away from finishing your bachelor’s",
+    "You only want general information, not hands-on help",
+    "You’re looking for someone to guarantee a scholarship. No one honestly can",
+  ],
+};
+
+const FitSection = () => <section className="erz-container erz-section erz-fit" aria-labelledby="fit-title">
+  <div className="erz-section-heading"><span className="erz-label">IS THIS FOR YOU?</span><h2 id="fit-title">Built for serious applicants.</h2></div>
+  <div className="erz-fit-grid">
+    <article className="erz-fit-card is-yes"><h3>A great fit if</h3><ul>{fit.yes.map(item => <li key={item}><CheckCircle2 size={20} aria-hidden="true" />{item}</li>)}</ul></article>
+    <article className="erz-fit-card"><h3>Probably not for you if</h3><ul>{fit.no.map(item => <li key={item}><XCircle size={20} aria-hidden="true" />{item}</li>)}</ul></article>
+  </div>
+  <p className="erz-deadline-note"><CalendarClock size={20} aria-hidden="true" /><span>Most Erasmus Mundus programmes close applications between <strong>October and January</strong> for the following September. Strong SOPs and LORs take weeks, so start early.</span></p>
+  <a className="erz-button erz-dark" href="#erasmus-form">Book a free call <ArrowRight size={18} /></a>
+</section>;
+
 const faqs = [
+  { q: "What happens on the free call?", a: "An Erasmus expert reviews your degree, CGPA and goals, suggests programmes that fit, and maps the deadlines for your intake. If the mentorship package suits you, they'll walk you through it. There's no obligation to sign up." },
   { q: "Am I eligible?", a: "Each programme has its own degree, subject and English-language requirements. Talk to us about your background so we can help you check your options." },
   { q: `What does ${inr(PRICE)} include?`, a: "One mentorship package covering up to 3 programme applications (the maximum the EU allows per intake): a dedicated mentor, SOPs, recommendation letters, document checklists, filing and deadline tracking for each programme." },
   { q: "When should I apply?", a: "Deadlines vary by programme and intake. Our team can help you check the dates and plan your documents for the programmes you choose." },
@@ -365,16 +396,17 @@ const ApplicationErasmus = () => {
     <header className="erz-header"><div className="erz-container">
       <Link to="/" aria-label="OnePercent Abroad home"><img src={logoWhite} alt="OnePercent Abroad" width="150" height="40" /></Link>
       <nav aria-label="Erasmus navigation"><a href="#results">Results</a><a href="#stories">Student reviews</a><a href="#support">What’s included</a><a href="#FaqSection">FAQs</a></nav>
-      <a className="erz-header-cta" href="#erasmus-form">Free consultation <ArrowRight size={16} /></a>
+      <a className="erz-header-cta" href="#erasmus-form">Book a call <ArrowRight size={16} /></a>
     </div></header>
     <HeroSection isDesktop={isDesktop} />
     <StoriesSection />
     <ReviewsSection />
     <OfferSection />
-    {!isDesktop && <section className="erz-container erz-section erz-contact-section"><div className="erz-contact-copy"><span className="erz-label">LET’S TALK</span><h2>Not sure where<br />to start?</h2><p>Tell us a little about yourself.<br />Our team will call to discuss your options.</p><span className="erz-free-note"><CheckCircle2 size={18} /> Free consultation. No payment needed.</span></div><FormSection /></section>}
+    <FitSection />
+    {!isDesktop && <section className="erz-container erz-section erz-contact-section"><div className="erz-contact-copy"><span className="erz-label">FREE 1:1 CALL</span><h2>Talk to an<br />Erasmus expert.</h2><p>Answer a few questions about your profile.<br />An Erasmus expert will call to walk you through your options.</p></div><FormSection /></section>}
     <section id="FaqSection" className="erz-faq-section"><div className="erz-container erz-section erz-faq-layout"><div><span className="erz-label">A FEW QUICK ANSWERS</span><h2>Before you apply.</h2></div><div>{faqs.map(faq => <details className="erz-faq" key={faq.q}><summary>{faq.q}<ChevronDown size={19} /></summary><p>{faq.a}</p></details>)}</div></div></section>
     <Footer />
-    {showMobileCta && <div className="erz-mobile-actions"><a href="#erasmus-form">Talk to an expert — free <ArrowRight size={18} /></a></div>}
+    {showMobileCta && <div className="erz-mobile-actions"><a href="#erasmus-form">Book a free call <ArrowRight size={18} /></a></div>}
   </main>;
 };
 
@@ -383,6 +415,19 @@ export default ApplicationErasmus;
 // Same labels as /get-started, so the CRM groups both forms' budgets together.
 const BUDGET_OPTIONS = ["5 to 15 Lakhs", "15 to 40 L", "40 to 70 L", "70+ L"];
 const HELP_OPTIONS = ["Free guidance on my profile", "Choosing the right programmes", "SOP / document review only", "Scholarship & funding advice", "Something else"];
+const EDUCATION_OPTIONS = ["Final-year bachelor's", "Bachelor's completed", "Master's completed", "1st–3rd year of bachelor's"];
+const START_OPTIONS = ["September 2027", "September 2028", "Just exploring"];
+const FORM_STEPS = ["Your profile", "Your plans", "Your details"];
+
+// Sales calls Hot leads first. Hot = wants the paid package, is applying in the
+// next two intakes, and has (or is about to have) the bachelor's EM requires.
+const leadPriority = (education: string, start: string, wantsPackage: string) => {
+  const eligible = education !== EDUCATION_OPTIONS[3];
+  const soon = start !== "Just exploring";
+  if (wantsPackage === "Yes" && eligible && soon) return "Hot";
+  if (wantsPackage === "Yes" || (eligible && soon)) return "Warm";
+  return "Cold";
+};
 
 const ChoiceGroup = ({ legend, name, options, value, onChange, disabled }: { legend: string; name: string; options: string[]; value: string; onChange: (v: string) => void; disabled: boolean }) =>
   <fieldset className="erz-choices">
@@ -393,28 +438,55 @@ const ChoiceGroup = ({ legend, name, options, value, onChange, disabled }: { leg
   </fieldset>;
 
 const FormSection = ({ variant = "section" }: { variant?: "section" | "hero" }) => {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [step, setStep] = useState(0);
+  const [education, setEducation] = useState("");
   const [cgpa, setCgpa] = useState("");
+  const [start, setStart] = useState("");
   const [budget, setBudget] = useState("");
   const [wantsPackage, setWantsPackage] = useState("");
   const [helpNeeded, setHelpNeeded] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const stepHeading = useRef<HTMLParagraphElement>(null);
+  const movedStep = useRef(false);
+  useEffect(() => {
+    // Move focus with the step (not on first render) so keyboard and screen-reader users follow along.
+    if (movedStep.current) stepHeading.current?.focus({ preventScroll: true });
+    movedStep.current = true;
+  }, [step]);
+  const pick = (set: (v: string) => void) => (v: string) => { set(v); setError(""); };
+
+  // Each step's own check; returns the first problem, or "" when it can move on.
+  const stepError = (s: number) => {
+    if (s === 0) {
+      if (!education) return "Tell us where you are in your studies.";
+      if (!cgpa.trim()) return "Please enter your CGPA or percentage.";
+    }
+    if (s === 1) {
+      if (!start) return "Pick when you'd like to start.";
+      if (!budget) return "Please pick your budget range.";
+      if (!wantsPackage) return "Let us know if you're looking for the mentorship package.";
+      if (wantsPackage === "No" && !helpNeeded) return "Tell us what you'd like help with.";
+    }
+    if (s === 2) {
+      const digits = phone.replace(/\D/g, "");
+      if (!name.trim()) return "Please enter your name.";
+      if (!/^[+\d\s().-]+$/.test(phone) || digits.length < 7 || digits.length > 15) return "Enter a valid phone number, including your country code.";
+    }
+    return "";
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (submitting) return;
-    setError("");
-    const digits = phone.replace(/\D/g, "");
-    if (!name.trim()) { setError("Please enter your name."); return; }
-    if (!/^[+\d\s().-]+$/.test(phone) || digits.length < 7 || digits.length > 15) {
-      setError("Enter a valid phone number, including your country code."); return;
-    }
-    if (!cgpa.trim()) { setError("Please enter your CGPA or percentage."); return; }
-    if (!budget) { setError("Please pick your budget range."); return; }
-    if (!wantsPackage) { setError("Let us know if you're looking for the mentorship package."); return; }
-    if (wantsPackage === "No" && !helpNeeded) { setError("Tell us what you'd like help with."); return; }
+    const problem = stepError(step);
+    setError(problem);
+    if (problem) return;
+    if (step < FORM_STEPS.length - 1) { setStep(step + 1); return; }
+    const priority = leadPriority(education, start, wantsPackage);
     setSubmitting(true);
     try {
       // The row is forwarded to the CRM, so carry the ad attribution with it: the
@@ -433,6 +505,11 @@ const FormSection = ({ variant = "section" }: { variant?: "section" | "hero" }) 
           investment_budget: budget,
           investment_readiness: wantsPackage === "Yes" ? `Wants mentorship package (${inr(PRICE)})` : "Not looking for the package",
           help_needed: wantsPackage === "No" ? helpNeeded : null,
+          // start_year is also a CRM lead column; education_status and
+          // lead_priority reach the lead's raw_payload.
+          education_status: education,
+          start_year: start,
+          lead_priority: priority,
           ...getUtms(),
           ...getMetaMatchData(),
           meta_event_id: metaEventId,
@@ -445,35 +522,63 @@ const FormSection = ({ variant = "section" }: { variant?: "section" | "hero" }) 
         content_category: "erasmus",
         form_location: variant === "hero" ? "hero" : "section",
       }, { eventID: metaEventId });
+      // A second, narrower signal so the ad sets can optimise for buyers rather
+      // than every form fill: make a custom conversion on this event in Ads Manager.
+      if (priority === "Hot") trackMetaCustomEvent("ErasmusHotLead", {
+        content_name: "Erasmus Callback Request",
+        content_category: "erasmus",
+        value: PRICE,
+        currency: "INR",
+      });
       setSubmitted(true);
     } catch {
       setError("We couldn't send your request. Please try again. Your details are still here.");
     } finally { setSubmitting(false); }
   };
   const heroVariant = variant === "hero";
+  const lastStep = step === FORM_STEPS.length - 1;
+  const firstName = name.trim().split(" ")[0];
   return <aside className={heroVariant ? "erz-enquiry erz-enquiry-hero" : "erz-enquiry"} id="erasmus-form" aria-labelledby="enquiry-title">
     {submitted ? <div className="erz-success" role="status">
       <CheckCircle2 size={48} aria-hidden="true" />
       <h2 id="enquiry-title">You're on our callback list.</h2>
-      <p>Thanks, {name.trim().split(" ")[0]}. Our Erasmus team will contact you on <strong>{phone}</strong> to discuss your next steps.</p>
-      <Link className="erz-form-submit" to="/application/erasmus/programs">Explore programmes <ArrowRight size={18} /></Link>
+      <p>Thanks, {firstName}. An Erasmus expert will call you on <strong>{phone}</strong>. Keep your transcripts handy. On the call we'll:</p>
+      <ol className="erz-next-steps">
+        <li>Check your profile against Erasmus Mundus entry requirements</li>
+        <li>Suggest programmes that fit your degree and CGPA</li>
+        <li>Map the deadlines for your {start === "Just exploring" ? "target" : start} intake</li>
+      </ol>
+      <Link className="erz-form-submit" to="/application/erasmus/programs">Explore programmes while you wait <ArrowRight size={18} /></Link>
     </div> : <>
-      <h2 id="enquiry-title">Request a free call</h2>
-      {heroVariant && <p className="erz-hero-note"><CheckCircle2 size={16} aria-hidden="true" /> Free consultation. No payment needed.</p>}
-      <form onSubmit={handleSubmit} aria-busy={submitting}>
-        <label htmlFor="erasmus-name">Your name</label>
-        <input id="erasmus-name" name="name" value={name} onChange={e => setName(e.target.value)} placeholder="Full name" autoComplete="name" required maxLength={120} disabled={submitting} />
-        <label htmlFor="erasmus-phone">Phone number <span>with country code</span></label>
-        <input id="erasmus-phone" name="phone" value={phone} onChange={e => { setPhone(e.target.value); setError(""); }} placeholder="+91 98765 43210" type="tel" inputMode="tel" autoComplete="tel" required maxLength={25} disabled={submitting} aria-describedby={error ? "erasmus-error" : undefined} />
-        <label htmlFor={`erasmus-cgpa-${variant}`}>Your CGPA <span>or percentage</span></label>
-        <input id={`erasmus-cgpa-${variant}`} name="cgpa" value={cgpa} onChange={e => { setCgpa(e.target.value); setError(""); }} placeholder="e.g. 8.2 / 10 or 78%" required maxLength={40} disabled={submitting} />
-        <ChoiceGroup legend="Your budget range" name={`budget-${variant}`} options={BUDGET_OPTIONS} value={budget} onChange={v => { setBudget(v); setError(""); }} disabled={submitting} />
-        <ChoiceGroup legend="Are you looking for our Erasmus Mundus mentorship package?" name={`package-${variant}`} options={["Yes", "No"]} value={wantsPackage} onChange={v => { setWantsPackage(v); setError(""); }} disabled={submitting} />
-        {wantsPackage === "Yes" && <p className="erz-package-note"><CheckCircle2 size={16} aria-hidden="true" /> Our mentorship package is <strong>{inr(PRICE)}</strong>: a dedicated mentor, SOPs, LORs and filing for up to 3 programmes. The call itself is free.</p>}
-        {wantsPackage === "No" && <ChoiceGroup legend="What would you like help with?" name={`help-${variant}`} options={HELP_OPTIONS} value={helpNeeded} onChange={v => { setHelpNeeded(v); setError(""); }} disabled={submitting} />}
-        {error &&<p id="erasmus-error" className="erz-error" role="alert">{error}</p>}
-        <button className="erz-form-submit" type="submit" disabled={submitting}>{submitting ? "Sending your request..." : "Request a free call"}{!submitting && <ArrowRight size={18} aria-hidden="true" />}</button>
-        <p className="erz-consent">By submitting, you agree to be contacted about your Erasmus enquiry. Read our <Link to="/privacy-policy">Privacy Policy</Link>.</p>
+      <h2 id="enquiry-title">Book a free call with us</h2>
+      <p className="erz-hero-note"><CheckCircle2 size={16} aria-hidden="true" /> 3 quick steps. Free call with an expert.</p>
+      <div className="erz-steps" aria-hidden="true">{FORM_STEPS.map((label, i) => <span key={label} className={i <= step ? "is-done" : undefined} />)}</div>
+      <p className="erz-step-label" ref={stepHeading} tabIndex={-1}>Step {step + 1} of {FORM_STEPS.length}: <strong>{FORM_STEPS[step]}</strong></p>
+      <form onSubmit={handleSubmit} aria-busy={submitting} noValidate>
+        {step === 0 && <>
+          <ChoiceGroup legend="Where are you in your studies?" name={`education-${variant}`} options={EDUCATION_OPTIONS} value={education} onChange={pick(setEducation)} disabled={submitting} />
+          <label htmlFor={`erasmus-cgpa-${variant}`}>Your CGPA <span>or percentage</span></label>
+          <input id={`erasmus-cgpa-${variant}`} name="cgpa" value={cgpa} onChange={e => pick(setCgpa)(e.target.value)} placeholder="e.g. 8.2 / 10 or 78%" maxLength={40} />
+        </>}
+        {step === 1 && <>
+          <ChoiceGroup legend="When do you want to start your master's?" name={`start-${variant}`} options={START_OPTIONS} value={start} onChange={pick(setStart)} disabled={submitting} />
+          <ChoiceGroup legend="Your total study budget" name={`budget-${variant}`} options={BUDGET_OPTIONS} value={budget} onChange={pick(setBudget)} disabled={submitting} />
+          <ChoiceGroup legend={`Are you looking for our ${inr(PRICE)} mentorship package?`} name={`package-${variant}`} options={["Yes", "No"]} value={wantsPackage} onChange={pick(setWantsPackage)} disabled={submitting} />
+          {wantsPackage === "Yes" && <p className="erz-package-note"><CheckCircle2 size={16} aria-hidden="true" /> A dedicated mentor, SOPs, LORs and filing for up to 3 programmes. The call itself is free.</p>}
+          {wantsPackage === "No" && <ChoiceGroup legend="What would you like help with?" name={`help-${variant}`} options={HELP_OPTIONS} value={helpNeeded} onChange={pick(setHelpNeeded)} disabled={submitting} />}
+        </>}
+        {lastStep && <>
+          <label htmlFor={`erasmus-name-${variant}`}>Your name</label>
+          <input id={`erasmus-name-${variant}`} name="name" value={name} onChange={e => pick(setName)(e.target.value)} placeholder="Full name" autoComplete="name" maxLength={120} disabled={submitting} />
+          <label htmlFor={`erasmus-phone-${variant}`}>Phone number <span>with country code</span></label>
+          <input id={`erasmus-phone-${variant}`} name="phone" value={phone} onChange={e => pick(setPhone)(e.target.value)} placeholder="+91 98765 43210" type="tel" inputMode="tel" autoComplete="tel" maxLength={25} disabled={submitting} aria-describedby={error ? "erasmus-error" : undefined} />
+        </>}
+        {error && <p id="erasmus-error" className="erz-error" role="alert">{error}</p>}
+        <div className="erz-form-nav">
+          {step > 0 && <button type="button" className="erz-form-back" onClick={() => { setError(""); setStep(step - 1); }} disabled={submitting}><ArrowLeft size={18} aria-hidden="true" /><span className="erz-sr">Back</span></button>}
+          <button className="erz-form-submit" type="submit" disabled={submitting}>{submitting ? "Sending your request..." : lastStep ? "Book my free call" : "Continue"}{!submitting && <ArrowRight size={18} aria-hidden="true" />}</button>
+        </div>
+        {lastStep && <p className="erz-consent">By submitting, you agree to be contacted about your Erasmus enquiry. Read our <Link to="/privacy-policy">Privacy Policy</Link>.</p>}
       </form>
     </>}
   </aside>;
