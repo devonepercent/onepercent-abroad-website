@@ -14,7 +14,7 @@ const corsHeaders = {
 
 // The price is fixed server-side so the browser cannot choose what it pays.
 // Keep in sync with PRICE in src/pages/SopVault.tsx.
-const PLAN_PRICES: Record<string, number> = { full: 1 }; // TEMP: ₹1 for live payment testing — restore to 199
+const PLAN_PRICES: Record<string, number> = { full: 199 };
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {

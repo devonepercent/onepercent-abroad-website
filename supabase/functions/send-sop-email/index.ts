@@ -7,21 +7,21 @@ const corsHeaders = {
 };
 
 const SOP_NAMES: Record<number, { univ: string; prog: string }> = {
-  1:  { univ: "Hertie School",                       prog: "MA Public Policy" },
-  2:  { univ: "Johns Hopkins University",             prog: "MA Public Policy (SAIS)" },
-  3:  { univ: "Erasmus Mundus (EMJM)",               prog: "Erasmus Mundus Joint Master" },
-  4:  { univ: "NMBU",                                 prog: "MSc Agroecology" },
-  5:  { univ: "Europubhealth+",                       prog: "European Public Health Master" },
-  6:  { univ: "University of Pisa",                   prog: "MSc AI Data Engineering" },
-  7:  { univ: "Central European University",          prog: "MA Public Policy" },
+  1:  { univ: "Europubhealth+",                       prog: "Erasmus Mundus Master in Public Health" },
+  2:  { univ: "University of Glasgow",                prog: "MSc Media, Communications & International Journalism" },
+  3:  { univ: "Central European University",          prog: "MA Public Policy" },
+  4:  { univ: "Hertie School",                        prog: "Master of Public Policy" },
+  5:  { univ: "Johns Hopkins University",             prog: "Master of Public Health" },
+  6:  { univ: "MERGED (Erasmus Mundus)",              prog: "Environment & Development" },
+  7:  { univ: "University of Sheffield",              prog: "MPH Public Health" },
   8:  { univ: "University of Glasgow",                prog: "MSc Data Science" },
-  9:  { univ: "Keele University",                     prog: "MSc Environmental & Green Technology" },
-  10: { univ: "University of Freiburg",               prog: "MSc Global Urban Health" },
-  11: { univ: "University of Leeds",                  prog: "MSc Sustainable Cities" },
-  12: { univ: "University of Glasgow",                prog: "MSc International Journalism" },
-  13: { univ: "University of Sussex",                 prog: "MA Development Studies" },
-  14: { univ: "ACES-STAR",                            prog: "MSc Aquaculture, Environment and Society" },
-  15: { univ: "University of Sheffield",              prog: "MPH Public Health" },
+  9:  { univ: "University of Leeds",                  prog: "MSc Sustainable Cities" },
+  10: { univ: "University of Pisa",                   prog: "Master in Artificial Intelligence" },
+  11: { univ: "Keele University",                     prog: "MSc Environmental Sustainability & Green Technology" },
+  12: { univ: "University of Freiburg",               prog: "MSc Global Urban Health" },
+  13: { univ: "ACES-STAR (Erasmus Mundus)",           prog: "Aquaculture, Environment & Society" },
+  14: { univ: "University of Sussex",                 prog: "MA Development Studies" },
+  15: { univ: "Isara",                                prog: "Terra Isara Scholarship Letter (MSc Agroecology)" },
 };
 
 const ALL_SOP_IDS = Object.keys(SOP_NAMES).map(Number).sort((a, b) => a - b);

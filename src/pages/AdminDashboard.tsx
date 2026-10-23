@@ -249,21 +249,21 @@ interface SopEvent {
 }
 
 const SOP_VAULT_NAMES: Record<number, string> = {
-  1: "Hertie School — MA Public Policy",
-  2: "Johns Hopkins (SAIS) — MA Public Policy",
-  3: "Erasmus Mundus Joint Master",
-  4: "NMBU — MSc Agroecology",
-  5: "Europubhealth+ — European Public Health",
-  6: "University of Pisa — MSc AI Data Engineering",
-  7: "Central European University — MA Public Policy",
+  1: "Europubhealth+ — Erasmus Mundus Public Health",
+  2: "University of Glasgow — MSc International Journalism (essays)",
+  3: "Central European University — MA Public Policy",
+  4: "Hertie School — Master of Public Policy",
+  5: "Johns Hopkins — Master of Public Health",
+  6: "MERGED (Erasmus Mundus) — Environment & Development",
+  7: "University of Sheffield — MPH Public Health",
   8: "University of Glasgow — MSc Data Science",
-  9: "Keele — MSc Environmental & Green Technology",
-  10: "University of Freiburg — MSc Global Urban Health",
-  11: "University of Leeds — MSc Sustainable Cities",
-  12: "University of Glasgow — MSc International Journalism",
-  13: "University of Sussex — MA Development Studies",
-  14: "ACES-STAR — MSc Aquaculture, Environment & Society",
-  15: "University of Sheffield — MPH Public Health",
+  9: "University of Leeds — MSc Sustainable Cities",
+  10: "University of Pisa — Master in Artificial Intelligence",
+  11: "Keele — MSc Environmental Sustainability & Green Technology",
+  12: "University of Freiburg — MSc Global Urban Health",
+  13: "ACES-STAR (Erasmus Mundus) — Aquaculture, Environment & Society",
+  14: "University of Sussex — MA Development Studies",
+  15: "Isara — Terra Isara Scholarship Letter (MSc Agroecology)",
 };
 const ALL_SOP_VAULT_IDS = Object.keys(SOP_VAULT_NAMES).map(Number).sort((a, b) => a - b);
 

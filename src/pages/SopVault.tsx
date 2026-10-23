@@ -5,7 +5,7 @@ import { initMetaPixel, trackMetaEvent } from "@/lib/metaPixel";
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
 
-const PRICE = 1; // TEMP: ₹1 for live payment testing — restore to 199
+const PRICE = 199;
 const OLD_PRICE = 799;
 
 // Razorpay Checkout is loaded on demand so the page doesn't pay for it up front.
@@ -31,19 +31,19 @@ const img = (id: string, ext = "jpg") => `/sop-vault/${id}.${ext}`;
 
 const admits = [
   { uni: "Johns Hopkins",               prog: "Master of Public Health",                  img: img("f28f587061b63e07c09413b298e6123e") },
-  { uni: "Hertie School",               prog: "MA Public Policy",                         img: img("1db64740d94ca33c61c268972c0ea32b") },
-  { uni: "Erasmus Mundus",              prog: "Joint Master, Intl. Relations",            img: img("fb07960f79ccc4be83942b434bb02186") },
-  { uni: "NMBU",                        prog: "MSc Agroecology",                          img: img("06ed137064a6703cab78a7ae0469e5d5") },
+  { uni: "Hertie School",               prog: "Master of Public Policy",                  img: img("1db64740d94ca33c61c268972c0ea32b") },
+  { uni: "MERGED (Erasmus Mundus)",     prog: "Environment and Development",              img: img("fb07960f79ccc4be83942b434bb02186") },
+  { uni: "Isara, France",               prog: "Terra Isara Scholarship, MSc Agroecology",  img: img("06ed137064a6703cab78a7ae0469e5d5") },
   { uni: "Europubhealth+",              prog: "Erasmus Mundus, Public Health",            img: img("fb07960f79ccc4be83942b434bb02186") },
-  { uni: "Università di Pisa",          prog: "MSc AI and Data Engineering",              img: img("dd987e2badde0909d8dd663a29c7aef9") },
+  { uni: "Università di Pisa",          prog: "Master in Artificial Intelligence",        img: img("dd987e2badde0909d8dd663a29c7aef9") },
   { uni: "Central European University", prog: "MA Public Policy",                         img: img("274a5eddb70fceba64686ac7547db3b9") },
   { uni: "University of Glasgow",       prog: "MSc Data Science",                         img: img("2260c21aab3dfe6b1e270fa53cba02c8") },
-  { uni: "Keele University",            prog: "MSc Environmental and Green Technology",   img: img("27156fc31cc83592488327e6206979ac") },
+  { uni: "Keele University",            prog: "MSc Environmental Sustainability and Green Technology",  img: img("27156fc31cc83592488327e6206979ac") },
   { uni: "University of Freiburg",      prog: "MSc Global Urban Health",                  img: img("9b3c111ce6c3fd221346406a91a260ed") },
   { uni: "University of Leeds",         prog: "MSc Sustainable Cities",                   img: img("0e2a1d904c2ac1c5830751cef4383150") },
-  { uni: "University of Glasgow",       prog: "MSc International Journalism",             img: img("2260c21aab3dfe6b1e270fa53cba02c8") },
+  { uni: "University of Glasgow",       prog: "MSc Media, Communications and Intl. Journalism",  img: img("2260c21aab3dfe6b1e270fa53cba02c8") },
   { uni: "University of Sussex",        prog: "MA Development Studies",                   img: img("cccc1092be1b56fce612ae55f286d8df") },
-  { uni: "ACES STAR",                   prog: "MSc Aquaculture, Environment and Society", img: img("af5a9ef55454a19567a3556700a1a57d") },
+  { uni: "ACES STAR (Erasmus Mundus)",  prog: "Aquaculture, Environment and Society",     img: img("af5a9ef55454a19567a3556700a1a57d") },
   { uni: "University of Sheffield",     prog: "MPH Public Health",                        img: img("f74147812831bb06a32ea809d394b271") },
 ];
 
