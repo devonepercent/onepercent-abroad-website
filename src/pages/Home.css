@@ -241,8 +241,21 @@
   border-radius:22px;padding:23px;min-height:240px;
   display:flex;flex-direction:column;
   transition:transform .25s,box-shadow .25s;
+  position:relative;overflow:hidden;isolation:isolate;
 }
 .op-home .simple-card:hover{transform:translateY(-3px);box-shadow:0 16px 36px rgba(1,15,112,.08)}
+/* Faded scholarship logo watermark; multiply drops the logos' white backgrounds */
+.op-home .pathway-logo{
+  position:absolute;z-index:-1;right:20px;bottom:20px;width:auto;max-width:58%;
+  object-fit:contain;object-position:right bottom;
+  opacity:.35;mix-blend-mode:multiply;pointer-events:none;
+  transform-origin:right bottom;transition:opacity .3s,transform .4s;
+}
+/* Heights tuned so the three logos look the same visual size */
+.op-home .pl-erasmus{height:72px}
+.op-home .pl-daad{height:92px}
+.op-home .pl-chevening{height:56px}
+.op-home .simple-card:hover .pathway-logo{opacity:.5;transform:scale(1.05)}
 .op-home .simple-card h3{font-size:27px;letter-spacing:-.04em;margin:0 0 10px}
 .op-home .simple-card p{color:var(--muted);line-height:1.5;margin:0}
 .op-home .simple-card .go{margin-top:auto;padding-top:16px;color:var(--blue2);font-weight:600}
@@ -340,6 +353,8 @@
   .op-home .section{padding:65px 0}
   .op-home .section-head{margin-bottom:22px}
   .op-home .intent-grid,.op-home .sch-grid{grid-template-columns:1fr}
+  .op-home .pl-erasmus{height:60px}
+  .op-home .pl-chevening{height:48px}
   .op-home .intent{min-height:176px}
   .op-home .intent-icon svg{width:31px;height:31px}
 

@@ -38,9 +38,9 @@ const journeySteps = [
 const JOURNEY_PATH = "M120 58 C760 68 790 170 600 232 C340 315 170 270 190 385 C210 505 790 420 720 555 C660 680 265 615 205 745 C165 825 575 795 770 880";
 
 const pathways = [
-  { title: "Erasmus Mundus", desc: "Joint master’s programmes across Europe with competitive scholarship pathways.", to: "/application/erasmus", cta: "Assess my fit" },
-  { title: "DAAD",           desc: "Postgraduate and research funding routes for Germany.",                         to: "/get-started",         cta: "Get started" },
-  { title: "Chevening",      desc: "Competitive UK scholarship route for high-potential applicants.",               to: "/get-started",         cta: "Get started" },
+  { title: "Erasmus Mundus", desc: "Joint master’s programmes across Europe with competitive scholarship pathways.", to: "/application/erasmus", cta: "Assess my fit", logo: "/images/pathways/erasmus.jpg" },
+  { title: "DAAD",           desc: "Postgraduate and research funding routes for Germany.",                         to: "/get-started",         cta: "Get started", logo: "/images/pathways/daad.png" },
+  { title: "Chevening",      desc: "Competitive UK scholarship route for high-potential applicants.",               to: "/get-started",         cta: "Get started", logo: "/images/pathways/chevening.png" },
 ];
 
 const founder = {
@@ -292,6 +292,7 @@ const Index = () => {
         <div className="sch-grid">
           {pathways.map(p => (
             <Link key={p.title} to={p.to} className="simple-card">
+              <img className={`pathway-logo pl-${p.title.split(" ")[0].toLowerCase()}`} src={p.logo} alt="" aria-hidden />
               <h3>{p.title}</h3>
               <p>{p.desc}</p>
               <span className="go">{p.cta} →</span>
