@@ -146,3 +146,6 @@
   .op-site h2{font-size:40px}
   .op-footer-grid>div:first-child{grid-column:1/-1}
 }
+
+/* Inline arrow icon (see Arrow.tsx) */
+.op-arrow{width:1em;height:1em;display:inline-block;vertical-align:-.15em;flex-shrink:0}

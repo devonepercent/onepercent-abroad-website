@@ -8,6 +8,7 @@ import FAQ from "@/components/FAQ";
 import NewsletterSection from "@/components/NewsletterSection";
 import NewsletterPopup from "@/components/NewsletterPopup";
 import "./Home.css";
+import Arrow from "@/components/site/Arrow";
 
 // Mega cards: top student outcomes
 const megaStudents = [
@@ -125,8 +126,8 @@ const ScholarshipCoverflow = () => {
         ))}
       </div>
       <div className="sch-controls">
-        <button className="circle-btn" aria-label="Previous student" onClick={() => goTo(active - 1)}>←</button>
-        <button className="circle-btn" aria-label="Next student" onClick={() => goTo(active + 1)}>→</button>
+        <button className="circle-btn" aria-label="Previous student" onClick={() => goTo(active - 1)}><Arrow dir="left" /></button>
+        <button className="circle-btn" aria-label="Next student" onClick={() => goTo(active + 1)}><Arrow /></button>
       </div>
     </section>
   );
@@ -216,7 +217,7 @@ const Index = () => {
           <h1>Build a profile that can go further.</h1>
           <p>Personalised strategy for Bachelor’s, Master’s, MBA and PhD applicants targeting exceptional universities, scholarships and global opportunities.</p>
           <div className="hero-actions">
-            <Link className="op-btn primary" to="/get-started">Book a free call ↗</Link>
+            <Link className="op-btn primary" to="/get-started">Book a free call <Arrow dir="up-right" /></Link>
             <Link className="op-btn light" to="/services">Explore services</Link>
           </div>
         </div>
@@ -243,7 +244,7 @@ const Index = () => {
             <Link key={it.title} to="/get-started" className="intent">
               <div className="intent-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">{it.icon}</svg></div>
               <h3>{it.title}</h3>
-              <span className="go">{it.cta} →</span>
+              <span className="go">{it.cta} <Arrow /></span>
             </Link>
           ))}
         </div>
@@ -295,7 +296,7 @@ const Index = () => {
               <img className={`pathway-logo pl-${p.title.split(" ")[0].toLowerCase()}`} src={p.logo} alt="" aria-hidden />
               <h3>{p.title}</h3>
               <p>{p.desc}</p>
-              <span className="go">{p.cta} →</span>
+              <span className="go">{p.cta} <Arrow /></span>
             </Link>
           ))}
         </div>
@@ -309,7 +310,7 @@ const Index = () => {
           </div>
           <div>
             <p>A senior counsellor understands where you are, where you want to go and what the right next step could be.</p>
-            <Link className="op-btn primary" to="/get-started">Book a free call ↗</Link>
+            <Link className="op-btn primary" to="/get-started">Book a free call <Arrow dir="up-right" /></Link>
           </div>
         </div>
       </section>

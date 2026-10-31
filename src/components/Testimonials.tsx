@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Arrow from "@/components/site/Arrow";
 
 const testimonials = [
   {
@@ -67,9 +68,9 @@ const Testimonials = () => {
           </article>
         ))}
         <div className="story-nav">
-          <button className="circle-btn" aria-label="Previous story" onClick={() => go(active - 1)}>←</button>
+          <button className="circle-btn" aria-label="Previous story" onClick={() => go(active - 1)}><Arrow dir="left" /></button>
           <div className="story-progress"><span key={run} className="run" /></div>
-          <button className="circle-btn" aria-label="Next story" onClick={() => go(active + 1)}>→</button>
+          <button className="circle-btn" aria-label="Next story" onClick={() => go(active + 1)}><Arrow /></button>
         </div>
       </div>
     </section>

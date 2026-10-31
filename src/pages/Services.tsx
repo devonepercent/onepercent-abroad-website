@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import SiteNav from "@/components/site/SiteNav";
 import SiteFooter from "@/components/site/SiteFooter";
 import "./Services.css";
+import Arrow from "@/components/site/Arrow";
 
 const services = [
   {
@@ -191,7 +192,7 @@ const Services = () => {
             <div className="s-tag mono"><i />1%abroad services</div>
             <h1>Mentorship built around where you are and where you want to go.</h1>
             <p>There is no one standard package. Scope changes with the applicant, degree level, profile gaps, target universities, scholarship ambition and application stage.</p>
-            <a className="pill" href="#services-grid">Find the right service ↗</a>
+            <a className="pill" href="#services-grid">Find the right service <Arrow dir="up-right" /></a>
           </section>
 
           <div className="s-head" id="services-grid">
@@ -241,7 +242,7 @@ const Services = () => {
                     <h3>{t.title}</h3>
                     <p>{t.desc}</p>
                   </div>
-                  <span className="link">{t.cta} →</span>
+                  <span className="link">{t.cta} <Arrow /></span>
                 </Link>
               ))}
             </div>
@@ -253,7 +254,7 @@ const Services = () => {
               <h3>Not every student needs the same service.</h3>
               <p>Mentorship scope and pricing vary according to requirements. The first useful step is to understand the profile, target and stage.</p>
             </div>
-            <Link className="pill" to="/get-started">Book a free call ↗</Link>
+            <Link className="pill" to="/get-started">Book a free call <Arrow dir="up-right" /></Link>
           </section>
 
           <section className="faqs">

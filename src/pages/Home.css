@@ -107,31 +107,15 @@
   display:flex;flex-direction:column;
   box-shadow:0 8px 25px rgba(1,15,112,.04);
   transition:transform .25s,box-shadow .25s;
-  position:relative;overflow:hidden;isolation:isolate;
 }
-/* Library photo inside each card, under a white wash so the text stays crisp */
-.op-home .intent:before,.op-home .intent:after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none}
-.op-home .intent:before{
-  background:url(/images/library.jpg) center 40%/cover no-repeat;
-  opacity:.7;transition:opacity .3s,transform .5s;
-}
-.op-home .intent:after{background:linear-gradient(160deg,rgba(255,255,255,.7),rgba(255,255,255,.35) 55%,rgba(255,255,255,.75))}
 .op-home .intent:hover{transform:translateY(-3px);box-shadow:0 16px 36px rgba(1,15,112,.09)}
-.op-home .intent:hover:before{opacity:.85;transform:scale(1.04)}
 .op-home .intent-icon{color:var(--blue2);display:flex;align-items:center;min-height:40px}
 .op-home .intent-icon svg{width:34px;height:34px}
 .op-home .intent h3{font-size:22px;line-height:1.03;letter-spacing:-.035em;margin:18px 0 8px}
 .op-home .intent .go{margin-top:auto;padding-top:10px;color:var(--blue2);font-weight:600}
 
 /* SCROLL-LINKED JOURNEY */
-.op-home .journey-sec{background:#fff;overflow:hidden;position:relative}
-/* Faded campus photo grid behind the journey */
-.op-home .journey-sec:before{
-  content:"";position:absolute;inset:0;pointer-events:none;
-  background:url(/images/journey-campuses.jpg) center/cover no-repeat;
-  opacity:.3;
-}
-.op-home .journey-sec>.op-shell{position:relative;z-index:1}
+.op-home .journey-sec{background:#fff;overflow:hidden}
 .op-home .journey{position:relative;max-width:940px;margin:35px auto 0;height:930px}
 .op-home .pathsvg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .op-home .basepath{fill:none;stroke:#dbe6f8;stroke-width:6;stroke-linecap:round}
@@ -267,7 +251,7 @@
   background:linear-gradient(160deg,var(--sky),var(--blue2) 55%,var(--blue));
   display:grid;place-items:center;
 }
-.op-home .about-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 15%}
+.op-home .about-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 15%;filter:grayscale(1)}
 .op-home .about-photo span{color:rgba(255,255,255,.85);font-family:Satoshi,sans-serif;font-weight:700;font-size:96px;letter-spacing:-.05em}
 .op-home .about-founder{margin:0}
 .op-home .about-founder figcaption{margin-top:18px}
@@ -359,7 +343,6 @@
   .op-home .intent-icon svg{width:31px;height:31px}
 
   .op-home .journey{height:990px;margin-top:22px}
-  .op-home .journey-sec:before{background-size:100% auto;background-repeat:repeat-y;background-position:center top}
   .op-home .j-node{width:190px;grid-template-columns:38px 1fr;gap:8px;padding:10px 12px 10px 8px;border-radius:16px}
   .op-home .j-icon svg{width:32px;height:32px}
   .op-home .j-node h3{font-size:16px}
