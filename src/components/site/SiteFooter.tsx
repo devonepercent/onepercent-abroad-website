@@ -44,8 +44,10 @@ const SiteFooter = () => (
       <div className="op-fcol">
         <h4>Programmes</h4>
         <Link to="/application/erasmus">Erasmus Mundus</Link>
+        {/* Temporarily hidden: restore when these pages are ready.
         <Link to="/chevening">Chevening</Link>
         <Link to="/webinar">Webinars</Link>
+        */}
         <Link to="/newsletter">Newsletter</Link>
       </div>
       <div className="op-fcol">
