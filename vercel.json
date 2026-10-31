@@ -1,9 +1,16 @@
 {
   "rewrites": [
     {
+      "source": "/application/erasmus/tool",
+      "destination": "https://erasmus-tool-frontend.vercel.app/"
+    },
+    {
+      "source": "/application/erasmus/tool/",
+      "destination": "https://erasmus-tool-frontend.vercel.app/"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
 }
-
