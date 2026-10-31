@@ -102,7 +102,7 @@ const ErasmusProgram = () => {
               to={COUNSELLOR_PATH}
               className="block w-full text-center bg-37 text-white font-poppins font-semibold text-[15px] rounded-[56px] py-4"
             >
-              Talk to a counsellor — free
+              Talk to a counsellor for free
             </Link>
 
             <p className="font-inter text-[12px] text-[#6B7A99] text-center mt-4 leading-5">

@@ -105,7 +105,7 @@ const Webinar = () => {
   const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    document.title = "Erasmus Mundus Webinar — This Friday | 1% Abroad";
+    document.title = "Erasmus Mundus Webinar: This Friday | 1% Abroad";
   }, []);
 
   useEffect(() => {
