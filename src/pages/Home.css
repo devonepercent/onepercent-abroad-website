@@ -107,15 +107,31 @@
   display:flex;flex-direction:column;
   box-shadow:0 8px 25px rgba(1,15,112,.04);
   transition:transform .25s,box-shadow .25s;
+  position:relative;overflow:hidden;isolation:isolate;
 }
+/* Library photo inside each card, under a white wash so the text stays crisp */
+.op-home .intent:before,.op-home .intent:after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none}
+.op-home .intent:before{
+  background:url(/images/library.jpg) center 40%/cover no-repeat;
+  opacity:.7;transition:opacity .3s,transform .5s;
+}
+.op-home .intent:after{background:linear-gradient(160deg,rgba(255,255,255,.7),rgba(255,255,255,.35) 55%,rgba(255,255,255,.75))}
 .op-home .intent:hover{transform:translateY(-3px);box-shadow:0 16px 36px rgba(1,15,112,.09)}
+.op-home .intent:hover:before{opacity:.85;transform:scale(1.04)}
 .op-home .intent-icon{color:var(--blue2);display:flex;align-items:center;min-height:40px}
 .op-home .intent-icon svg{width:34px;height:34px}
 .op-home .intent h3{font-size:22px;line-height:1.03;letter-spacing:-.035em;margin:18px 0 8px}
 .op-home .intent .go{margin-top:auto;padding-top:10px;color:var(--blue2);font-weight:600}
 
 /* SCROLL-LINKED JOURNEY */
-.op-home .journey-sec{background:#fff;overflow:hidden}
+.op-home .journey-sec{background:#fff;overflow:hidden;position:relative}
+/* Faded campus photo grid behind the journey */
+.op-home .journey-sec:before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:url(/images/journey-campuses.jpg) center/cover no-repeat;
+  opacity:.3;
+}
+.op-home .journey-sec>.op-shell{position:relative;z-index:1}
 .op-home .journey{position:relative;max-width:940px;margin:35px auto 0;height:930px}
 .op-home .pathsvg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .op-home .basepath{fill:none;stroke:#dbe6f8;stroke-width:6;stroke-linecap:round}
@@ -124,19 +140,37 @@
   position:absolute;z-index:1;width:265px;
   display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:center;
   padding:12px 16px 12px 10px;border-radius:20px;
-  background:rgba(255,255,255,.92);border:1px solid #e3ecf9;
-  box-shadow:0 10px 26px rgba(1,15,112,.07);
+  background:#fff;border:1px solid #e3ecf9;
+  box-shadow:0 10px 26px rgba(1,15,112,.08);
   transform:translateY(10px) scale(.96);
-  transition:transform .28s,box-shadow .28s;
+  transition:transform .3s,box-shadow .3s,border-color .3s;
 }
-.op-home .j-node>*{opacity:.28;transition:opacity .28s}
-.op-home .j-node.active{transform:none;box-shadow:0 14px 32px rgba(6,93,199,.13)}
+.op-home .j-node>*{opacity:.6;transition:opacity .3s}
+/* Lit steps: blue glow, a pulsing ring and a gentle float */
+.op-home .j-node.active{
+  transform:none;border-color:rgba(6,93,199,.35);
+  box-shadow:0 0 0 1px rgba(97,162,254,.25),0 14px 38px rgba(6,93,199,.28),0 0 28px rgba(97,162,254,.35);
+  animation:j-float 4s ease-in-out infinite;
+}
 .op-home .j-node.active>*{opacity:1}
-.op-home .j-icon{color:#aebbd5;display:grid;place-items:center;transition:color .28s,filter .28s,transform .28s}
-.op-home .j-node.active .j-icon{color:var(--blue2);filter:drop-shadow(0 7px 12px rgba(6,93,199,.18));transform:scale(1.06)}
-.op-home .j-icon svg{width:44px;height:44px;stroke-width:1.6}
-.op-home .j-node h3{font-size:20px;line-height:1.05;letter-spacing:-.035em;margin:0}
-.op-home .j-node small{display:block;margin-top:5px;color:var(--muted);font-size:11px}
+.op-home .j-node:after{
+  content:"";position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;
+  border:2px solid var(--sky);opacity:0;
+}
+.op-home .j-node.active:after{animation:j-ring 2.6s ease-out infinite}
+.op-home .j-node.active:hover{
+  transform:translateY(-6px) scale(1.04);
+  box-shadow:0 0 0 2px rgba(97,162,254,.45),0 22px 50px rgba(6,93,199,.38),0 0 44px rgba(97,162,254,.55);
+}
+.op-home .j2.active,.op-home .j5.active{animation-delay:-1.3s}
+.op-home .j3.active,.op-home .j6.active{animation-delay:-2.6s}
+@keyframes j-float{50%{translate:0 -6px}}
+@keyframes j-ring{0%{opacity:.85;transform:scale(1)}100%{opacity:0;transform:scale(1.08)}}
+.op-home .j-icon{color:#8fa3c8;display:grid;place-items:center;transition:color .3s,filter .3s,transform .3s}
+.op-home .j-node.active .j-icon{color:var(--blue2);filter:drop-shadow(0 0 10px rgba(97,162,254,.65));transform:scale(1.06)}
+.op-home .j-icon svg{width:44px;height:44px;stroke-width:1.7}
+.op-home .j-node h3{font-size:21px;line-height:1.05;letter-spacing:-.035em;margin:0;color:var(--ink)}
+.op-home .j-node small{display:block;margin-top:6px;color:#4b5675;font-size:13px;line-height:1.35;font-weight:500}
 .op-home .j1{left:3%;top:2%}.op-home .j2{right:1%;top:18%}.op-home .j3{left:7%;top:35%}
 .op-home .j4{right:3%;top:52%}.op-home .j5{left:1%;top:69%}.op-home .j6{right:6%;top:86%}
 
@@ -226,7 +260,7 @@
 .op-home .about-founder figcaption{margin-top:18px}
 .op-home .about-founder h3{font-size:28px;letter-spacing:-.04em;margin:0;color:var(--blue)}
 .op-home .about-founder small{display:block;margin-top:6px;color:var(--blue2);font-weight:600}
-.op-home .about-copy h2{font-size:clamp(56px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0 0 26px}
+.op-home .about-copy h2{font-size:clamp(44px,5.2vw,72px);line-height:.9;letter-spacing:-.06em;margin:0 0 26px}
 .op-home .about-copy p{color:var(--muted);font-size:17px;line-height:1.65;margin:0 0 14px;max-width:600px}
 .op-home .about-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:22px;max-width:520px}
 .op-home .about-stats div{border-top:2px solid var(--blue);padding-top:14px}
@@ -291,9 +325,16 @@
   .op-home .scholarship-showcase{padding:52px 0 45px}
   .op-home .sch-head{text-align:left}
   .op-home .sch-head h2{font-size:40px;margin-left:0}
-  .op-home .coverflow{height:430px}
-  .op-home .sch-card{width:230px;height:330px;margin:-165px 0 0 -115px;border-radius:22px}
-  .op-home .sch-card h3{font-size:25px}
+  .op-home .coverflow{height:460px}
+  .op-home .sch-card{width:240px;height:360px;margin:-180px 0 0 -120px;border-radius:22px}
+  /* Keep faces clear: photo anchored to the top, smaller text packed into the bottom third */
+  .op-home .sch-card .bgimg{object-position:center 8%}
+  .op-home .sch-card:after{background:linear-gradient(180deg,rgba(0,0,0,0) 48%,rgba(0,6,30,.7) 68%,rgba(0,6,30,.97) 100%)}
+  .op-home .sch-card-content{inset:auto 14px 14px}
+  .op-home .sch-card .badge{font-size:8px;padding:5px 8px}
+  .op-home .sch-card h3{font-size:19px;line-height:1;margin:7px 0 4px}
+  .op-home .sch-card .outcome{font-size:11px;line-height:1.3;margin-bottom:4px}
+  .op-home .sch-card p{font-size:10px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
 
   .op-home .section{padding:65px 0}
@@ -303,6 +344,7 @@
   .op-home .intent-icon svg{width:31px;height:31px}
 
   .op-home .journey{height:990px;margin-top:22px}
+  .op-home .journey-sec:before{background-size:100% auto;background-repeat:repeat-y;background-position:center top}
   .op-home .j-node{width:190px;grid-template-columns:38px 1fr;gap:8px;padding:10px 12px 10px 8px;border-radius:16px}
   .op-home .j-icon svg{width:32px;height:32px}
   .op-home .j-node h3{font-size:16px}
@@ -326,6 +368,7 @@
 }
 @media(prefers-reduced-motion:reduce){
   .op-home .ach-track{animation:none}
+  .op-home .j-node.active,.op-home .j-node.active:after{animation:none}
   .op-home .uni-ribbon{overflow-x:auto;scrollbar-width:none}
   .op-home .uni-track{animation:none}
   .op-home .uni-track img+img{display:none}

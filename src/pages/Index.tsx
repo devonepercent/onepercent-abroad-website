@@ -38,9 +38,9 @@ const journeySteps = [
 const JOURNEY_PATH = "M120 58 C760 68 790 170 600 232 C340 315 170 270 190 385 C210 505 790 420 720 555 C660 680 265 615 205 745 C165 825 575 795 770 880";
 
 const pathways = [
-  { title: "Erasmus Mundus", desc: "Joint master’s programmes across Europe with competitive scholarship pathways.", to: "/application/erasmus" },
-  { title: "DAAD",           desc: "Postgraduate and research funding routes for Germany.",                         to: "/get-started" },
-  { title: "Chevening",      desc: "Competitive UK scholarship route for high-potential applicants.",               to: "/chevening" },
+  { title: "Erasmus Mundus", desc: "Joint master’s programmes across Europe with competitive scholarship pathways.", to: "/application/erasmus", cta: "Assess my fit" },
+  { title: "DAAD",           desc: "Postgraduate and research funding routes for Germany.",                         to: "/get-started",         cta: "Get started" },
+  { title: "Chevening",      desc: "Competitive UK scholarship route for high-potential applicants.",               to: "/get-started",         cta: "Get started" },
 ];
 
 const founder = {
@@ -53,8 +53,8 @@ const founder = {
 const vision = "We provide mentorship to get admission to the top 1% universities.";
 
 const aboutStats = [
-  { value: "4+",    label: "Years of service" },
-  { value: "500+",  label: "Students mentored" },
+  { value: "2+",    label: "Years of service" },
+  { value: "300+",  label: "Students mentored" },
 ];
 
 const ScholarshipCoverflow = () => {
@@ -294,7 +294,7 @@ const Index = () => {
             <Link key={p.title} to={p.to} className="simple-card">
               <h3>{p.title}</h3>
               <p>{p.desc}</p>
-              <span className="go">Assess my fit →</span>
+              <span className="go">{p.cta} →</span>
             </Link>
           ))}
         </div>
