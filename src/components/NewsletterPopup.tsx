@@ -43,15 +43,15 @@ const NewsletterPopup = () => {
       }}
     >
       <div style={{
-        background: "#050505",
-        border: "1px solid rgba(97,162,254,0.15)",
-        borderRadius: 20,
+        background: "radial-gradient(circle at 50% -10%, rgba(6,93,199,0.55), transparent 50%), #020817",
+        border: "1px solid rgba(97,162,254,0.22)",
+        borderRadius: 28,
         padding: "48px 40px 40px",
         maxWidth: 480,
         width: "100%",
         position: "relative",
         boxShadow: "0 24px 80px rgba(0,0,0,0.6)",
-        fontFamily: "'DM Sans', sans-serif",
+        fontFamily: "'General Sans', sans-serif",
         color: "#fff",
         textAlign: "center",
       }}>
@@ -91,10 +91,11 @@ const NewsletterPopup = () => {
           Newsletter
         </p>
         <h2 style={{
-          fontFamily: "'Playfair Display', serif",
-          fontSize: 26,
-          fontWeight: 600,
-          lineHeight: 1.2,
+          fontFamily: "'Satoshi', sans-serif",
+          fontSize: 32,
+          fontWeight: 700,
+          lineHeight: 1.05,
+          letterSpacing: "-0.04em",
           margin: "0 0 12px",
         }}>
           Stay ahead of the curve

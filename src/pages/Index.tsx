@@ -1,499 +1,326 @@
-import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
-import logoWhite from "@/assets/logo-white.png";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import SiteNav from "@/components/site/SiteNav";
+import SiteFooter from "@/components/site/SiteFooter";
 import Testimonials from "@/components/Testimonials";
 import Achievers from "@/components/Achievers";
-import Services from "@/components/Services";
 import FAQ from "@/components/FAQ";
-import Footer from "@/components/Footer";
 import NewsletterSection from "@/components/NewsletterSection";
 import NewsletterPopup from "@/components/NewsletterPopup";
-import AmbientPlayer from "@/components/AmbientPlayer";
+import "./Home.css";
 
-const milestones = [
-  { step: "Step 01", title: "Onboarding",          desc: "We understand your dreams, strengths, and aspirations. A deep-dive session maps your academic profile and sets the trajectory.",                side: 2.8},
-  { step: "Step 02", title: "School listing",       desc: "Our golden database of 1,000+ programs meets your profile. A strategic mix of ambitious, target, and safe universities.",                        side: -2.8},
-  { step: "Step 03", title: "Profile development",  desc: "Building a compelling narrative. We identify gaps, strengthen weak points, and position you as the unmissable candidate.",                        side: 2.8 },
-  { step: "Step 04", title: "SOP writing strategy", desc: "Your Statement of Purpose becomes your strongest weapon, a narrative admissions committees remember.",                                           side: -2.8},
-  { step: "Step 05", title: "CV finalizing",        desc: "Every line refined to academic standards. Achievements, research, and experiences presented with maximum impact.",                               side: 2.8 },
-  { step: "Step 06", title: "Application strategy", desc: "Deadline management, interview prep, and a submission strategy maximising your odds at every dream university.",                                  side: -2.8},
+// Mega cards: top student outcomes
+const megaStudents = [
+  { name: "Ahmed Shoeb Hashmi", badge: "Johns Hopkins · USA",  outcome: "$116,000 · ₹1 crore+ Sommer Scholarship", detail: "Master of Public Health · Johns Hopkins Bloomberg School of Public Health.", image: "/images/mega/ahmed-shoeb-hashmi.jpg" },
+  { name: "Anjana Sunanda",     badge: "Erasmus Mundus",       outcome: "Erasmus Mundus Joint Master’s",          detail: "GLODEP · Global Development Policy · Palacký University Olomouc.",          image: "/images/mega/anjana-sunanda.jpg" },
+  { name: "Muhammed Aaquib Husain Shad", badge: "Loughborough · UK",    outcome: "MSc offer",                               detail: "MSc Digital Finance and Artificial Intelligence · Loughborough University.", image: "/images/mega/muhammed-aaquib.jpg" },
+  { name: "Jinsa Jobe",         badge: "Erasmus Mundus",       outcome: "50% scholarship",                         detail: "Joint Master in Sustainable Food Processing, Circular Food Systems and Future Foods.", image: "/images/mega/jinsa-jobe.jpg" },
+  { name: "Tanab Mehraj",       badge: "Erasmus Mundus",       outcome: "Selected for the 2026 cohort",            detail: "IMBRSea · International Master in Marine Biological Resources.",            image: "/images/mega/tanab-mehraj.jpg" },
+  { name: "Fidha Nourin",       badge: "3 UG offers",          outcome: "3 undergraduate offers",                  detail: "Industrial Engineering · American University of Sharjah (UAE), TU Eindhoven (Netherlands), Arizona State University (USA).", image: "/images/mega/fidha-nourin.jpg" },
 ];
 
-const MILESTONE_T = [0.08, 0.23, 0.38, 0.54, 0.70, 0.88];
-
-const uniNodes = [
-  { src: "/uni-logos/harvard.svg",         name: "Harvard",      left: "6%",  top: "50%", size: 136, dur: "3.4s", delay: "0s",   flag: false, mobileLeft: "18%",  mobileTop: "80%" },
-  { src: "/uni-logos/mit.svg",             name: "MIT",           left: "24%", top: "30%", size: 96,  dur: "3.8s", delay: "0.3s", flag: false, mobileLeft: "7%",  mobileTop: "30%" },
-  { src: "/uni-logos/oxford.svg",          name: "Oxford",        left: "50%", top: "27%", size: 117, dur: "3.1s", delay: "0.7s", flag: false, mobileLeft: "50%", mobileTop: "22%" },
-  { src: "/uni-logos/erasmus.svg",         name: "Erasmus+",      left: "74%", top: "31%", size: 96,  dur: "4.0s", delay: "0.2s", flag: false, mobileLeft: "86%", mobileTop: "32%" },
-  { src: "/uni-logos/lse.svg",             name: "LSE",           left: "91%", top: "52%", size: 136, dur: "3.6s", delay: "0.9s", flag: false, mobileLeft: "82%", mobileTop: "80%" },
-  { src: "/uni-logos/nus.svg",             name: "NUS",           left: "80%", top: "76%", size: 96,  dur: "2.9s", delay: "0.5s", flag: false, mobileLeft: "26%", mobileTop: "38%" },
-  { src: "/uni-logos/gt.svg",              name: "Georgia Tech",  left: "34%", top: "90%", size: 96,  dur: "3.5s", delay: "1.1s", flag: false },
-  { src: "https://flagcdn.com/w80/us.png", name: "USA",           left: "20%", top: "94%", size: 96,  dur: "3.3s", delay: "0.4s", flag: true  },
-  { src: "https://flagcdn.com/w80/gb.png", name: "UK",            left: "7%",  top: "80%", size: 117, dur: "3.7s", delay: "1.0s", flag: true  },
-  { src: "https://flagcdn.com/w80/au.png", name: "Australia",     left: "85%", top: "87%", size: 136, dur: "3.2s", delay: "0.6s", flag: true  },
-  { src: "https://flagcdn.com/w80/de.png", name: "Germany",       left: "56%", top: "94%", size: 117, dur: "4.1s", delay: "0.8s", flag: true  },
+const intents = [
+  { title: "A top global university",     cta: "Explore strategy",     icon: <path d="M3 21h18M5 21V8l7-4 7 4v13M9 12h6M9 16h6" /> },
+  { title: "A fully funded scholarship",  cta: "Explore scholarships", icon: <path d="M12 3v18M7 7.5A4 4 0 0 1 11 4h2a4 4 0 0 1 0 8h-2a4 4 0 0 0 0 8h2a4 4 0 0 0 4-3.5" /> },
+  { title: "The right university abroad", cta: "Find my route",        icon: <><path d="M12 21s7-5.1 7-12A7 7 0 1 0 5 9c0 6.9 7 12 7 12Z" /><circle cx="12" cy="9" r="2" /></> },
+  { title: "A stronger profile",          cta: "Assess my profile",    icon: <path d="M4 19V9m6 10V5m6 14v-7m4 7H2" /> },
 ];
 
-const Index = () => {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
+const journeySteps = [
+  { title: "Understand the profile",  note: "Start with evidence, not assumptions.",      threshold: 0.02, icon: <><circle cx="12" cy="7" r="4" /><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" /></> },
+  { title: "Define ambition",         note: "Set the right level of target.",             threshold: 0.19, icon: <><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="4" /><path d="m15 9 6-6" /></> },
+  { title: "Identify gaps",           note: "Find what is missing before applications.",  threshold: 0.37, icon: <><circle cx="10" cy="10" r="6" /><path d="m15 15 6 6M10 7v6M7 10h6" /></> },
+  { title: "Develop the profile",     note: "Build stronger evidence and exposure.",      threshold: 0.55, icon: <><path d="M12 21V9" /><path d="M12 14c-5 0-8-3-8-8 5 0 8 3 8 8Zm0-3c5 0 8-3 8-8-5 0-8 3-8 8Z" /></> },
+  { title: "Shortlist strategically", note: "Balance ambition, fit and funding.",         threshold: 0.73, icon: <><path d="M8 6h13M8 12h13M8 18h13" /><path d="m3 6 1 1 2-2m-3 7 1 1 2-2m-3 7 1 1 2-2" /></> },
+  { title: "Build the application",   note: "Turn the profile into a coherent case.",     threshold: 0.90, icon: <><path d="m22 2-7 20-4-9-9-4 20-7Z" /><path d="M22 2 11 13" /></> },
+];
+
+const JOURNEY_PATH = "M120 58 C760 68 790 170 600 232 C340 315 170 270 190 385 C210 505 790 420 720 555 C660 680 265 615 205 745 C165 825 575 795 770 880";
+
+const pathways = [
+  { title: "Erasmus Mundus", desc: "Joint master’s programmes across Europe with competitive scholarship pathways.", to: "/application/erasmus", cta: "Assess my fit" },
+  { title: "DAAD",           desc: "Postgraduate and research funding routes for Germany.",                         to: "/get-started",         cta: "Get started" },
+  { title: "Chevening",      desc: "Competitive UK scholarship route for high-potential applicants.",               to: "/get-started",         cta: "Get started" },
+];
+
+const founder = {
+  name: "Irshad M U",
+  title: "Founder, OnePercent Abroad",
+  bio: "Irshad M U founded OnePercent Abroad to make personalised mentorship accessible to ambitious students. He helps them prepare strong applications for top universities and scholarships.",
+  photo: "/images/founder/irshad-mu.jpg",
+};
+
+const vision = "We provide mentorship to get admission to the top 1% universities.";
+
+const aboutStats = [
+  { value: "2+",    label: "Years of service" },
+  { value: "300+",  label: "Students mentored" },
+];
+
+const ScholarshipCoverflow = () => {
+  const n = megaStudents.length;
+  const [active, setActive] = useState(0);
+  const [tick, setTick] = useState(0);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 620);
+  const paused = useRef(false);
+  const drag = useRef<{ start: number; last: number } | null>(null);
 
   useEffect(() => {
-    const handler = () => setIsMobile(window.innerWidth < 640);
-    window.addEventListener("resize", handler);
-    return () => window.removeEventListener("resize", handler);
-  }, []);
-
-  const scrollRef    = useRef<HTMLDivElement>(null);
-  const particleRef  = useRef<HTMLCanvasElement>(null);
-  const pathRef      = useRef<HTMLCanvasElement>(null);
-  const heroRef      = useRef<HTMLDivElement>(null);
-  const uniLogosRef  = useRef<HTMLDivElement>(null);
-  const uniLabelRef  = useRef<HTMLDivElement>(null);
-  const uniNodeRefs  = useRef<(HTMLDivElement | null)[]>([]);
-  const cardRefs     = useRef<(HTMLDivElement | null)[]>([]);
-  const dotRefs      = useRef<(HTMLDivElement | null)[]>([]);
-  const animFrameRef = useRef(0);
-
-  // Lock body scroll
-  useEffect(() => {
-    const html = document.documentElement;
-    const prev = html.style.overflow;
-    html.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-    return () => { html.style.overflow = prev; document.body.style.overflow = ""; };
-  }, []);
-
-  // Google Fonts
-  useEffect(() => {
-    const link = document.createElement("link");
-    link.rel  = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap";
-    document.head.appendChild(link);
-    return () => { document.head.removeChild(link); };
-  }, []);
-
-  // Main animation engine
-  useEffect(() => {
-    const scrollEl  = scrollRef.current;
-    const pCanvas   = particleRef.current;
-    const jCanvas   = pathRef.current;
-    const hero      = heroRef.current;
-    const uniLogos  = uniLogosRef.current;
-    const uniLabel  = uniLabelRef.current;
-    if (!scrollEl || !pCanvas || !jCanvas || !hero || !uniLogos || !uniLabel) return;
-
-    const px = pCanvas.getContext("2d")!;
-    const jx = jCanvas.getContext("2d")!;
-
-    const TOTAL_SCROLL = 6000;
-    const HERO_END     = 750;
-    const PATH_LENGTH  = 12000;
-    const PATH_POINTS  = 1200;
-    const FOV          = 600;
-    const CAM_Y        = -320;
-
-    function resize() {
-      pCanvas!.width  = window.innerWidth;
-      pCanvas!.height = window.innerHeight;
-      jCanvas!.width  = window.innerWidth;
-      jCanvas!.height = window.innerHeight;
-    }
-    resize();
-
-    // Build 3-D path
-    const pathPts: { x: number; y: number; z: number }[] = [];
-    for (let i = 0; i <= PATH_POINTS; i++) {
-      const t = i / PATH_POINTS;
-      pathPts.push({ x: Math.sin(t * Math.PI * 2.5) * 160, y: 0, z: t * PATH_LENGTH });
-    }
-
-    function project(px3d: number, py3d: number, pz3d: number, camZ: number, W: number, H: number) {
-      const rz = pz3d - camZ;
-      if (rz < 1) return null;
-      const scale = FOV / rz;
-      return { x: W / 2 + px3d * scale, y: H / 2 + (py3d - CAM_Y) * scale, scale, z: rz };
-    }
-
-    function drawPath3D(camZ: number, W: number, H: number) {
-      jx.clearRect(0, 0, W, H);
-
-      const projected = pathPts.map(p => {
-        const pr = project(p.x, p.y, p.z, camZ, W, H);
-        return (pr && pr.z < 5000) ? pr : null;
-      });
-
-      const left: { x: number; y: number }[]  = [];
-      const right: { x: number; y: number }[] = [];
-      const center: { x: number; y: number; scale: number; z: number }[] = [];
-
-      for (let i = 0; i < projected.length; i++) {
-        const pr = projected[i]; if (!pr) continue;
-        const prev = i > 0 ? projected[i - 1] : null;
-        const next = i < projected.length - 1 ? projected[i + 1] : null;
-        let tdx = 0, tdy = 0;
-        if (prev && next) { tdx = next.x - prev.x; tdy = next.y - prev.y; }
-        else if (next)    { tdx = next.x - pr.x;   tdy = next.y - pr.y; }
-        else if (prev)    { tdx = pr.x - prev.x;   tdy = pr.y - prev.y; }
-        else continue;
-        const tlen = Math.sqrt(tdx * tdx + tdy * tdy) || 1;
-        const nx = -tdy / tlen, ny = tdx / tlen;
-        const hw = Math.min(100 * pr.scale, 150 * pr.scale * 2);
-        left.push({ x: pr.x + nx * hw, y: pr.y + ny * hw });
-        right.push({ x: pr.x - nx * hw, y: pr.y - ny * hw });
-        center.push({ x: pr.x, y: pr.y, scale: pr.scale, z: pr.z });
-      }
-      if (left.length < 2) return;
-
-      function smoothCurve(pts: { x: number; y: number }[], move: boolean) {
-        if (move) jx.moveTo(pts[0].x, pts[0].y);
-        else      jx.lineTo(pts[0].x, pts[0].y);
-        for (let i = 1; i < pts.length - 1; i++) {
-          const mx = (pts[i].x + pts[i + 1].x) / 2;
-          const my = (pts[i].y + pts[i + 1].y) / 2;
-          jx.quadraticCurveTo(pts[i].x, pts[i].y, mx, my);
-        }
-        jx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
-      }
-
-      const sg = jx.createLinearGradient(center[0].x, center[0].y, center[center.length - 1].x, center[center.length - 1].y);
-      sg.addColorStop(0,    "rgba(97,162,254,0.55)");
-      sg.addColorStop(0.98, "rgba(97,162,254,0.55)");
-      sg.addColorStop(1,    "rgba(97,162,254,0)");
-
-      jx.beginPath(); smoothCurve(left, true);
-      jx.strokeStyle = sg; jx.lineWidth = 2; jx.lineJoin = "round"; jx.stroke();
-      jx.beginPath(); smoothCurve(right, true);
-      jx.strokeStyle = sg; jx.lineWidth = 2; jx.stroke();
-
-      for (let i = 0; i < center.length; i += 8) {
-        const c = center[i];
-        if (Math.random() > 0.3) continue;
-        const drift = (Math.random() - 0.5) * 20 / Math.max(1, c.z * 0.01);
-        jx.beginPath();
-        jx.arc(c.x + drift, c.y + drift * 0.5, 1.5 / Math.max(1, c.z * 0.003), 0, Math.PI * 2);
-        jx.fillStyle = `rgba(97,162,254,${0.3 / Math.max(1, c.z * 0.002)})`; jx.fill();
-      }
-
-      MILESTONE_T.forEach(t => {
-        const z = t * PATH_LENGTH, rz = z - camZ;
-        if (rz < 5 || rz > 4000) return;
-        const pi = Math.floor(t * PATH_POINTS);
-        const pp = pathPts[Math.min(pi, pathPts.length - 1)];
-        const pr = project(pp.x, pp.y, pp.z, camZ, W, H);
-        if (!pr) return;
-        const alpha = Math.max(0, Math.min(1, 1 - rz / 3000));
-        jx.beginPath(); jx.arc(pr.x, pr.y, 20 * pr.scale, 0, Math.PI * 2);
-        jx.fillStyle = `rgba(6,93,199,${0.15 * alpha})`; jx.fill();
-        jx.beginPath(); jx.arc(pr.x, pr.y, 6 * pr.scale, 0, Math.PI * 2);
-        jx.fillStyle = `rgba(97,162,254,${0.8 * alpha})`; jx.fill();
-        jx.beginPath(); jx.arc(pr.x, pr.y, 3 * pr.scale, 0, Math.PI * 2);
-        jx.fillStyle = `rgba(255,255,255,${0.9 * alpha})`; jx.fill();
-      });
-
-      const fadeH = H * 0.42;
-      const erase = jx.createLinearGradient(0, 0, 0, fadeH);
-      erase.addColorStop(0,    "rgba(0,0,0,1)");
-      erase.addColorStop(0.65, "rgba(0,0,0,0.5)");
-      erase.addColorStop(1,    "rgba(0,0,0,0)");
-      jx.globalCompositeOperation = "destination-out";
-      jx.fillStyle = erase; jx.fillRect(0, 0, W, fadeH);
-      jx.globalCompositeOperation = "source-over";
-    }
-
-    function updateCards(camZ: number, W: number, H: number) {
-      if (camZ <= 0) {
-        milestones.forEach((_, i) => {
-          const el = cardRefs.current[i];
-          if (el) { el.style.opacity = "0"; el.style.pointerEvents = "none"; }
-        });
-        return;
-      }
-      milestones.forEach((m, idx) => {
-        const el = cardRefs.current[idx]; if (!el) return;
-        const t  = MILESTONE_T[idx];
-        const z  = t * PATH_LENGTH, rz = z - camZ;
-        const pi = Math.floor(t * PATH_POINTS);
-        const pp = pathPts[Math.min(pi, pathPts.length - 1)];
-        const sideScale = W < 640 ? 0.12 : 1;
-        const pr = project(pp.x + m.side * 100 * sideScale, pp.y - 30, pp.z, camZ, W, H);
-
-        if (!pr || rz < -300 || rz > 5000) { el.style.opacity = "0"; el.style.pointerEvents = "none"; return; }
-
-        // Alpha: next card visible at ~45% when on current; fades out after passing
-        let alpha: number;
-        if (rz < 0)         alpha = Math.max(0, 1 + rz / 250);
-        else if (rz < 400)  alpha = 1;
-        else if (rz < 2500) alpha = 1 - (rz - 400) / 2100;
-        else                alpha = 0;
-
-        // Subtle depth scale: 0.70 far → 1.0 close
-        const depthScale = rz <= 0 ? 1.0 : 0.7 + 0.3 * Math.max(0, 1 - rz / 2000);
-
-        // Y: 40% projected + 60% screen-center keeps card readable while feeling 3D
-        const cardY = pr.y * 0.4 + H * 0.5 * 0.6;
-
-        const cardW = Math.min(580, W * 0.9);
-        const clampedX = Math.max(cardW / 2 + 8, Math.min(W - cardW / 2 - 8, pr.x));
-
-        el.style.opacity       = alpha.toFixed(3);
-        el.style.left          = clampedX + "px";
-        el.style.top           = cardY + "px";
-        el.style.transform     = `translate(-50%,-50%) scale(${depthScale.toFixed(3)})`;
-        el.style.pointerEvents = alpha > 0.5 ? "auto" : "none";
-      });
-    }
-
-    // Particles
-    const particles = Array.from({ length: 120 }, () => ({
-      x: Math.random() * 2 - 1, y: Math.random() * 2 - 1, z: Math.random() * 3 + 0.1,
-      sp: 0.002 + Math.random() * 0.006, sz: 0.5 + Math.random() * 1.5, br: 0.2 + Math.random() * 0.6,
-    }));
-    let sSpeed = 0;
-
-    function drawParticles() {
-      const W = pCanvas!.width, H = pCanvas!.height, cx = W / 2, cy = H / 2;
-      px.clearRect(0, 0, W, H);
-      particles.forEach(p => {
-        p.z -= p.sp * (1 + sSpeed * 8);
-        if (p.z <= 0.05) { p.z = 3; p.x = Math.random() * 2 - 1; p.y = Math.random() * 2 - 1; }
-        const sc = 500 / p.z, sx = cx + p.x * sc, sy = cy + p.y * sc, r = p.sz * (1 / p.z) * 0.6;
-        if (sx < -10 || sx > W + 10 || sy < -10 || sy > H + 10) return;
-        const a = p.br * Math.min(1, (3 - p.z) / 2) * Math.min(1, p.z * 1.5);
-        px.beginPath(); px.arc(sx, sy, Math.max(0.3, r), 0, Math.PI * 2);
-        px.fillStyle = `rgba(200,220,248,${a})`; px.fill();
-      });
-      animFrameRef.current = requestAnimationFrame(drawParticles);
-    }
-    drawParticles();
-
-    // Scroll handler
-    let lastST = 0;
-    function update() {
-      const st      = scrollEl.scrollTop;
-      const maxST   = TOTAL_SCROLL - window.innerHeight;
-      const progress = Math.min(st / maxST, 1);
-      const W = window.innerWidth, H = window.innerHeight;
-      sSpeed = Math.min(Math.abs(st - lastST) / 30, 1);
-      lastST = st;
-
-      // Hero fade
-      if (st < HERO_END) {
-        hero!.style.opacity = (1 - st / HERO_END).toFixed(3);
-        hero!.style.display = "";
-      } else {
-        hero!.style.opacity = "0";
-        hero!.style.display = "none";
-      }
-
-      // Camera along path
-      const pathMax  = maxST - HERO_END;
-      const camZ     = Math.min(Math.max(0, st - HERO_END) / pathMax, 1) * PATH_LENGTH;
-      drawPath3D(camZ, W, H);
-      updateCards(camZ, W, H);
-
-      // Progress dots
-      const ai = Math.min(Math.round(progress * 9), 9);
-      dotRefs.current.forEach((d, i) => {
-        if (!d) return;
-        if (i < ai)       { d.style.background = "#065DC7"; d.style.borderColor = "#065DC7"; d.style.boxShadow = ""; }
-        else if (i === ai){ d.style.background = "#61A2FE"; d.style.borderColor = "#61A2FE"; d.style.boxShadow = "0 0 8px rgba(97,162,254,0.5)"; }
-        else              { d.style.background = "rgba(97,162,254,0.1)"; d.style.borderColor = "rgba(97,162,254,0.12)"; d.style.boxShadow = ""; }
-      });
-
-      // Uni logos
-      const logoRaw = st - (maxST - 500);
-      uniLabel!.style.opacity = Math.max(0, Math.min(logoRaw / 200, 1)).toFixed(3);
-      uniNodeRefs.current.forEach((node, i) => {
-        if (!node) return;
-        node.style.opacity = Math.max(0, Math.min((logoRaw - 80 - i * 60) / 240, 1)).toFixed(3);
-      });
-      const slideP = Math.max(0, Math.min((logoRaw - 700) / 400, 1));
-      uniLogos!.style.transform = `translateY(${(-slideP * 100).toFixed(2)}vh)`;
-
-      const sceneA = logoRaw < 500 ? 1 : Math.max(0, 1 - (logoRaw - 500) / 300);
-      jCanvas!.style.opacity = sceneA.toFixed(3);
-      pCanvas!.style.opacity = sceneA.toFixed(3);
-    }
-
-    scrollEl.addEventListener("scroll", update, { passive: true });
-    const speedTick = setInterval(() => { sSpeed *= 0.85; }, 60);
-    update();
-
-    function onResize() { resize(); update(); }
+    const onResize = () => setIsMobile(window.innerWidth < 620);
     window.addEventListener("resize", onResize);
-
-    return () => {
-      scrollEl.removeEventListener("scroll", update);
-      window.removeEventListener("resize", onResize);
-      clearInterval(speedTick);
-      cancelAnimationFrame(animFrameRef.current);
-    };
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const scrollToSection = (id: string) => {
-    const container = scrollRef.current;
-    const el = document.getElementById(id);
-    if (container && el) {
-      const elRect        = el.getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
-      container.scrollTo({ top: container.scrollTop + (elRect.top - containerRect.top), behavior: "smooth" });
-    }
-    setMobileOpen(false);
-  };
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (!paused.current && !drag.current) setActive(a => (a + 1) % n);
+    }, 2600);
+    return () => clearInterval(id);
+  }, [n, tick]);
 
-  const navLinkStyle: React.CSSProperties = {
-    fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.6)",
-    background: "none", border: "none", cursor: "pointer",
-    letterSpacing: "0.6px", fontFamily: "'Outfit', sans-serif", padding: 0,
+  const goTo = (i: number) => { setActive((i + n) % n); setTick(t => t + 1); };
+
+  const cardStyle = (i: number): React.CSSProperties => {
+    let d = i - active;
+    if (d > n / 2) d -= n;
+    if (d < -n / 2) d += n;
+    const ad = Math.abs(d);
+    const x = d * (isMobile ? 145 : 190);
+    return {
+      transform: `translateX(${x}px) translateZ(${-ad * 90}px) rotateY(${d * -6}deg) scale(${1 - ad * 0.12})`,
+      zIndex: 50 - ad,
+      opacity: ad > 2 ? 0 : 1,
+      filter: ad === 0 ? "brightness(1.07)" : "brightness(.66)",
+    };
   };
 
   return (
-    <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", background: "#040B2B", fontFamily: "'Outfit', sans-serif", color: "#fff", overflow: "hidden" }}>
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes bob  { 0%,100%{transform:translate(-50%,-50%) translateY(0)} 50%{transform:translate(-50%,-50%) translateY(-14px)} }
-        @keyframes ms   { 0%{opacity:1;transform:translateX(-50%) translateY(0)} 100%{opacity:0;transform:translateX(-50%) translateY(10px)} }
-        @keyframes orb1 { 0%,100%{transform:scale(1);opacity:0.18} 50%{transform:scale(1.25);opacity:0.32} }
-        @keyframes orb2 { 0%,100%{transform:scale(1.1);opacity:0.12} 50%{transform:scale(0.85);opacity:0.22} }
-        @keyframes orb3 { 0%,100%{transform:scale(0.9);opacity:0.10} 50%{transform:scale(1.15);opacity:0.20} }
-.nav-link-hover:hover { color:#fff !important; }
-        .cta-btn-hover:hover  { transform:scale(1.05); box-shadow:0 4px 24px rgba(6,93,199,0.5); }
-        .scroll-dot { animation:ms 1.8s infinite; }
-      ` }} />
-
-      {/* ── Pulsing gradient orbs ── */}
-      <div style={{ position:"fixed",top:0,left:0,width:"100vw",height:"100vh",zIndex:1,pointerEvents:"none",overflow:"hidden" }}>
-        <div style={{ position:"absolute",top:"-10%",left:"-5%",width:"55vw",height:"55vw",borderRadius:"50%",background:"radial-gradient(circle,rgba(97,162,254,0.22) 0%,transparent 65%)",animation:"orb1 8s ease-in-out infinite" }} />
-        <div style={{ position:"absolute",bottom:"-15%",right:"-8%",width:"60vw",height:"60vw",borderRadius:"50%",background:"radial-gradient(circle,rgba(6,93,199,0.28) 0%,transparent 65%)",animation:"orb2 11s ease-in-out infinite",animationDelay:"3s" }} />
-        <div style={{ position:"absolute",top:"35%",left:"55%",width:"38vw",height:"38vw",borderRadius:"50%",background:"radial-gradient(circle,rgba(97,162,254,0.14) 0%,transparent 65%)",animation:"orb3 14s ease-in-out infinite",animationDelay:"6s" }} />
+    <section className="scholarship-showcase" id="stories">
+      <div className="op-shell sch-head">
+        <div className="op-eyebrow">Student outcomes</div>
+        <h2>Our top students secured scholarships that changed what was possible.</h2>
       </div>
-
-      {/* ── Canvases ── */}
-      <canvas ref={particleRef} style={{ position:"fixed",top:0,left:0,width:"100%",height:"100%",zIndex:2,pointerEvents:"none" }} />
-      <canvas ref={pathRef}     style={{ position:"fixed",top:0,left:0,width:"100%",height:"100%",zIndex:4,pointerEvents:"none" }} />
-
-
-      {/* ── Navbar ── */}
-      <nav style={{ position:"fixed",top:0,left:0,width:"100%",zIndex:100,padding:"24px 48px",display:"flex",justifyContent:"space-between",alignItems:"center",background:"rgba(4,11,43,0.82)",backdropFilter:"blur(16px)",WebkitBackdropFilter:"blur(16px)",borderBottom:"1px solid rgba(97,162,254,0.08)" }}>
-        <Link to="/" style={{ display:"flex",alignItems:"center" }}>
-          <img src={logoWhite} alt="OnePercent Abroad" style={{ height:36,width:"auto" }} />
-        </Link>
-        <div className="hidden md:flex" style={{ gap:32,alignItems:"center" }}>
-          {[
-            { label:"Services",     action: () => scrollToSection("services") },
-            { label:"How it Works", action: () => scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }) },
-            { label:"Testimonials", action: () => scrollToSection("testimonials") },
-            { label:"FAQ",          action: () => scrollToSection("faq") },
-          ].map(item => (
-            <button key={item.label} onClick={item.action} className="nav-link-hover" style={navLinkStyle}>{item.label}</button>
-          ))}
-          <Link to="/blog"   className="nav-link-hover" style={{ ...navLinkStyle, textDecoration:"none" }}>Updates</Link>
-          <Link to="/hiring" className="nav-link-hover" style={{ ...navLinkStyle, textDecoration:"none" }}>Careers</Link>
-          <Link to="/get-started" className="cta-btn-hover" style={{ background:"#065DC7",color:"#fff",padding:"10px 28px",borderRadius:50,fontSize:13,fontWeight:600,textDecoration:"none",transition:"transform 0.2s,box-shadow 0.3s",display:"inline-block" }}>
-            Start Your Journey
-          </Link>
-        </div>
-        <button className="flex md:hidden" onClick={() => setMobileOpen(o => !o)} style={{ background:"none",border:"none",cursor:"pointer",color:"#fff",padding:4 }} aria-label="Menu">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            {mobileOpen ? <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></> : <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>}
-          </svg>
-        </button>
-      </nav>
-
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <div style={{ position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(4,11,43,0.97)",zIndex:99,display:"flex",flexDirection:"column",padding:"100px 32px 32px",gap:28 }}>
-          {[
-            { label:"Services",     action: () => scrollToSection("services") },
-            { label:"How it Works", action: () => { scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }); setMobileOpen(false); } },
-            { label:"Testimonials", action: () => scrollToSection("testimonials") },
-            { label:"FAQ",          action: () => scrollToSection("faq") },
-          ].map(item => (
-            <button key={item.label} onClick={item.action} style={{ ...navLinkStyle, fontSize:18, color:"#fff", textAlign:"left" }}>{item.label}</button>
-          ))}
-          <Link to="/blog"   onClick={() => setMobileOpen(false)} style={{ fontSize:18,color:"#fff",textDecoration:"none" }}>Updates</Link>
-          <Link to="/hiring" onClick={() => setMobileOpen(false)} style={{ fontSize:18,color:"#fff",textDecoration:"none" }}>Careers</Link>
-          <Link to="/get-started" onClick={() => setMobileOpen(false)} style={{ background:"#065DC7",color:"#fff",padding:"14px 32px",borderRadius:50,fontSize:15,fontWeight:600,textDecoration:"none",display:"inline-block",textAlign:"center",marginTop:8 }}>
-            Start Your Journey
-          </Link>
-        </div>
-      )}
-
-      {/* ── Progress dots ── */}
-      <div className="hidden md:flex" style={{ position:"fixed",right:24,top:"50%",transform:"translateY(-50%)",zIndex:100,flexDirection:"column",gap:8 }}>
-        {Array.from({ length: 10 }).map((_, i) => (
-          <div key={i} ref={el => { dotRefs.current[i] = el; }} style={{ width:7,height:7,borderRadius:"50%",background:"rgba(97,162,254,0.1)",border:"1px solid rgba(97,162,254,0.12)",transition:"all 0.4s" }} />
+      <div
+        className="coverflow"
+        onMouseEnter={() => { paused.current = true; }}
+        onMouseLeave={() => { paused.current = false; }}
+        onPointerDown={e => { drag.current = { start: e.clientX, last: e.clientX }; }}
+        onPointerMove={e => { if (drag.current) drag.current.last = e.clientX; }}
+        onPointerUp={() => {
+          const d = drag.current; drag.current = null;
+          if (d && Math.abs(d.last - d.start) > 35) goTo(active + (d.last < d.start ? 1 : -1));
+        }}
+        onPointerCancel={() => { drag.current = null; }}
+      >
+        {megaStudents.map((s, i) => (
+          <article key={s.name} className="sch-card" style={cardStyle(i)} onClick={() => goTo(i)}>
+            <img className="bgimg" src={s.image} alt={s.name} loading={i < 3 ? "eager" : "lazy"} draggable={false} />
+            <div className="sch-card-content">
+              <span className="badge">{s.badge}</span>
+              <h3>{s.name}</h3>
+              <div className="outcome">{s.outcome}</div>
+              <p>{s.detail}</p>
+            </div>
+          </article>
         ))}
       </div>
+      <div className="sch-controls">
+        <button className="circle-btn" aria-label="Previous student" onClick={() => goTo(active - 1)}>←</button>
+        <button className="circle-btn" aria-label="Next student" onClick={() => goTo(active + 1)}>→</button>
+      </div>
+    </section>
+  );
+};
 
-      {/* ── Hero ── */}
-      <div ref={heroRef} style={{ position:"fixed",top:0,left:0,width:"100vw",height:"100vh",zIndex:10,transition:"opacity 0.5s",pointerEvents:"none" }}>
-        <div style={{ position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center",width:"min(720px, calc(100vw - 48px))",padding:"0 24px" }}>
-          <h1 style={{ fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(44px,7.5vw,88px)",fontWeight:600,lineHeight:1.05,margin:"0 0 20px",letterSpacing:"-0.5px" }}>
-            Your path to top <em style={{ fontStyle:"italic",fontWeight:700,color:"#61A2FE",fontSize:"1.08em" }}>1%</em> universities abroad
-          </h1>
-          <p style={{ fontSize:"clamp(14px,1.8vw,17px)",color:"rgba(255,255,255,0.6)",lineHeight:1.7,maxWidth:480,margin:"0 auto 48px" }}>
-            Personalized mentorship guiding ambitious students from aspiration to acceptance at the world's most prestigious universities.
-          </p>
-          <div style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:10 }}>
-            <span style={{ fontSize:10,letterSpacing:3,textTransform:"uppercase",color:"rgba(255,255,255,0.3)" }}>Scroll to explore</span>
-            <div style={{ width:22,height:34,border:"1.5px solid rgba(255,255,255,0.3)",borderRadius:11,position:"relative" }}>
-              <div className="scroll-dot" style={{ width:3,height:7,background:"#61A2FE",borderRadius:2,position:"absolute",top:7,left:"50%",transform:"translateX(-50%)" }} />
+const Journey = () => {
+  const boxRef = useRef<HTMLDivElement>(null);
+  const pathRef = useRef<SVGPathElement>(null);
+  const [progress, setProgress] = useState(0);
+
+  const update = useCallback(() => {
+    const box = boxRef.current, path = pathRef.current;
+    if (!box || !path) return;
+    const rect = box.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const start = vh * 0.72;
+    const end = vh * 0.35 - rect.height;
+    const p = Math.max(0, Math.min(1, (start - rect.top) / (start - end)));
+    const len = path.getTotalLength();
+    path.style.strokeDasharray = `${len}`;
+    path.style.strokeDashoffset = `${len * (1 - p)}`;
+    setProgress(p);
+  }, []);
+
+  useEffect(() => {
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => { update(); ticking = false; });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    update();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [update]);
+
+  return (
+    <section className="section journey-sec" id="journey">
+      <div className="op-shell">
+        <div className="section-head">
+          <div className="op-eyebrow">The 1% journey</div>
+          <h2>We don’t start with applications. We start with your profile.</h2>
+        </div>
+        <div className="journey" ref={boxRef}>
+          <svg className="pathsvg" viewBox="0 0 940 930" preserveAspectRatio="none" aria-hidden>
+            <defs>
+              <linearGradient id="opJourneyGradient" x1="0" y1="0" x2="1" y2="1">
+                <stop stopColor="#61A2FE" /><stop offset=".6" stopColor="#065DC7" /><stop offset="1" stopColor="#010F70" />
+              </linearGradient>
+            </defs>
+            <path className="basepath" d={JOURNEY_PATH} />
+            <path className="activepath" ref={pathRef} d={JOURNEY_PATH} />
+          </svg>
+          {journeySteps.map((s, i) => (
+            <div key={s.title} className={`j-node j${i + 1} ${progress >= s.threshold ? "active" : ""}`}>
+              <div className="j-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor">{s.icon}</svg></div>
+              <div><h3>{s.title}</h3><small>{s.note}</small></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const Index = () => {
+  const { hash } = useLocation();
+
+  // Scroll to in-page anchors (e.g. /#stories from another page)
+  useEffect(() => {
+    if (!hash) return;
+    const el = document.getElementById(hash.slice(1));
+    if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+  }, [hash]);
+
+  return (
+    <div className="op-site op-home">
+      <SiteNav />
+
+      <header className="op-shell hero">
+        <div className="hero-inner">
+          <div className="op-eyebrow">Admissions mentorship for ambitious Indian students</div>
+          <h1>Build a profile that can go further.</h1>
+          <p>Personalised strategy for Bachelor’s, Master’s, MBA and PhD applicants targeting exceptional universities, scholarships and global opportunities.</p>
+          <div className="hero-actions">
+            <Link className="op-btn primary" to="/get-started">Book a free call ↗</Link>
+            <Link className="op-btn light" to="/services">Explore services</Link>
+          </div>
+        </div>
+      </header>
+
+      <ScholarshipCoverflow />
+
+      <div className="uni-ribbon-wrap" id="universities">
+        <div className="uni-ribbon">
+          <div className="uni-track">
+            <img src="/sop-vault/dbe108eff1e5e378846f61a6b3539fa1.png" alt="Johns Hopkins, Hertie School, Glasgow, CEU, Sheffield, Leeds, Pisa, Keele, Freiburg, Sussex, Europubhealth+, MERGED and ACES STAR logos" />
+            <img src="/sop-vault/dbe108eff1e5e378846f61a6b3539fa1.png" alt="" aria-hidden />
+          </div>
+        </div>
+      </div>
+
+      <section className="section op-shell">
+        <div className="section-head">
+          <div className="op-eyebrow">Choose your goal</div>
+          <h2>What are you aiming for?</h2>
+        </div>
+        <div className="intent-grid">
+          {intents.map(it => (
+            <Link key={it.title} to="/get-started" className="intent">
+              <div className="intent-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">{it.icon}</svg></div>
+              <h3>{it.title}</h3>
+              <span className="go">{it.cta} →</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <Journey />
+
+      <Testimonials />
+
+      <Achievers />
+
+      <section className="section op-shell" id="about">
+        <div className="about">
+          <figure className="about-founder">
+            <div className="about-photo">
+              {founder.photo
+                ? <img src={founder.photo} alt={founder.name} />
+                : <span>{founder.name.split(" ").map(w => w[0]).join("").slice(0, 2)}</span>}
+            </div>
+            <figcaption>
+              <h3>{founder.name}</h3>
+              <small>{founder.title}</small>
+            </figcaption>
+          </figure>
+          <div className="about-copy">
+            <h2>About us</h2>
+            <p>{founder.bio}</p>
+            <p>{vision}</p>
+            <div className="about-stats">
+              {aboutStats.map(s => (
+                <div key={s.label}>
+                  <strong>{s.value}</strong>
+                  <span>{s.label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ── Milestone cards ── */}
-      {milestones.map((m, i) => (
-        <div key={i} ref={el => { cardRefs.current[i] = el; }} style={{ position:"fixed",zIndex:8,opacity:0,pointerEvents:"none",willChange:"transform,opacity",width:"min(580px, 90vw)" }}>
-          <div style={{ padding:"0 8px", textAlign: m.side < 0 ? "right" : "left" }}>
-            <div style={{ fontSize:11,fontWeight:700,letterSpacing:"3px",textTransform:"uppercase",color:"#61A2FE",marginBottom:14,opacity:0.8 }}>{m.step}</div>
-            <div style={{ width:48,height:2,background:"linear-gradient(90deg,#065DC7,#61A2FE)",marginBottom:18,borderRadius:1,marginLeft: m.side < 0 ? "auto" : 0 }} />
-            <h3 style={{ fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(52px,7.5vw,100px)",fontWeight:700,lineHeight:1.0,marginBottom:18,textShadow:"0 0 60px rgba(97,162,254,0.25),0 2px 24px rgba(0,0,0,0.8)" }}>{m.title}</h3>
-            <p style={{ fontSize:"clamp(14px,1.5vw,17px)",color:"rgba(255,255,255,0.5)",lineHeight:1.75,margin:0,maxWidth:400,marginLeft: m.side < 0 ? "auto" : 0,textShadow:"0 1px 12px rgba(0,0,0,0.9)" }}>{m.desc}</p>
+      <section className="section op-shell" id="scholarships">
+        <div className="section-head">
+          <div className="op-eyebrow">Scholarship pathways</div>
+          <h2>Funding your ambition.</h2>
+        </div>
+        <div className="sch-grid">
+          {pathways.map(p => (
+            <Link key={p.title} to={p.to} className="simple-card">
+              <h3>{p.title}</h3>
+              <p>{p.desc}</p>
+              <span className="go">{p.cta} →</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="call" id="call">
+        <div className="op-shell call-in">
+          <div>
+            <div className="op-eyebrow">First call is free</div>
+            <h2>Start with a conversation.</h2>
+          </div>
+          <div>
+            <p>A senior counsellor understands where you are, where you want to go and what the right next step could be.</p>
+            <Link className="op-btn primary" to="/get-started">Book a free call ↗</Link>
           </div>
         </div>
-      ))}
+      </section>
 
-      {/* ── University logos overlay ── */}
-      <div ref={uniLogosRef} style={{ position:"fixed",top:0,left:0,width:"100vw",height:"100vh",zIndex:9,pointerEvents:"none" }}>
-        <div ref={uniLabelRef} style={{ position:"absolute",top:"70%",left:"50%",transform:"translate(-50%,-180%)",textAlign:"center",opacity:0 }}>
-          <h2 style={{ fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(28px,3.5vw,46px)",fontWeight:600,marginTop:0,lineHeight:1.2 }}>
-            Get accepted into the world's finest <em style={{ fontStyle:"italic",color:"#61A2FE" }}>institutions</em>
-          </h2>
-        </div>
-        {uniNodes.map((node, i) =>
-          (isMobile && node.flag) ? (
-            <div key={i} ref={el => { uniNodeRefs.current[i] = el; }} style={{ display:"none" }} />
-          ) : (
-          <div key={i} ref={el => { uniNodeRefs.current[i] = el; }}
-            style={{ position:"absolute",display:"flex",flexDirection:"column",alignItems:"center",gap:isMobile?6:10,left:isMobile&&node.mobileLeft?node.mobileLeft:node.left,top:isMobile&&node.mobileTop?node.mobileTop:node.top,transform:"translate(-50%,-50%)",opacity:0,animation:`bob ${node.dur} ease-in-out infinite ${node.delay}` }}>
-            <div style={{ width:isMobile?node.size*0.7:node.size,height:isMobile?node.size*0.7:node.size,display:"flex",alignItems:"center",justifyContent:"center",borderRadius:node.flag?"50%":undefined,overflow:node.flag?"hidden":undefined }}>
-              <img src={node.src} alt={node.name} style={{ width:"100%",height:"100%",objectFit:node.flag?"cover":"contain",filter:"drop-shadow(0 0 10px rgba(97,162,254,0.55))" }} />
-            </div>
-          </div>
-          )
-        )}
-      </div>
+      <FAQ />
 
-      {/* ── Main scroll container ── */}
-      <div
-        ref={scrollRef}
-        style={{ position:"fixed",top:0,left:0,width:"100vw",height:"100vh",overflowY:"scroll",overflowX:"hidden",zIndex:50,WebkitOverflowScrolling:"touch" as never }}
-      >
-        <div style={{ height: 6000 }} />
-        <Testimonials />
-        <Achievers />
-        <Services />
-        <FAQ />
-        <NewsletterSection />
-        <Footer />
-      </div>
+      <NewsletterSection />
+
+      <SiteFooter />
+
       <NewsletterPopup />
       <WhatsAppButton />
-      <AmbientPlayer />
     </div>
   );
 };
@@ -512,21 +339,8 @@ const WhatsAppButton = () => {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"
-      style={{
-        position: "fixed",
-        bottom: 28,
-        right: 28,
-        zIndex: 9998,
-        width: 56,
-        height: 56,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        opacity: visible ? 1 : 0,
-        pointerEvents: visible ? "auto" : "none",
-        transition: "opacity 0.8s ease",
-        filter: "drop-shadow(0 4px 12px rgba(37,211,102,0.45))",
-      }}
+      className="wa"
+      style={{ opacity: visible ? 1 : 0, pointerEvents: visible ? "auto" : "none" }}
     >
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 175.216 175.552" width="56" height="56">
         <defs>

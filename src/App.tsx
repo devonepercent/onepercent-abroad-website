@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import Index from "./pages/Index";
+import Services from "./pages/Services";
 import Webinar from "./pages/Webinar";
 import ErasmusWebinarJoin from "./pages/ErasmusWebinarJoin";
 import AdminLogin from "./pages/AdminLogin";
@@ -60,6 +61,7 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Index />} />
+      <Route path="/services" element={<Services />} />
       <Route path="/webinar" element={<Webinar />} />
       <Route path="/erasmus" element={<ErasmusWebinarJoin />} />
       <Route path="/hiring" element={<HiringOverview />} />
