@@ -4,9 +4,8 @@ import "./site.css";
 
 const links = [
   { label: "Services",        to: "/services" },
-  { label: "Scholarships",    to: "/#scholarships" },
-  { label: "Success Stories", to: "/#stories" },
-  { label: "Universities",    to: "/#universities" },
+  { label: "Admit Vault",     to: "/product/sop-vault" },
+  { label: "Erasmus Checker", to: "https://onepercentabroad.com/application/erasmus/tool" },
   { label: "Updates",         to: "/blog" },
   { label: "Careers",         to: "/hiring" },
 ];
@@ -24,7 +23,9 @@ const SiteNav = ({ variant = "light" }: { variant?: "light" | "dark" }) => {
             <img className="op-brand-logo" src={logo} alt="1%abroad" />
           </Link>
           <div className="op-desktop-nav">
-            {links.map(l => (
+            {links.map(l => l.to.startsWith("http") ? (
+              <a key={l.label} href={l.to}>{l.label}</a>
+            ) : (
               <Link key={l.label} to={l.to} className={pathname === l.to ? "active" : undefined}>{l.label}</Link>
             ))}
             <Link className="op-btn primary" to="/get-started">Book a free call</Link>
@@ -39,7 +40,9 @@ const SiteNav = ({ variant = "light" }: { variant?: "light" | "dark" }) => {
       {open && (
         <div className="op-mobile-menu">
           <Link to="/" onClick={() => setOpen(false)}>Home</Link>
-          {links.map(l => (
+          {links.map(l => l.to.startsWith("http") ? (
+            <a key={l.label} href={l.to} onClick={() => setOpen(false)}>{l.label}</a>
+          ) : (
             <Link key={l.label} to={l.to} onClick={() => setOpen(false)}>{l.label}</Link>
           ))}
           <Link className="op-menu-cta" to="/get-started" onClick={() => setOpen(false)}>Book a free call</Link>
