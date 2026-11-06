@@ -55,7 +55,7 @@ const vision = "We provide mentorship to get admission to the top 1% universitie
 
 const aboutStats = [
   { value: "2+",    label: "Years of service" },
-  { value: "300+",  label: "Students mentored" },
+  { value: "200+",  label: "Students mentored" },
 ];
 
 const ScholarshipCoverflow = () => {
