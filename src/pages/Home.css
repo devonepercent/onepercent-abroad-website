@@ -245,7 +245,7 @@
 .op-home .simple-card .go{margin-top:auto;padding-top:16px;color:var(--blue2);font-weight:600}
 
 /* ABOUT / FOUNDER */
-.op-home .about{display:grid;grid-template-columns:.8fr 1.2fr;gap:56px;align-items:center}
+.op-home .about{display:grid;grid-template-columns:300px 1fr;gap:56px;align-items:center}
 .op-home .about-photo{
   aspect-ratio:4/5;border-radius:32px;overflow:hidden;
   background:linear-gradient(160deg,var(--sky),var(--blue2) 55%,var(--blue));
@@ -253,7 +253,7 @@
 }
 .op-home .about-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 15%;filter:grayscale(1)}
 .op-home .about-photo span{color:rgba(255,255,255,.85);font-family:Satoshi,sans-serif;font-weight:700;font-size:96px;letter-spacing:-.05em}
-.op-home .about-founder{margin:0}
+.op-home .about-founder{margin:0;width:300px;max-width:100%}
 .op-home .about-founder figcaption{margin-top:18px}
 .op-home .about-founder h3{font-size:28px;letter-spacing:-.04em;margin:0;color:var(--blue)}
 .op-home .about-founder small{display:block;margin-top:6px;color:var(--blue2);font-weight:600}
@@ -304,7 +304,7 @@
   .op-home .sch-grid{grid-template-columns:1fr 1fr}
   .op-home .call-in{grid-template-columns:1fr}
   .op-home .about{grid-template-columns:1fr;gap:32px}
-  .op-home .about-founder{max-width:380px;width:100%}
+  .op-home .about-founder{width:260px;max-width:100%}
   .op-home .about-copy{order:-1}
   .op-home .story-slide{grid-template-columns:1fr}
   .op-home .story-id{display:grid;grid-template-columns:auto 1fr;align-items:end;gap:18px;justify-content:start}
