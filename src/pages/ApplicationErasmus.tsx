@@ -518,7 +518,12 @@ const FormSection = ({ variant = "section" }: { variant?: "section" | "hero" }) 
           meta_event_id: metaEventId,
         } as never);
       if (insertError) throw insertError;
-      // Ads conversion. Parameterised so the Erasmus campaign can be optimised on
+      // Google Ads conversion: the "Google Ads - Erasmus Lead Conversion" tag in GTM
+      // listens for this exact event name. Only reached once the row is saved.
+      const w = window as unknown as { dataLayer?: unknown[] };
+      w.dataLayer = w.dataLayer || [];
+      w.dataLayer.push({ event: "lead_form_submitted", form_name: "erasmus_free_call" });
+      // Meta Ads conversion. Parameterised so the Erasmus campaign can be optimised on
       // its own custom conversion — /get-started fires a bare Lead on the same pixel.
       trackMetaEvent("Lead", {
         content_name: "Erasmus Callback Request",
