@@ -47,7 +47,7 @@ const pathways = [
 const founder = {
   name: "Irshad M U",
   title: "Founder, OnePercent Abroad",
-  bio: "Irshad M U founded OnePercent Abroad to make personalised mentorship accessible to ambitious students. He helps them prepare strong applications for top universities and scholarships.",
+  bio: "We founded OnePercent Abroad to make personalised mentorship accessible to ambitious students. We help them prepare strong applications for top universities and scholarships.",
   photo: "/images/founder/irshad-mu.jpg",
 };
 
