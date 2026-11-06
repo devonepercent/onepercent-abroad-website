@@ -197,6 +197,38 @@ const Journey = () => {
   );
 };
 
+// Founder photo flips to the brand logo (and back) each time it scrolls into view.
+const FounderFlip = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [flipping, setFlipping] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setFlipping(entry.isIntersecting),
+      { threshold: 0.6 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} className="about-photo">
+      <div className={`about-flip${flipping ? " is-flipping" : ""}`}>
+        <div className="about-face about-front">
+          {founder.photo
+            ? <img src={founder.photo} alt={founder.name} />
+            : <span>{founder.name.split(" ").map(w => w[0]).join("").slice(0, 2)}</span>}
+        </div>
+        <div className="about-face about-back" aria-hidden="true">
+          <img src="/logo-white.png" alt="" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Index = () => {
   const { hash } = useLocation();
 
@@ -259,11 +291,7 @@ const Index = () => {
       <section className="section op-shell" id="about">
         <div className="about">
           <figure className="about-founder">
-            <div className="about-photo">
-              {founder.photo
-                ? <img src={founder.photo} alt={founder.name} />
-                : <span>{founder.name.split(" ").map(w => w[0]).join("").slice(0, 2)}</span>}
-            </div>
+            <FounderFlip />
             <figcaption>
               <h3>{founder.name}</h3>
               <small>{founder.title}</small>
