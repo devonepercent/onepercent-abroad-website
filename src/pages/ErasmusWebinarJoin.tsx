@@ -3,24 +3,11 @@ import { Link } from "react-router-dom";
 import logoWhite from "@/assets/logo-white.png";
 import { supabase } from "@/integrations/supabase/client";
 import { trackMetaEvent } from "@/lib/metaPixel";
+import CountryCodeSelect from "@/components/CountryCodeSelect";
 
 const WEBINAR_NAME = "Erasmus Mundus Webinar (18 September 2026)";
 const JOIN_URL = "https://meet.google.com/bba-tewz-jpq";
 
-const COUNTRY_CODES = [
-  "+91",
-  "+1",
-  "+44",
-  "+61",
-  "+49",
-  "+33",
-  "+971",
-  "+65",
-  "+60",
-  "+977",
-  "+94",
-  "+880",
-];
 
 const ErasmusWebinarJoin = () => {
   const [name, setName] = useState("");
@@ -143,18 +130,12 @@ const ErasmusWebinarJoin = () => {
                 WhatsApp number
               </label>
               <div className="flex gap-2">
-                <select
+                <CountryCodeSelect
                   value={countryCode}
-                  onChange={(event) => setCountryCode(event.target.value)}
-                  aria-label="Country code"
-                  className="w-24 shrink-0 rounded-xl border border-white/10 bg-[#141414] px-3 py-3.5 text-base text-white outline-none transition focus:border-[#E8B44A] focus:ring-2 focus:ring-[#E8B44A]/20"
-                >
-                  {COUNTRY_CODES.map((code) => (
-                    <option key={code} value={code}>
-                      {code}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setCountryCode}
+                  variant="dark"
+                  className="w-[108px] rounded-xl border border-white/10 bg-[#141414] px-3 py-3.5 text-base text-white transition focus:border-[#E8B44A] focus:ring-2 focus:ring-[#E8B44A]/20"
+                />
                 <input
                   id="erasmus-join-phone"
                   type="tel"

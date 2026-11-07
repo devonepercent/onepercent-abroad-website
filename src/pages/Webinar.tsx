@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { trackMetaEvent } from "@/lib/metaPixel";
 import logoWhite from "@/assets/logo-white.png";
 import Footer from "@/components/Footer";
+import CountryCodeSelect from "@/components/CountryCodeSelect";
 
 const WEBINAR_NAME = "Erasmus Mundus Webinar (18 September 2026)";
 const JOIN_URL = "https://meet.google.com/bba-tewz-jpq";
@@ -19,20 +20,6 @@ const CALENDAR_URL = `https://calendar.google.com/calendar/render?${new URLSearc
   location: JOIN_URL,
 }).toString()}`;
 
-const COUNTRY_CODES = [
-  { code: "+91", label: "🇮🇳 +91" },
-  { code: "+1", label: "🇺🇸 +1" },
-  { code: "+44", label: "🇬🇧 +44" },
-  { code: "+61", label: "🇦🇺 +61" },
-  { code: "+49", label: "🇩🇪 +49" },
-  { code: "+33", label: "🇫🇷 +33" },
-  { code: "+971", label: "🇦🇪 +971" },
-  { code: "+65", label: "🇸🇬 +65" },
-  { code: "+60", label: "🇲🇾 +60" },
-  { code: "+977", label: "🇳🇵 +977" },
-  { code: "+94", label: "🇱🇰 +94" },
-  { code: "+880", label: "🇧🇩 +880" },
-];
 
 const TOPICS = [
   {
@@ -354,18 +341,12 @@ const Webinar = () => {
                           WhatsApp number
                         </label>
                         <div className="flex gap-2">
-                          <select
+                          <CountryCodeSelect
                             value={countryCode}
-                            onChange={(e) => setCountryCode(e.target.value)}
-                            aria-label="Country code"
-                            className="w-[92px] shrink-0 rounded-xl border border-[#242424] bg-[#141414] px-2 py-3.5 text-[14px] text-white outline-none transition focus:border-[#E8B44A] focus:ring-2 focus:ring-[#E8B44A]/20"
-                          >
-                            {COUNTRY_CODES.map((cc) => (
-                              <option key={cc.code} value={cc.code} className="bg-[#141414]">
-                                {cc.label}
-                              </option>
-                            ))}
-                          </select>
+                            onChange={setCountryCode}
+                            variant="dark"
+                            className="w-[104px] rounded-xl border border-[#242424] bg-[#141414] px-2.5 py-3.5 text-[14px] text-white transition focus:border-[#E8B44A] focus:ring-2 focus:ring-[#E8B44A]/20"
+                          />
                           <input
                             id="webinar-phone"
                             type="tel"

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { initMetaPixel, trackMetaEvent, getMetaMatchData } from "@/lib/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
+import CountryCodeSelect from "@/components/CountryCodeSelect";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, Check, Loader2 } from "lucide-react";
 import { INDIAN_CITIES, INDIAN_STATES } from "@/lib/indianLocations";
@@ -24,20 +25,6 @@ const POPULAR_COURSES = [
   "Psychology", "Public Health", "Biotechnology", "Architecture",
   "Design", "Law / LLM", "Media & Communications", "Hospitality Management",
   "Environmental Science", "Mathematics", "Physics", "Chemistry",
-];
-const COUNTRY_CODES = [
-  { code: "+91", label: "🇮🇳 +91" },
-  { code: "+1", label: "🇺🇸 +1" },
-  { code: "+44", label: "🇬🇧 +44" },
-  { code: "+61", label: "🇦🇺 +61" },
-  { code: "+49", label: "🇩🇪 +49" },
-  { code: "+33", label: "🇫🇷 +33" },
-  { code: "+971", label: "🇦🇪 +971" },
-  { code: "+65", label: "🇸🇬 +65" },
-  { code: "+60", label: "🇲🇾 +60" },
-  { code: "+977", label: "🇳🇵 +977" },
-  { code: "+94", label: "🇱🇰 +94" },
-  { code: "+880", label: "🇧🇩 +880" },
 ];
 
 type FormData = {
@@ -504,15 +491,11 @@ const LeadForm = () => {
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1.5 block">Phone Number</label>
                   <div className="flex gap-2">
-                    <select
+                    <CountryCodeSelect
                       value={form.countryCode}
-                      onChange={(e) => setForm((p) => ({ ...p, countryCode: e.target.value }))}
-                      className="h-10 rounded-full border border-input bg-background px-3 text-sm min-w-[100px]"
-                    >
-                      {COUNTRY_CODES.map((cc) => (
-                        <option key={cc.code} value={cc.code}>{cc.label}</option>
-                      ))}
-                    </select>
+                      onChange={(code) => setForm((p) => ({ ...p, countryCode: code }))}
+                      className="h-10 rounded-full border border-input bg-background px-3 text-sm min-w-[110px] focus-visible:ring-2 focus-visible:ring-ring"
+                    />
                     <Input
                       type="tel"
                       placeholder="Phone number"
